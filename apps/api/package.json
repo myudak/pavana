@@ -1,0 +1,29 @@
+{
+  "name": "@pavana/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pavana HTTP API (Fastify). Fixture-first; live providers behind interfaces.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "lint": "eslint src test",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.3.1",
+    "@pavana/shared": "workspace:*",
+    "fastify": "^5.12.7",
+    "zod": "^4.6.7",
+    "@fastify/rate-limit": "^10.3.0"
+  },
+  "devDependencies": {
+    "@pavana/tsconfig": "workspace:*",
+    "@types/node": "^22.20.5",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "vitest": "^3.2.7"
+  }
+}
