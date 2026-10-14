@@ -1,0 +1,66 @@
+/*
+ * Tailwind v4 mapping of Pavana tokens → utilities (bg-canvas, text-ink, bg-primary-strong, …).
+ * Import AFTER `tailwindcss` and `tokens.css`:
+ *
+ *   @import 'tailwindcss';
+ *   @import '@pavana/brand/tokens.css';
+ *   @import '@pavana/brand/theme.css';
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --color-canvas: var(--pv-canvas);
+  --color-surface: var(--pv-surface);
+  --color-surface-muted: var(--pv-surface-muted);
+  --color-border: var(--pv-border);
+  --color-ink: var(--pv-ink);
+  --color-ink-muted: var(--pv-ink-muted);
+  --color-primary: var(--pv-primary);
+  --color-primary-strong: var(--pv-primary-strong);
+  --color-primary-soft: var(--pv-primary-soft);
+  --color-on-primary: var(--pv-on-primary);
+  --color-accent: var(--pv-accent);
+  --color-accent-soft: var(--pv-accent-soft);
+  --color-ring: var(--pv-ring);
+
+  --color-aq-good: var(--pv-aq-good);
+  --color-aq-moderate: var(--pv-aq-moderate);
+  --color-aq-usg: var(--pv-aq-usg);
+  --color-aq-unhealthy: var(--pv-aq-unhealthy);
+  --color-aq-very-unhealthy: var(--pv-aq-very-unhealthy);
+  --color-aq-hazardous: var(--pv-aq-hazardous);
+  --color-aq-unknown: var(--pv-aq-unknown);
+
+  --color-state-demo: var(--pv-state-demo);
+  --color-state-stale: var(--pv-state-stale);
+  --color-state-error: var(--pv-state-error);
+
+  --font-display: var(--pv-font-display);
+  --font-sans: var(--pv-font-body);
+
+  --radius-card: var(--pv-radius);
+}
+
+@layer base {
+  html {
+    background-color: var(--pv-canvas);
+    color: var(--pv-ink);
+    font-family: var(--pv-font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--pv-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

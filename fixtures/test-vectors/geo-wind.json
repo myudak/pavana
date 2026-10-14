@@ -1,0 +1,61 @@
+{
+  "$comment": "Shared math test vectors. Consumed by packages/shared (Vitest) AND ml/tests (pytest) so the TS API and Python ML features cannot drift. Expected values are hand-derivable; tolerance is absolute.",
+  "tolerance": 1e-3,
+  "haversineKm": [
+    { "a": { "lat": 0, "lon": 0 }, "b": { "lat": 0, "lon": 1 }, "expected": 111.19508 },
+    { "a": { "lat": 0, "lon": 0 }, "b": { "lat": 1, "lon": 0 }, "expected": 111.19508 },
+    { "a": { "lat": -0.1, "lon": 109.4 }, "b": { "lat": -0.1, "lon": 109.4 }, "expected": 0 }
+  ],
+  "windFlowBearing": [
+    { "fromDeg": 270, "expectedToDeg": 90, "expectedUnit": { "east": 1, "north": 0 } },
+    { "fromDeg": 0, "expectedToDeg": 180, "expectedUnit": { "east": 0, "north": -1 } },
+    { "fromDeg": 90, "expectedToDeg": 270, "expectedUnit": { "east": -1, "north": 0 } },
+    { "fromDeg": 180, "expectedToDeg": 0, "expectedUnit": { "east": 0, "north": 1 } },
+    { "fromDeg": 135, "expectedToDeg": 315, "expectedUnit": { "east": -0.70711, "north": 0.70711 } }
+  ],
+  "upwindScore": {
+    "params": { "lambdaKm": 50, "tauHours": 24, "maxDistanceKm": 300, "frpFallback": 1 },
+    "cases": [
+      {
+        "name": "west wind, hotspot directly west of target -> fully aligned",
+        "target": { "lat": 0, "lon": 1 },
+        "windFromDeg": 270,
+        "hotspots": [{ "lat": 0, "lon": 0, "frpMw": 10, "ageHours": 0 }],
+        "expectedScore": 1.08186,
+        "expectedContributing": 1
+      },
+      {
+        "name": "east wind, hotspot west of target -> blows away, zero",
+        "target": { "lat": 0, "lon": 1 },
+        "windFromDeg": 90,
+        "hotspots": [{ "lat": 0, "lon": 0, "frpMw": 10, "ageHours": 0 }],
+        "expectedScore": 0,
+        "expectedContributing": 0
+      },
+      {
+        "name": "24h-old detection with tau=24h is scaled by e^-1",
+        "target": { "lat": 0, "lon": 1 },
+        "windFromDeg": 270,
+        "hotspots": [{ "lat": 0, "lon": 0, "frpMw": 10, "ageHours": 24 }],
+        "expectedScore": 0.39799,
+        "expectedContributing": 1
+      },
+      {
+        "name": "missing FRP uses fallback weight 1",
+        "target": { "lat": 0, "lon": 1 },
+        "windFromDeg": 270,
+        "hotspots": [{ "lat": 0, "lon": 0, "frpMw": null, "ageHours": 0 }],
+        "expectedScore": 0.10819,
+        "expectedContributing": 1
+      },
+      {
+        "name": "beyond maxDistance is ignored",
+        "target": { "lat": 0, "lon": 5 },
+        "windFromDeg": 270,
+        "hotspots": [{ "lat": 0, "lon": 0, "frpMw": 10, "ageHours": 0 }],
+        "expectedScore": 0,
+        "expectedContributing": 0
+      }
+    ]
+  }
+}

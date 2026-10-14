@@ -1,0 +1,137 @@
+/*
+ * Pavana design tokens — raw CSS variables, framework-agnostic.
+ *
+ *   light (default)  = Ember / Mist
+ *   dark             = Dusk / Haze
+ *   data-palette     = "sky" | "forest" → alternative light palettes from the moodboard
+ *
+ * Theme selection: <html data-theme="light|dark">. With no data-theme set, the
+ * OS preference decides. Components should only use semantic tokens (--pv-*),
+ * never raw hex.
+ *
+ * Contrast: brand fills (--pv-primary) are not always AA for small text, so text /
+ * button backgrounds use --pv-primary-strong.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Ember / Mist */
+  --pv-canvas: #f5f1eb; /* warm cream */
+  --pv-surface: #ffffff;
+  --pv-surface-muted: #faf7f2;
+  --pv-border: #e7e0d6;
+  --pv-ink: #1f2937;
+  --pv-ink-muted: #6b7280; /* smoke gray */
+  --pv-primary: #f97316; /* ember orange — fills, charts, accents */
+  --pv-primary-strong: #c2410c; /* AA on light surfaces — text, buttons */
+  --pv-primary-soft: #ffedd5;
+  --pv-on-primary: #ffffff;
+  --pv-accent: #fca5a5; /* blush */
+  --pv-accent-soft: #fee2e2;
+  --pv-ring: #f97316;
+
+  /* Air-quality category colors. Always pair with a text label (never color-only). */
+  --pv-aq-good: #16a34a;
+  --pv-aq-moderate: #ca8a04;
+  --pv-aq-usg: #ea580c;
+  --pv-aq-unhealthy: #dc2626;
+  --pv-aq-very-unhealthy: #9333ea;
+  --pv-aq-hazardous: #7f1d1d;
+  --pv-aq-unknown: #9ca3af;
+
+  /* Data-state colors */
+  --pv-state-demo: #7c3aed;
+  --pv-state-stale: #b45309;
+  --pv-state-error: #b91c1c;
+
+  --pv-radius: 1rem;
+  --pv-font-display: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --pv-font-body:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Dusk / Haze */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --pv-canvas: #0e1120;
+  --pv-surface: #171b2e;
+  --pv-surface-muted: #1f2440;
+  --pv-border: #2b3152;
+  --pv-ink: #eef0f4;
+  --pv-ink-muted: #9ca3af;
+  --pv-primary: #6366f1; /* indigo */
+  --pv-primary-strong: #818cf8;
+  --pv-primary-soft: #262b5a;
+  --pv-on-primary: #ffffff;
+  --pv-accent: #f472b6; /* haze pink */
+  --pv-accent-soft: #3b2140;
+  --pv-ring: #818cf8;
+
+  --pv-aq-good: #4ade80;
+  --pv-aq-moderate: #facc15;
+  --pv-aq-usg: #fb923c;
+  --pv-aq-unhealthy: #f87171;
+  --pv-aq-very-unhealthy: #c084fc;
+  --pv-aq-hazardous: #fb7185;
+  --pv-aq-unknown: #9ca3af;
+
+  --pv-state-demo: #a78bfa;
+  --pv-state-stale: #fbbf24;
+  --pv-state-error: #f87171;
+}
+
+/* No explicit choice → follow the OS. Keep in sync with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --pv-canvas: #0e1120;
+    --pv-surface: #171b2e;
+    --pv-surface-muted: #1f2440;
+    --pv-border: #2b3152;
+    --pv-ink: #eef0f4;
+    --pv-ink-muted: #9ca3af;
+    --pv-primary: #6366f1;
+    --pv-primary-strong: #818cf8;
+    --pv-primary-soft: #262b5a;
+    --pv-on-primary: #ffffff;
+    --pv-accent: #f472b6;
+    --pv-accent-soft: #3b2140;
+    --pv-ring: #818cf8;
+    --pv-aq-good: #4ade80;
+    --pv-aq-moderate: #facc15;
+    --pv-aq-usg: #fb923c;
+    --pv-aq-unhealthy: #f87171;
+    --pv-aq-very-unhealthy: #c084fc;
+    --pv-aq-hazardous: #fb7185;
+    --pv-aq-unknown: #9ca3af;
+    --pv-state-demo: #a78bfa;
+    --pv-state-stale: #fbbf24;
+    --pv-state-error: #f87171;
+  }
+}
+
+/* Alternative light palettes (explorations from the moodboard). */
+:root[data-palette='sky']:not([data-theme='dark']) {
+  --pv-canvas: #f8fafc;
+  --pv-surface-muted: #f1f5f9;
+  --pv-border: #e2e8f0;
+  --pv-primary: #3b82f6;
+  --pv-primary-strong: #1d4ed8;
+  --pv-primary-soft: #dbeafe;
+  --pv-accent: #14b8a6;
+  --pv-accent-soft: #e0f2f1;
+  --pv-ring: #3b82f6;
+}
+
+:root[data-palette='forest']:not([data-theme='dark']) {
+  --pv-canvas: #f6f7ef;
+  --pv-surface-muted: #eef0e4;
+  --pv-border: #dcdccb;
+  --pv-primary: #2e7d5b;
+  --pv-primary-strong: #23634a;
+  --pv-primary-soft: #dcefe5;
+  --pv-accent: #cbbfa0;
+  --pv-accent-soft: #efe9da;
+  --pv-ring: #2e7d5b;
+}

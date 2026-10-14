@@ -1,0 +1,1102 @@
+{
+  "meta": {
+    "id": "kubu-raya-synthetic-v1",
+    "title": "Kubu Raya — skenario asap ilustratif",
+    "isDemo": true,
+    "synthetic": true,
+    "description": "SYNTHETIC illustrative scenario for demos and tests. Values are generated, not observed. Shaped like a dry-season smoke episode with south-easterly winds. Do not cite as data.",
+    "referenceTime": "2026-09-15T00:00:00Z",
+    "generatedBy": "fixtures/scripts/generate-kubu-raya.mjs"
+  },
+  "location": {
+    "id": "kubu-raya",
+    "name": "Sungai Raya",
+    "admin1": "Kalimantan Barat",
+    "admin2": "Kabupaten Kubu Raya",
+    "country": "ID",
+    "lat": -0.1,
+    "lon": 109.38,
+    "timezone": "Asia/Pontianak"
+  },
+  "hours": [
+    {
+      "validAt": "2026-09-15T00:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 33.9,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T00:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a current estimate."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 2.7,
+        "windDirectionFromDeg": 134,
+        "temperatureC": 25.5,
+        "relativeHumidityPct": 79,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T00:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a current estimate."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T01:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 32.6,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T01:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 2.9,
+        "windDirectionFromDeg": 134,
+        "temperatureC": 26.8,
+        "relativeHumidityPct": 74,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T01:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T02:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 37.3,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T02:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.2,
+        "windDirectionFromDeg": 134,
+        "temperatureC": 28.1,
+        "relativeHumidityPct": 71,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T02:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T03:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 37.8,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T03:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.7,
+        "windDirectionFromDeg": 133,
+        "temperatureC": 29,
+        "relativeHumidityPct": 66,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T03:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T04:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 40.1,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T04:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.6,
+        "windDirectionFromDeg": 141,
+        "temperatureC": 30,
+        "relativeHumidityPct": 64,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T04:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T05:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 47,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T05:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4,
+        "windDirectionFromDeg": 141,
+        "temperatureC": 31.4,
+        "relativeHumidityPct": 59,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T05:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T06:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 59.1,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T06:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4,
+        "windDirectionFromDeg": 145,
+        "temperatureC": 32.1,
+        "relativeHumidityPct": 56,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T06:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T07:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 68.7,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T07:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4,
+        "windDirectionFromDeg": 137,
+        "temperatureC": 32.2,
+        "relativeHumidityPct": 59,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T07:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T08:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 93,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T08:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4,
+        "windDirectionFromDeg": 138,
+        "temperatureC": 31.9,
+        "relativeHumidityPct": 59,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T08:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T09:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 112.8,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T09:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.3,
+        "windDirectionFromDeg": 139,
+        "temperatureC": 31.3,
+        "relativeHumidityPct": 60,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T09:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T10:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 135.4,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T10:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.3,
+        "windDirectionFromDeg": 141,
+        "temperatureC": 30.1,
+        "relativeHumidityPct": 62,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T10:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T11:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 156.1,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T11:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.2,
+        "windDirectionFromDeg": 145,
+        "temperatureC": 29.3,
+        "relativeHumidityPct": 68,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T11:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T12:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 159.9,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T12:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.4,
+        "windDirectionFromDeg": 142,
+        "temperatureC": 28.2,
+        "relativeHumidityPct": 71,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T12:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T13:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 155.1,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T13:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.5,
+        "windDirectionFromDeg": 148,
+        "temperatureC": 26.6,
+        "relativeHumidityPct": 73,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T13:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T14:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 138.8,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T14:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.6,
+        "windDirectionFromDeg": 144,
+        "temperatureC": 25.6,
+        "relativeHumidityPct": 78,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T14:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T15:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 115,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T15:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.3,
+        "windDirectionFromDeg": 152,
+        "temperatureC": 24.3,
+        "relativeHumidityPct": 82,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T15:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T16:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 92.8,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T16:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.3,
+        "windDirectionFromDeg": 151,
+        "temperatureC": 23.4,
+        "relativeHumidityPct": 88,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T16:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T17:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 71.3,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T17:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.5,
+        "windDirectionFromDeg": 146,
+        "temperatureC": 23,
+        "relativeHumidityPct": 91,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T17:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T18:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 56.4,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T18:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.1,
+        "windDirectionFromDeg": 153,
+        "temperatureC": 21.7,
+        "relativeHumidityPct": 93,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T18:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T19:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 48,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T19:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 4.1,
+        "windDirectionFromDeg": 155,
+        "temperatureC": 22,
+        "relativeHumidityPct": 94,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T19:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T20:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 39.1,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T20:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.5,
+        "windDirectionFromDeg": 151,
+        "temperatureC": 22.3,
+        "relativeHumidityPct": 91,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T20:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T21:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 34.9,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T21:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.8,
+        "windDirectionFromDeg": 150,
+        "temperatureC": 22.7,
+        "relativeHumidityPct": 90,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T21:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T22:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 38.7,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T22:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.2,
+        "windDirectionFromDeg": 152,
+        "temperatureC": 23.8,
+        "relativeHumidityPct": 86,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T22:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-15T23:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 34.4,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T23:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 3.4,
+        "windDirectionFromDeg": 155,
+        "temperatureC": 24.8,
+        "relativeHumidityPct": 83,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-15T23:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    },
+    {
+      "validAt": "2026-09-16T00:00:00Z",
+      "airQuality": {
+        "pm25UgM3": 36.2,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-16T00:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      },
+      "weather": {
+        "windSpeedMs": 2.9,
+        "windDirectionFromDeg": 150,
+        "temperatureC": 25.7,
+        "relativeHumidityPct": 78,
+        "precipitationMm": 0,
+        "provenance": {
+          "provider": "pavana-fixture",
+          "kind": "fixture",
+          "fetchedAt": "2026-09-15T00:00:00Z",
+          "issuedAt": "2026-09-15T00:00:00Z",
+          "validAt": "2026-09-16T00:00:00Z",
+          "isDemo": true,
+          "spatialResolutionKm": 10,
+          "notes": "Synthetic demo value — simulates a model forecast."
+        }
+      }
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "fixture-hs-01",
+      "lat": -0.5119,
+      "lon": 109.7949,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 3.3,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-02",
+      "lat": -1.0531,
+      "lon": 109.8729,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 37.3,
+      "confidence": "high",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-03",
+      "lat": -0.6151,
+      "lon": 109.6098,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 39.9,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-04",
+      "lat": -0.581,
+      "lon": 110.2243,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 4.3,
+      "confidence": "low",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-05",
+      "lat": -0.2852,
+      "lon": 109.4614,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 35.8,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-06",
+      "lat": -0.3837,
+      "lon": 109.8249,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": null,
+      "confidence": "high",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-07",
+      "lat": -0.7093,
+      "lon": 109.8918,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 11.1,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-08",
+      "lat": -0.7416,
+      "lon": 109.6922,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 37.4,
+      "confidence": "nominal",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-09",
+      "lat": -0.5642,
+      "lon": 109.7452,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 13.2,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-10",
+      "lat": -0.6103,
+      "lon": 109.7261,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 27.4,
+      "confidence": "nominal",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-11",
+      "lat": -0.3183,
+      "lon": 109.7289,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 25.2,
+      "confidence": "nominal",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-12",
+      "lat": -0.237,
+      "lon": 109.6708,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 23,
+      "confidence": "nominal",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-13",
+      "lat": -0.4242,
+      "lon": 109.9237,
+      "acquiredAt": "2026-09-14T05:30:00Z",
+      "frpMw": 15.2,
+      "confidence": "high",
+      "satellite": "Suomi NPP",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T05:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    },
+    {
+      "id": "fixture-hs-14",
+      "lat": -0.5174,
+      "lon": 109.9046,
+      "acquiredAt": "2026-09-14T18:30:00Z",
+      "frpMw": 8.5,
+      "confidence": "nominal",
+      "satellite": "NOAA-20",
+      "instrument": "VIIRS",
+      "provenance": {
+        "provider": "pavana-fixture",
+        "kind": "fixture",
+        "fetchedAt": "2026-09-15T00:00:00Z",
+        "validAt": "2026-09-14T18:30:00Z",
+        "isDemo": true,
+        "notes": "Synthetic hotspot shaped like a FIRMS VIIRS detection. Not a real fire."
+      }
+    }
+  ]
+}
