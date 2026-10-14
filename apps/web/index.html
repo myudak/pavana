@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Prakiraan kualitas udara dan potensi dampak asap kebakaran, berdasarkan lokasimu."
+    />
+    <meta name="theme-color" content="#F5F1EB" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E1120" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Pavana</title>
+    <script>
+      // Resolve theme before first paint (avoids a flash). Keep in sync with src/lib/theme-context.tsx.
+      (function () {
+        try {
+          var pref = localStorage.getItem('pavana:theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

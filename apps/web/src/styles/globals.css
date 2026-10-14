@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import '@pavana/brand/fonts.css';
+@import '@pavana/brand/tokens.css';
+@import '@pavana/brand/theme.css';
+
+@layer base {
+  body {
+    min-height: 100dvh;
+  }
+}
