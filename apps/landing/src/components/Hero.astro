@@ -1,0 +1,75 @@
+---
+interface Props {
+  appUrl: string;
+}
+const { appUrl } = Astro.props;
+---
+
+<section
+  class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-10 md:grid-cols-2 md:px-8 md:pt-20"
+>
+  <div class="space-y-6">
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-ink-muted">
+      Wildfire &amp; air-quality forecast
+    </p>
+    <h1 class="font-display text-4xl font-medium leading-[1.05] tracking-tight md:text-6xl">
+      Udara lebih jernih.<br />Hari esok lebih aman.
+    </h1>
+    <p class="max-w-lg text-lg text-ink-muted">
+      Pavana menerjemahkan data titik panas satelit, angin, dan prakiraan PM2.5 menjadi satu jawaban
+      sederhana: bagaimana kondisi udara di tempatmu, dan apa yang perlu diperhatikan.
+    </p>
+    <div class="flex flex-wrap gap-3">
+      <a
+        href={appUrl}
+        class="inline-flex h-11 items-center rounded-full bg-primary-strong px-6 font-medium text-on-primary hover:opacity-90"
+      >
+        Buka Pavana
+      </a>
+      <a
+        href="#cara-kerja"
+        class="inline-flex h-11 items-center rounded-full border border-border bg-surface px-6 font-medium hover:bg-surface-muted"
+      >
+        Cara kerjanya
+      </a>
+    </div>
+  </div>
+
+  <!-- Illustrative preview card. Numbers are explicitly labelled as an example. -->
+  <figure class="relative">
+    <div
+      aria-hidden="true"
+      class="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-primary/25 via-accent/20 to-transparent blur-2xl"
+    >
+    </div>
+    <div class="space-y-4 rounded-[2rem] border border-border bg-surface p-6 shadow-xl">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-ink-muted">Sungai Raya, Kubu Raya</span>
+        <span
+          class="rounded-full bg-state-demo/15 px-2.5 py-0.5 text-xs font-medium text-state-demo"
+        >
+          Contoh · data ilustratif
+        </span>
+      </div>
+      <p class="font-display text-2xl font-medium leading-tight">
+        Kualitas udara diperkirakan memburuk sore ini
+      </p>
+      <div class="rounded-2xl bg-aq-unhealthy/15 p-5">
+        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
+          PM2.5 saat ini
+        </p>
+        <p class="mt-1 flex items-baseline gap-2">
+          <span class="font-display text-6xl font-medium tracking-tight">68</span>
+          <span class="text-ink-muted">µg/m³</span>
+        </p>
+        <p class="mt-2 inline-flex items-center gap-2 text-sm font-medium">
+          <span class="size-2.5 rounded-full bg-aq-unhealthy"></span> Tidak sehat
+        </p>
+      </div>
+      <p class="text-xs text-ink-muted">
+        Sumber, jenis data, dan waktu berlaku selalu ditampilkan.
+      </p>
+    </div>
+    <figcaption class="sr-only">Contoh tampilan layar Hari Ini dengan data ilustratif.</figcaption>
+  </figure>
+</section>

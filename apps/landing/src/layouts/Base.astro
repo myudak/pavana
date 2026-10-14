@@ -1,0 +1,44 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Pavana — Prakiraan kualitas udara & asap kebakaran',
+  description = 'Prakiraan kualitas udara dan potensi dampak asap kebakaran, berdasarkan lokasimu.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      // Same preference key as the app; resolves before paint.
+      (() => {
+        let pref = 'system';
+        try {
+          pref = localStorage.getItem('pavana:theme') || 'system';
+        } catch {
+          // storage blocked — fall back to the OS preference
+        }
+        const dark =
+          pref === 'dark' ||
+          (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body class="min-h-dvh bg-canvas text-ink">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "@pavana/landing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pavana marketing / landing site (Astro, static)",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "eslint src",
+    "typecheck": "astro check",
+    "test": "echo \"landing: no tests yet\""
+  },
+  "dependencies": {
+    "@pavana/brand": "workspace:*",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.9.3"
+  }
+}
