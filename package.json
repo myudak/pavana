@@ -1,0 +1,38 @@
+{
+  "name": "pavana",
+  "private": true,
+  "description": "Pavana — wildfire smoke & air-quality forecast for Indonesia",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=@pavana/web --filter=@pavana/api --filter=@pavana/landing",
+    "dev:app": "turbo run dev --filter=@pavana/web --filter=@pavana/api",
+    "dev:landing": "turbo run dev --filter=@pavana/landing",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "ml:setup": "uv sync --project ml",
+    "ml:lab": "uv run --project ml jupyter lab --notebook-dir=ml/notebooks",
+    "ml:test": "uv run --project ml pytest ml/tests"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^16.5.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^0.14.1",
+    "turbo": "^2.11.8",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.2"
+  },
+  "type": "module"
+}

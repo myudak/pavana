@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "astro-build.astro-vscode",
+    "bradlc.vscode-tailwindcss",
+    "charliermarsh.ruff",
+    "ms-toolsai.jupyter"
+  ]
+}

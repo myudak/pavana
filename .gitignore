@@ -1,0 +1,35 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+.astro/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# env
+.env
+.env.*
+!.env.example
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# python / ml
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+ml/data/**/*
+!ml/data/**/.gitkeep
+ml/artifacts/**/*
+!ml/artifacts/.gitkeep

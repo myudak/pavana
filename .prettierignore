@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+dist
+.astro
+.turbo
+coverage
+ml
+docs/PAVANA_HANDOFF.md
