@@ -1,0 +1,48 @@
+[project]
+name = "pavana-ml"
+version = "0.0.1"
+description = "Pavana research workspace: wind-aware short-term PM2.5 prediction (experimental, not operational)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=2.1",
+  "pandas>=2.2",
+  "pyarrow>=17",
+  "scikit-learn>=1.5",
+  "lightgbm>=4.5",
+  "shap>=0.46",
+  "matplotlib>=3.9",
+  "requests>=2.32",
+  "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = [
+  "jupyterlab>=4.2",
+  "ipykernel>=6.29",
+  "nbconvert>=7.16",
+  "nbstripout>=0.8",
+  "pytest>=8.3",
+  "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pavana_ml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "NPY"]
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/*.ipynb" = ["E402"]
