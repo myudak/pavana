@@ -46,7 +46,7 @@ export function HourlyTimeline({
   if (variant === 'strip') {
     const slots = hours.slice(0, 6);
     return (
-      <ol className="flex snap-x overflow-x-auto rounded-[20px] border border-glass-border bg-[var(--pv-glass)] backdrop-blur-[18px] sm:grid sm:grid-cols-6 sm:overflow-visible">
+      <ol className="flex snap-x overflow-x-auto rounded-2xl border border-glass-border bg-glass-hero backdrop-blur-md sm:grid sm:grid-cols-6 sm:overflow-visible dark:[box-shadow:var(--pv-shadow-soft)]">
         {slots.map((h, i) => {
           const pm = h.airQuality.pm25UgM3;
           const cat = categoryOf(pm);
@@ -54,20 +54,20 @@ export function HourlyTimeline({
             <li
               key={h.validAt}
               className={cn(
-                'flex min-w-[104px] flex-1 snap-start flex-col items-center gap-1.5 px-2 py-3 text-center sm:min-w-0',
+                'flex min-w-[104px] flex-1 snap-start flex-col items-center gap-1 px-2 py-2 text-center sm:min-w-0',
                 i > 0 && 'border-l border-hairline',
-                i === 0 && 'rounded-l-[20px] border border-accent/45 bg-accent/15 font-bold dark:[box-shadow:var(--pv-glow-accent)]',
+                i === 0 && 'rounded-l-2xl border border-accent/45 bg-accent/15 font-bold dark:[box-shadow:var(--pv-glow-accent)]',
               )}
             >
-              <span className={cn('text-[15px]', i === 0 ? 'font-bold' : 'text-ink-muted')}>
+              <span className={cn('text-sm', i === 0 ? 'font-bold' : 'text-ink-muted')}>
                 {i === 0 ? t.today.now : formatTime(h.validAt, timeZone)}
               </span>
               <span
-                className={cn('size-[22px] rounded-full', AQ_STYLE[cat].dot)}
+                className={cn('size-[18px] rounded-full', AQ_STYLE[cat].dot)}
                 style={{ boxShadow: `0 0 12px var(${AQ_CSS_VAR[cat]})` }}
                 aria-hidden
               />
-              <span className="text-[21px] font-semibold tabular-nums">{formatNumber(pm)}</span>
+              <span className="text-[19px] font-semibold tabular-nums">{formatNumber(pm)}</span>
               <WindCell
                 ms={h.weather?.windSpeedMs ?? null}
                 fromDeg={h.weather?.windDirectionFromDeg ?? null}

@@ -34,6 +34,10 @@ const MapPreview = lazy(() =>
 const glassCard =
   'border-glass-border bg-[var(--pv-glass)] backdrop-blur-[18px] dark:[box-shadow:var(--pv-shadow-lift)]';
 
+/** Lighter translucent surface for the hero panels — the landscape stays visible. */
+const heroGlass =
+  'border-glass-border bg-glass-hero backdrop-blur-md dark:[box-shadow:var(--pv-shadow-soft)]';
+
 /** "Now → peak" category status for the AQI card's right panel. Null-safe. */
 function ForecastStatus({
   nowCat,
@@ -103,7 +107,7 @@ export function TodayPage() {
         return (
           <div>
             {/* ============ FIRST SCREEN — full-bleed hero ============ */}
-            <section className="relative -mt-16 min-h-[100dvh] overflow-clip lg:-mt-[110px] lg:min-h-[max(100dvh,760px)]">
+            <section className="relative -mt-16 min-h-[100dvh] overflow-clip lg:-mt-[88px] lg:min-h-[max(100dvh,760px)]">
               <DuskBackdrop className="absolute inset-0" />
 
               {/* Demo chip: visible without shifting the hero layout. */}
@@ -111,7 +115,7 @@ export function TodayPage() {
                 <p
                   role="note"
                   title={t.demoBannerDetail}
-                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-[var(--pv-glass)] px-3 py-1.5 text-xs text-ink backdrop-blur-xl md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[122px]"
+                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-glass-hero px-3 py-1.5 text-xs text-ink backdrop-blur-md md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[100px]"
                 >
                   <FlaskConical className="size-3.5 shrink-0" aria-hidden />
                   {t.demoBanner}
@@ -119,7 +123,7 @@ export function TodayPage() {
               )}
 
               <div className="px-[6.25vw]">
-                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-0 lg:pb-[60px] lg:pt-[150px] xl:grid-cols-[minmax(0,59.5%)_minmax(0,1fr)]">
+                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-0 lg:pb-[60px] lg:pt-[132px] xl:grid-cols-[minmax(0,59.5%)_minmax(0,1fr)]">
                   {/* Left column */}
                   <div className="min-w-0">
                     <p className="text-[clamp(1.5rem,2.47vw,2.375rem)] font-light leading-snug text-[var(--pv-hero-lead)]">
@@ -127,7 +131,7 @@ export function TodayPage() {
                     </p>
                     <h1
                       className={cn(
-                        'mt-2.5 text-[clamp(2.125rem,3.78vw,3.625rem)] font-bold leading-[clamp(2.5rem,4.17vw,4rem)] tracking-[-0.02em]',
+                        'mt-2.5 text-[clamp(2.25rem,4.1vw,4rem)] font-bold leading-[clamp(2.6rem,4.5vw,4.35rem)] tracking-[-0.02em]',
                         cat !== 'unknown'
                           ? 'bg-gradient-to-r from-primary-strong to-accent bg-clip-text text-transparent'
                           : 'text-ink-muted',
@@ -135,7 +139,7 @@ export function TodayPage() {
                     >
                       {t.aqCategory[cat]}
                     </h1>
-                    <p className="mt-[22px] max-w-[400px] text-[clamp(1rem,1.3vw,1.25rem)] leading-[30px] text-[var(--pv-hero-sub)]">
+                    <p className="mt-4 max-w-[400px] text-[clamp(1rem,1.3vw,1.25rem)] leading-[30px] text-[var(--pv-hero-sub)]">
                       {heroSub}
                     </p>
 
@@ -143,11 +147,11 @@ export function TodayPage() {
                     <section
                       aria-label={t.today.pm25Label}
                       className={cn(
-                        'mt-[30px] grid overflow-hidden rounded-3xl border md:grid-cols-[63%_minmax(0,1fr)]',
-                        glassCard,
+                        'mt-6 grid overflow-hidden rounded-[20px] border md:grid-cols-[63%_minmax(0,1fr)]',
+                        heroGlass,
                       )}
                     >
-                      <div className="min-w-0 p-5 md:px-6 md:py-5">
+                      <div className="min-w-0 p-4 md:px-5 md:py-4">
                         <p className="text-[18px] text-ink">{t.today.pm25Label}</p>
                         {pm === null ? (
                           <p className="mt-2 text-ink-muted">{t.today.noData}</p>
@@ -192,7 +196,7 @@ export function TodayPage() {
                           </>
                         )}
                       </div>
-                      <div className="min-w-0 border-t border-hairline p-5 md:border-l md:border-t-0 md:px-6 md:py-5">
+                      <div className="min-w-0 border-t border-hairline p-4 md:border-l md:border-t-0 md:px-5 md:py-4">
                         <Link
                           to="/insight"
                           className="flex items-center justify-between gap-2 text-[15px] text-ink hover:opacity-80"
@@ -242,7 +246,7 @@ export function TodayPage() {
                     </div>
                     {forecast.isPending ? (
                       <div
-                        className="h-36 animate-pulse rounded-[20px] border border-glass-border bg-[var(--pv-glass)]"
+                        className="h-36 animate-pulse rounded-2xl border border-glass-border bg-glass-hero"
                         aria-hidden
                       />
                     ) : forecast.isError ? (
@@ -258,12 +262,12 @@ export function TodayPage() {
                     <Link
                       to="/insight"
                       className={cn(
-                        'mt-5 flex min-h-[72px] items-center gap-4 rounded-[18px] border px-4 py-3',
-                        glassCard,
+                        'mt-4 flex min-h-[64px] items-center gap-4 rounded-[18px] border px-4 py-2.5',
+                        heroGlass,
                       )}
                     >
                       <Wind
-                        className="size-10 shrink-0 text-primary-strong"
+                        className="size-9 shrink-0 text-primary-strong"
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">

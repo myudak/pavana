@@ -41,14 +41,14 @@ export function AppShell() {
         )}
       >
         <div className="px-[6.25vw]">
-          <div className="mx-auto flex h-16 w-full max-w-[1344px] items-center justify-between gap-3 lg:h-[110px]">
+          <div className="mx-auto flex h-16 w-full max-w-[1344px] items-center justify-between gap-3 lg:h-[88px]">
             {/* Left: wordmark + divider + brand lines */}
             <div className="flex min-w-0 items-center gap-5">
               <Wordmark
                 className="shrink-0 dark:[filter:drop-shadow(0_0_14px_rgba(244,114,182,0.35))]"
-                wordClassName="text-[1.4rem] lg:text-[54px]"
+                wordClassName="text-[1.4rem] lg:text-[38px]"
               />
-              <div className="hidden h-[46px] w-px shrink-0 bg-white/15 lg:block" aria-hidden />
+              <div className="hidden h-10 w-px shrink-0 bg-white/15 lg:block" aria-hidden />
               <div className="hidden min-w-0 shrink-0 lg:block">
                 <p className="text-[11px] font-medium uppercase leading-tight tracking-[0.2em] text-ink-muted">
                   {t.brand.eyebrow}
