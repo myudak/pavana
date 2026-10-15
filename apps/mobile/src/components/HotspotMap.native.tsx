@@ -1,11 +1,17 @@
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+import Constants from 'expo-constants';
 import MapView, { Marker } from 'react-native-maps';
 import { useSettings } from '../lib/settings';
 import { t } from '../lib/copy';
-import type { HotspotMapProps } from './HotspotMap';
+import CoordinateMap, { type HotspotMapProps } from './CoordinateMap';
 
-export default function HotspotMap({ location, hotspots, onSelect }: HotspotMapProps) {
+export default function HotspotMap(props: HotspotMapProps) {
+  const { location, hotspots, onSelect } = props;
   const { colors, isDark } = useSettings();
+  // Google Maps may crash on Android without API-key metadata. Keep the build usable.
+  if (Platform.OS === 'android' && Constants.expoConfig?.extra?.nativeMapsEnabled !== true) {
+    return <CoordinateMap {...props} note={t.mobile.mapNotConfigured} />;
+  }
   return (
     <View
       style={{

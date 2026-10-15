@@ -40,6 +40,8 @@ export const id = {
     confidence: { low: 'Rendah', nominal: 'Nominal', high: 'Tinggi' },
     powerUnit: 'MW',
     mapPreview: 'Pratinjau koordinat',
+    mapNotConfigured:
+      'Peta dasar Android belum dikonfigurasi untuk build ini. Koordinat dan detail deteksi tetap tersedia.',
     mapPreviewNote:
       'Peta dasar interaktif tersedia di aplikasi Android dan iOS. Pratinjau ini hanya menunjukkan koordinat deteksi.',
     mapArea: 'Deteksi di area sekitar lokasi dipilih. Peta dasar memerlukan internet.',

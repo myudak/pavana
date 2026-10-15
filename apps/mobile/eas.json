@@ -1,8 +1,16 @@
 {
-  "cli": { "version": ">= 16.0.0" },
+  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
   "build": {
     "development": { "developmentClient": true, "distribution": "internal" },
-    "preview": { "distribution": "internal", "android": { "buildType": "apk" } },
+    "preview": {
+      "distribution": "internal",
+      "environment": "preview",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://app.pavana.myudak.com",
+        "EXPO_PUBLIC_DATA_SOURCE": "demo"
+      },
+      "android": { "buildType": "apk" }
+    },
     "production": { "autoIncrement": true }
   },
   "submit": { "production": {} }

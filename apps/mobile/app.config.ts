@@ -2,11 +2,16 @@ import type { ExpoConfig } from 'expo/config';
 import { id } from '../web/src/lib/i18n/id.ts';
 import { light, dark } from '../../packages/brand/src/native.ts';
 
-const googleMapsKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY;
+const googleMapsKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY?.trim();
 const config: ExpoConfig = {
   name: id.mobile.appName,
+  owner: 'myudak',
   slug: 'pavana',
   scheme: 'pavana',
+  extra: {
+    nativeMapsEnabled: !!googleMapsKey,
+    eas: { projectId: 'bf01d9ff-d23c-40bf-b523-e3af661cbea4' },
+  },
   version: '0.1.0',
   icon: './assets/icon.png',
   orientation: 'portrait',
@@ -14,6 +19,7 @@ const config: ExpoConfig = {
   ios: { supportsTablet: true, bundleIdentifier: 'com.myudak.pavana' },
   android: {
     package: 'com.myudak.pavana',
+    versionCode: 1,
     adaptiveIcon: { foregroundImage: './assets/foreground.png', backgroundColor: light.canvas },
   },
   web: { bundler: 'metro', output: 'single', favicon: './assets/favicon.png' },
