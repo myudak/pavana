@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "repo_id": "myudak/pavana",
+  "prepared_at_utc": "2026-10-15T03:07:56.109963+00:00",
+  "target_kind": "CAMS model field; retrospective experiment, not station validation",
+  "legacy_files_excluded_from_pipeline": [
+    "data_kualitas_udara.csv",
+    "hotspot_kalimantan_2024_terbaru.csv",
+    "MODIS_SP_Kalimantan_2024_terbaru.csv",
+    "VIIRS_SNPP_SP_Kalimantan_2024_terbaru.csv",
+    "VIIRS_NOAA20_SP_Kalimantan_2024_terbaru.csv",
+    "VIIRS_NOAA21_SP_Kalimantan_2024_terbaru.csv"
+  ],
+  "notes": [
+    "Checksums identify these cached bytes, not the time of provider publication.",
+    "FIRMS CSV batches do not carry per-request fetch timestamps.",
+    "Source-specific provenance sidecars accompany Open-Meteo data."
+  ],
+  "files": [
+    {
+      "path": "raw/firms/firms_raw_MODIS_NRT_2026-08-01_2026-10-14.csv",
+      "bytes": 6288269,
+      "sha256": "7122a6d04be2638348e5a4fd70fac7f10dae9752e0aadb2d7f2ee65edb030070",
+      "rows": 62400,
+      "columns": [
+        "latitude",
+        "longitude",
+        "brightness",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "confidence",
+        "version",
+        "bright_t31",
+        "frp",
+        "daynight",
+        "source_sensor",
+        "processing"
+      ],
+      "start_utc": "2026-08-01T08:16:00+00:00",
+      "end_utc": "2026-10-14T13:44:00+00:00"
+    },
+    {
+      "path": "raw/firms/firms_raw_VIIRS_NOAA20_NRT_2026-07-01_2026-10-14.csv",
+      "bytes": 28760716,
+      "sha256": "12e55c38d1af9d8d7566a20b840f8263be29abe9046641e9646164fc0fe5d2f6",
+      "rows": 274357,
+      "columns": [
+        "latitude",
+        "longitude",
+        "bright_ti4",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "confidence",
+        "version",
+        "bright_ti5",
+        "frp",
+        "daynight",
+        "source_sensor",
+        "processing"
+      ],
+      "start_utc": "2026-07-01T05:44:00+00:00",
+      "end_utc": "2026-10-14T17:20:00+00:00"
+    },
+    {
+      "path": "raw/firms/firms_raw_VIIRS_NOAA21_NRT_2026-07-01_2026-10-14.csv",
+      "bytes": 28321969,
+      "sha256": "4c75f98c1d46c6b4a1d7eeba419a0b8f30307f70d9480812c272df9adc04488f",
+      "rows": 270033,
+      "columns": [
+        "latitude",
+        "longitude",
+        "bright_ti4",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "confidence",
+        "version",
+        "bright_ti5",
+        "frp",
+        "daynight",
+        "source_sensor",
+        "processing"
+      ],
+      "start_utc": "2026-07-01T04:49:00+00:00",
+      "end_utc": "2026-10-14T18:04:00+00:00"
+    },
+    {
+      "path": "raw/firms/firms_raw_VIIRS_SNPP_NRT_2026-07-01_2026-10-14.csv",
+      "bytes": 26906902,
+      "sha256": "241ccdd30b8e93595fcb8f1954f793a1672f553af4cdf98a90621dd2d8de5316",
+      "rows": 266833,
+      "columns": [
+        "latitude",
+        "longitude",
+        "bright_ti4",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "confidence",
+        "version",
+        "bright_ti5",
+        "frp",
+        "daynight",
+        "source_sensor",
+        "processing"
+      ],
+      "start_utc": "2026-07-01T05:23:00+00:00",
+      "end_utc": "2026-10-14T17:00:00+00:00"
+    },
+    {
+      "path": "raw/firms/firms_sp_kalimantan_2024-01-01_2026-07-31.csv",
+      "bytes": 27830445,
+      "sha256": "5bd8aa74f3813e12bd5c2c5e3f956a392e67154fa5af7decaf6c3ebbea9066dc",
+      "rows": 283132,
+      "columns": [
+        "latitude",
+        "longitude",
+        "brightness",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "confidence",
+        "version",
+        "bright_t31",
+        "frp",
+        "daynight",
+        "type",
+        "source_sensor",
+        "bright_ti4",
+        "bright_ti5"
+      ],
+      "start_utc": "2024-01-01T02:14:00+00:00",
+      "end_utc": "2026-07-31T19:57:00+00:00"
+    },
+    {
+      "path": "raw/open_meteo/cams_kubu_raya_sungai_raya_2024-01-01_2026-10-14.parquet",
+      "bytes": 286078,
+      "sha256": "0a9d4adb228e330066daa0fb857e1cb44efaa85cd60a82f514a40e9eebead65d",
+      "rows": 24432,
+      "columns": [
+        "valid_at",
+        "pm25_ug_m3",
+        "pm10_ug_m3",
+        "lat",
+        "lon"
+      ],
+      "time_column": "valid_at",
+      "start_utc": "2024-01-01T00:00:00+00:00",
+      "end_utc": "2026-10-14T23:00:00+00:00"
+    },
+    {
+      "path": "raw/open_meteo/cams_kubu_raya_sungai_raya_2024-01-01_2026-10-14.provenance.json",
+      "bytes": 239,
+      "sha256": "b350f74f24d321a976ddabc85ae8698d3ee50401c22a69e7dfe81c14b858c6f8"
+    },
+    {
+      "path": "raw/open_meteo/weather_kubu_raya_sungai_raya_2024-01-01_2026-10-14.parquet",
+      "bytes": 430569,
+      "sha256": "c4d26482f8ca1687d62904f742d886bc88e7b3f6901f766658c6816c51b82147",
+      "rows": 24432,
+      "columns": [
+        "valid_at",
+        "temperature_c",
+        "rh_pct",
+        "precip_mm",
+        "wind_speed_ms",
+        "wind_dir_from_deg",
+        "wind_gusts_ms",
+        "surface_pressure_hpa",
+        "boundary_layer_height_m",
+        "shortwave_radiation_wm2",
+        "lat",
+        "lon"
+      ],
+      "time_column": "valid_at",
+      "start_utc": "2024-01-01T00:00:00+00:00",
+      "end_utc": "2026-10-14T23:00:00+00:00"
+    },
+    {
+      "path": "raw/open_meteo/weather_kubu_raya_sungai_raya_2024-01-01_2026-10-14.provenance.json",
+      "bytes": 229,
+      "sha256": "48d72d94287ffbcba679d99798bbe7f7611cff17dcc5e89b51dbdaf2af4d157c"
+    },
+    {
+      "path": "processed/hotspot_kalimantan.parquet",
+      "bytes": 26729128,
+      "sha256": "3c415998e1d9e547ef4811dc27c8f1dbead738b9a66e33a088a637915e7b70a0",
+      "rows": 1156755,
+      "columns": [
+        "lat",
+        "lon",
+        "brightness",
+        "scan",
+        "track",
+        "acq_date",
+        "acq_time",
+        "satellite",
+        "instrument",
+        "version",
+        "bright_t31_k",
+        "frp_mw",
+        "daynight",
+        "type",
+        "source_sensor",
+        "bright_ti4_k",
+        "bright_ti5_k",
+        "processing",
+        "acquired_at",
+        "confidence_pct",
+        "confidence_class"
+      ],
+      "time_column": "acquired_at",
+      "start_utc": "2024-01-01T02:14:00+00:00",
+      "end_utc": "2026-10-14T18:04:00+00:00"
+    },
+    {
+      "path": "pm25/pm25_observasi_kalimantan.csv",
+      "bytes": 44541,
+      "sha256": "34f22ed9ef3d9465465d2c337c04d3fc10b04c74409910759d88f35e596daaee",
+      "rows": 189,
+      "columns": [
+        "stasiun_id",
+        "stasiun",
+        "lat",
+        "lon",
+        "tanggal",
+        "jam_sumber",
+        "zona_sumber",
+        "valid_at_utc",
+        "pm25_ug_m3",
+        "kondisi_terkini",
+        "provider",
+        "dataset",
+        "fetched_at_utc",
+        "sumber_url",
+        "is_demo"
+      ],
+      "time_column": "valid_at_utc",
+      "start_utc": "2026-10-13T17:00:00+00:00",
+      "end_utc": "2026-10-14T13:00:00+00:00"
+    },
+    {
+      "path": "pm25/pm25_observasi_kalimantan.parquet",
+      "bytes": 11490,
+      "sha256": "db57684db4479ef3c9f5c97fab65b50047d07c67331b2602debf0b7c8d146d97",
+      "rows": 189,
+      "columns": [
+        "stasiun_id",
+        "stasiun",
+        "lat",
+        "lon",
+        "tanggal",
+        "jam_sumber",
+        "zona_sumber",
+        "valid_at_utc",
+        "pm25_ug_m3",
+        "kondisi_terkini",
+        "provider",
+        "dataset",
+        "fetched_at_utc",
+        "sumber_url",
+        "is_demo"
+      ],
+      "time_column": "valid_at_utc",
+      "start_utc": "2026-10-13T17:00:00+00:00",
+      "end_utc": "2026-10-14T13:00:00+00:00"
+    },
+    {
+      "path": "prakiraan/prakiraan_cuaca_kalimantan.csv",
+      "bytes": 81752,
+      "sha256": "90ba94e5ebabab2ec66675ec19162177c770c5e56f84a04116c5a4ea06b312eb",
+      "rows": 204,
+      "columns": [
+        "adm4",
+        "provinsi",
+        "kotkab",
+        "kecamatan",
+        "desa",
+        "lat",
+        "lon",
+        "timezone",
+        "valid_at_utc",
+        "utc_datetime",
+        "local_datetime",
+        "suhu_c",
+        "tutup_awan_pct",
+        "hujan_mm",
+        "cuaca",
+        "cuaca_en",
+        "angin_dari_deg",
+        "angin_dari_arah",
+        "angin_ke_deg",
+        "angin_ke_arah",
+        "angin_kmh",
+        "angin_ms",
+        "kelembapan_pct",
+        "jarak_pandang",
+        "jarak_pandang_text",
+        "time_index",
+        "analysis_date",
+        "provider",
+        "dataset",
+        "fetched_at_utc",
+        "sumber_url",
+        "is_demo"
+      ],
+      "time_column": "valid_at_utc",
+      "start_utc": "2026-10-14T15:00:00+00:00",
+      "end_utc": "2026-10-16T15:00:00+00:00"
+    },
+    {
+      "path": "prakiraan/prakiraan_cuaca_kalimantan.parquet",
+      "bytes": 25091,
+      "sha256": "41c56d885022a53bd7aca4be555a0a74042d7270bcd504a3282e97e39b37691b",
+      "rows": 204,
+      "columns": [
+        "adm4",
+        "provinsi",
+        "kotkab",
+        "kecamatan",
+        "desa",
+        "lat",
+        "lon",
+        "timezone",
+        "valid_at_utc",
+        "utc_datetime",
+        "local_datetime",
+        "suhu_c",
+        "tutup_awan_pct",
+        "hujan_mm",
+        "cuaca",
+        "cuaca_en",
+        "angin_dari_deg",
+        "angin_dari_arah",
+        "angin_ke_deg",
+        "angin_ke_arah",
+        "angin_kmh",
+        "angin_ms",
+        "kelembapan_pct",
+        "jarak_pandang",
+        "jarak_pandang_text",
+        "time_index",
+        "analysis_date",
+        "provider",
+        "dataset",
+        "fetched_at_utc",
+        "sumber_url",
+        "is_demo"
+      ],
+      "time_column": "valid_at_utc",
+      "start_utc": "2026-10-14T15:00:00+00:00",
+      "end_utc": "2026-10-16T15:00:00+00:00"
+    },
+    {
+      "path": "prakiraan/raw/forecast_61.11.01.2001.json",
+      "bytes": 7613,
+      "sha256": "ee5075a27e0aac33ffe9a9116d729dcc58b874f08ccf65a75ecb94f26a5f04c0"
+    },
+    {
+      "path": "prakiraan/raw/forecast_61.12.01.2001.json",
+      "bytes": 7613,
+      "sha256": "c16b42d4501d64795753bcf2cd0d45671294079772cb2f3a065493054936e46f"
+    },
+    {
+      "path": "prakiraan/raw/forecast_61.71.01.1002.json",
+      "bytes": 7638,
+      "sha256": "0b0dd11e584562b8cf4d81461165a831dd463c7b73f8702b7fd5237dc930ed88"
+    },
+    {
+      "path": "prakiraan/raw/forecast_61.71.02.1001.json",
+      "bytes": 7627,
+      "sha256": "a49fc482d1edf510882ac30f8e492eba3aa8ba33ee19599d9056f3ebec3b8fa0"
+    },
+    {
+      "path": "prakiraan/raw/forecast_62.71.01.1001.json",
+      "bytes": 7563,
+      "sha256": "03fee345f9839883615d4b802b88c10d8c2fb2a35ceb0ccb5f3709e80371b468"
+    },
+    {
+      "path": "prakiraan/raw/forecast_62.71.02.1001.json",
+      "bytes": 7567,
+      "sha256": "30b160cac80d7f64a391d904848e567ccd0ef27102ae6c1dc645e6f08175551b"
+    },
+    {
+      "path": "prakiraan/raw/forecast_63.71.01.1001.json",
+      "bytes": 7621,
+      "sha256": "1dd02b48e9a3dddbf795be2814a62f23153009df644d6b38a0a721a0a309bd1e"
+    },
+    {
+      "path": "prakiraan/raw/forecast_63.71.02.1001.json",
+      "bytes": 7621,
+      "sha256": "e4cf3faa8de301b420dca80419e713e3ed66b69d754f407d13e81ee0bdee7ac2"
+    },
+    {
+      "path": "prakiraan/raw/forecast_64.71.01.1001.json",
+      "bytes": 7581,
+      "sha256": "6391712568745c97ed4ae28c2cdc05251bf54cad9eae38a289ca71b580af591b"
+    },
+    {
+      "path": "prakiraan/raw/forecast_64.71.02.1001.json",
+      "bytes": 7598,
+      "sha256": "2467f0b86d287882175114dcdf56eb2291d44e616aba5482c5c7511735d7dbf8"
+    },
+    {
+      "path": "prakiraan/raw/forecast_65.71.01.1001.json",
+      "bytes": 7448,
+      "sha256": "50ceda968ae30138ba234b4d953b65513d50fc9e36d2672c89d10847b0bcff78"
+    },
+    {
+      "path": "prakiraan/raw/forecast_65.71.02.1001.json",
+      "bytes": 7455,
+      "sha256": "dd4b7fdbbb262bcb70c305cc936b7362b281d623fd99ea3abb2c22f4c0fbc5fa"
+    },
+    {
+      "path": "data-online/DataIklimBulanan_2024-10_2025-09.xlsx",
+      "bytes": 24336,
+      "sha256": "ca7135eccd527832f5eb3a82260bcad49cc4cf8c9cefe59024f9fd1823ed6ace"
+    },
+    {
+      "path": "data-online/DataIklimBulanan_2025-10_2026-09.xlsx",
+      "bytes": 24343,
+      "sha256": "810a2d415c35fee4982d238ee5d0c11f4fc126ce922f567bcbc09a32424e935d"
+    },
+    {
+      "path": "data-online/metadata_2024-10_sd_2025-09.pdf",
+      "bytes": 22662,
+      "sha256": "49f38764e26ae8f32a525d3bdae79e2b2095cfce3b6bcac2f79b7a206fa4697c"
+    },
+    {
+      "path": "data-online/metadata_2025-10_sd_2026-09.pdf",
+      "bytes": 22658,
+      "sha256": "f8a170f093957107f79b982154c8a159d706b98fac25047cce56f11291bd6873"
+    }
+  ]
+}

@@ -1,7 +1,10 @@
 # Data sources
 
-Status legend: ✅ working · 🧪 fixture only · ⛔ not implemented · 🔗 link only.
+Status legend: ✅ working · 🧪 fixture only · ⛔ not implemented · 🔗 link only ·
+🚫 verified unavailable.
 **Do not mark a source ✅ until its adapter has been tested against the real API.**
+Rows marked "ML loader ✅" have a tested `ml/src/pavana_ml/data` loader but **no** `apps/api`
+provider yet — the app still serves the fixture.
 
 | Source                                                                   | Use                                             | Status | Adapter                                              | License                                                                                       | Attribution                                                | Notes                                                                                              |
 | ------------------------------------------------------------------------ | ----------------------------------------------- | ------ | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -13,6 +16,7 @@ Status legend: ✅ working · 🧪 fixture only · ⛔ not implemented · 🔗 l
 | [OpenAQ v3](https://api.openaq.org/docs)                                 | Station PM2.5 (ground truth / observation)      | ⛔     | `providers/openaq` · `ml/.../data/openaq.py`         | Ikuti ketentuan OpenAQ; `OPENAQ_API_KEY`                                                      | Kredit "OpenAQ" + id stasiun                               | `OPENAQ_API_KEY`; sparse in Kalimantan                                                             |
 | [BMKG Data Terbuka](https://data.bmkg.go.id/prakiraan-cuaca/)            | Local forecasts                                 | ⛔     | —                                                    | Ikuti ketentuan BMKG (cek lisensi sebelum dipakai)                                            | Kredit "BMKG"                                              | Keyed by admin code (adm4); check terms                                                            |
 | [BMKG PM2.5](https://www.bmkg.go.id/kualitas-udara/pm25)                 | Official air-quality context                    | 🔗     | `apps/api/src/data/official-links.ts`                | Situs resmi; bukan API — tautan saja                                                          | Tautan di halaman Info                                     | Website ≠ programmatic API; diperiksa 2026-10-15 (HTTP 200)                                        |
+| [KLHK ISPU / AQM](https://ispu.kemenlh.go.id/)                           | Station PM2.5 + weather (observation)          | 🔗     | —                                                    | Real hourly observations (e.g. `PONTIANAK`, `PALANGKARAYA`) but a rolling ~24 h window only. `POST /internal/web/site/detail-data` needs the page's CSRF token. Ask permission before automating.                                                                                                                                                                     |
 | [BMKG SPARTAN](https://spartan.bmkg.go.id/)                              | Fire danger / smoke context                     | 🔗     | official-links                                       | Situs resmi; bukan API — tautan saja; don't scrape                                            | Tautan di halaman Info                                     | Diperiksa 2026-10-15 (HTTP 200); don't scrape without permission                                   |
 | [SiPongi](https://sipongi.gakkum.kehutanan.go.id/)                       | Official hotspot/fire status                    | 🔗     | official-links                                       | Situs resmi Kementerian Kehutanan; bukan API — tautan saja                                    | Tautan di halaman Info                                     | Don't conflate with FIRMS; diperiksa 2026-10-15 (HTTP 200)                                         |
 | [BNPB](https://bnpb.go.id/)                                              | Official disaster info                          | 🔗     | official-links                                       | Situs resmi; bukan API — tautan saja                                                          | Tautan di halaman Info                                     | 2026-10-15: 403 untuk permintaan otomatis (kemungkinan proteksi bot); cek manual                   |
@@ -28,6 +32,23 @@ Status legend: ✅ working · 🧪 fixture only · ⛔ not implemented · 🔗 l
 - Penyedia tile final (MapTiler / Protomaps / OSM) **belum diputuskan** — lihat B3 di `docs/PRD.md`.
   Saat penyedia dipilih: cantumkan lisensinya di tabel ini dan pastikan kreditnya tampil di
   aplikasi (halaman Info dan/atau kontrol peta).
+
+## Observed PM2.5 is the blocker
+
+Every candidate target source was checked on 2026-10-15, and **none of them publishes an
+archive**:
+
+| Source            | Observed? | Archive?                          |
+| ----------------- | --------- | --------------------------------- |
+| OpenAQ v3         | yes       | none in Kalimantan                |
+| BMKG (9 stations) | yes       | current day only                  |
+| KLHK/AQM          | yes       | rolling ~24 h only                |
+| CAMS (Open-Meteo) | **no**    | 2.8 years, but it is model output |
+
+A model field cannot serve as the supervised target — that is circular when CAMS is also the
+baseline being compared against, and `docs/modeling-methodology.md` requires an _observed_
+target. Until an observation archive exists (forward collection, or an official data request),
+the modelling work is limited to an explicitly labelled CAMS-target experiment.
 
 ## Normalization rules (enforced by `packages/shared` schemas)
 
