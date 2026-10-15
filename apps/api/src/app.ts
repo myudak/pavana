@@ -16,7 +16,7 @@ export interface BuildAppOptions {
 }
 
 export async function buildApp({ config, providers }: BuildAppOptions): Promise<FastifyInstance> {
-  const app = Fastify({ logger: { level: config.LOG_LEVEL } });
+  const app = Fastify({ logger: { level: config.LOG_LEVEL }, trustProxy: config.TRUST_PROXY });
 
   await app.register(cors, { origin: config.CORS_ORIGINS, methods: ['GET'] });
   await app.register(rateLimit, { max: config.RATE_LIMIT_PER_MINUTE, timeWindow: '1 minute' });

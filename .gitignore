@@ -33,3 +33,6 @@ ml/data/**/*
 !ml/data/**/.gitkeep
 ml/artifacts/**/*
 !ml/artifacts/.gitkeep
+
+# vercel
+.vercel/

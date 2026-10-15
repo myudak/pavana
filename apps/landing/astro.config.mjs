@@ -1,13 +1,14 @@
+---
 // @ts-check
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // C5: PLACEHOLDER — bukan domain terverifikasi. Ketersediaan merek/domain "pavana" belum
-  // difinalisasi (lihat docs/PAVANA_HANDOFF.md §0). Ganti dengan URL deploy final saat tim
-  // memutuskan domain; dipakai untuk canonical/OG absolut di layouts/Base.astro.
-  site: 'https://pavana.example',
+  // Deployed landing URL (used for canonical/OG URLs and the sitemap).
+  site: 'https://pavana.myudak.com',
   server: { port: 4321 },
+  integrations: [sitemap()],
   vite: {
     // Share the repo-root .env (PUBLIC_APP_URL).
     envDir: '../..',
