@@ -46,7 +46,32 @@ export const QUOTES = {
     place: 'Palangka Raya, Kalimantan Tengah',
     source: 'Liputan6.com · 15 Okt 2026',
   },
+  N: {
+    id: 'N',
+    text: 'Konsentrasi PM2.5 tidak otomatis langsung turun saat api atau titik panas (hotspot) padam.',
+    emphasis: 'tidak otomatis langsung turun',
+    speaker: 'Ardhasena Sopaheluwakan, Deputi Klimatologi BMKG',
+    place: '',
+    source: TIRTO,
+  },
 } as const satisfies Record<string, Quote>;
+
+/** r/indonesia comments, credited without usernames. */
+export const REDDIT = [
+  { id: 'L', text: 'Oh udah sampe kaltim jg yah.', date: '16 Sep 2026' },
+  {
+    id: 'H',
+    text: 'eh iya Kaltim kena karena arah angin musiman sudah berubah kah?',
+    date: '17 Sep 2026',
+  },
+  { id: 'I', text: 'Kayaknya anginnya berubah arah.', place: 'Bintan', date: '16 Sep 2026' },
+  {
+    id: 'J',
+    text: 'Walaupun di peta itu Denpasar masih hijau, tapi precaution apa yang sebaiknya diambil ya?',
+    place: 'Denpasar',
+    date: '18 Sep 2026',
+  },
+] as const satisfies readonly { id: string; text: string; place?: string; date: string }[];
 
 /** Kemenkes figure as reported by Tirto (26 Sep 2026). */
 export const ISPA_STAT = {

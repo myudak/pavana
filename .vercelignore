@@ -7,3 +7,5 @@ docs/
 **/.vercel/
 **/.astro/
 **/.turbo/
+apps/video/public/
+apps/video/out/

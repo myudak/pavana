@@ -92,7 +92,7 @@ export function QuoteCard({ quote, local, depth, exit = 0, pace = 0.32 }: Props)
       >
         <div style={{ fontSize: 30 }}>
           <span style={{ fontWeight: 800 }}>{quote.speaker}</span>
-          <span style={{ color: color.inkMuted }}> · {quote.place}</span>
+          {quote.place && <span style={{ color: color.inkMuted }}> · {quote.place}</span>}
         </div>
         <SourcePill>{quote.source}</SourcePill>
       </div>
