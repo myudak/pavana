@@ -3,6 +3,8 @@ import {
   ForecastResponseSchema,
   HotspotsResponseSchema,
   InsightsResponseSchema,
+  isBorneoLand,
+  WindFieldSchema,
 } from '@pavana/shared';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -62,6 +64,36 @@ describe('demo mode API', () => {
     expect(none.hotspots).toHaveLength(0);
   });
 
+  it('GET /api/hotspots serves the regional Kalimantan fixture', async () => {
+    const body = HotspotsResponseSchema.parse(
+      (await get('/api/hotspots?bbox=108.5,-4.5,119.5,4.5&limit=2000')).json(),
+    );
+    expect(body.state).toBe('demo');
+    // Synthetic regional field: hundreds of points, all fixture provenance.
+    expect(body.hotspots.length).toBeGreaterThanOrEqual(1200);
+    expect(body.hotspots.length).toBeLessThanOrEqual(1800);
+    // On-land spread: every quadrant of the island bbox holds detections.
+    const quads = [0, 0, 0, 0];
+    for (const h of body.hotspots) {
+      expect(h.lon).toBeGreaterThanOrEqual(108.5);
+      expect(h.lon).toBeLessThanOrEqual(119.5);
+      expect(h.lat).toBeGreaterThanOrEqual(-4.5);
+      expect(h.lat).toBeLessThanOrEqual(4.5);
+      expect(isBorneoLand(h.lon, h.lat)).toBe(true);
+      quads[(h.lon < 114 ? 0 : 2) + (h.lat < 0 ? 0 : 1)]! += 1;
+    }
+    for (const q of quads) expect(q).toBeGreaterThanOrEqual(10);
+    for (const h of body.hotspots) {
+      expect(h.provenance.provider).toBe('pavana-fixture');
+      expect(h.provenance.kind).toBe('fixture');
+      expect(h.provenance.isDemo).toBe(true);
+    }
+    const limited = HotspotsResponseSchema.parse(
+      (await get('/api/hotspots?bbox=108.5,-4.5,119.5,4.5&limit=10')).json(),
+    );
+    expect(limited.hotspots).toHaveLength(10);
+  });
+
   it('GET /api/insights is deterministic, not ML', async () => {
     const body = InsightsResponseSchema.parse((await get(`/api/insights?${KR}`)).json());
     expect(body.model).toEqual({
@@ -77,6 +109,28 @@ describe('demo mode API', () => {
   it('rejects invalid input with 400', async () => {
     expect((await get('/api/conditions?lat=200&lon=0')).statusCode).toBe(400);
     expect((await get('/api/hotspots?bbox=1,2,3')).statusCode).toBe(400);
+  });
+
+  it('GET /api/wind-field returns a demo grid with fixture provenance', async () => {
+    const body = WindFieldSchema.parse(
+      (await get('/api/wind-field?bbox=108.5,-4.5,119.5,4.5')).json(),
+    );
+    expect(body.cols).toBe(14);
+    expect(body.rows).toBe(14);
+    expect(body.points).toHaveLength(196);
+    for (const p of body.points) {
+      expect(p.provenance.provider).toBe('pavana-fixture');
+      expect(p.provenance.isDemo).toBe(true);
+      // Missing values stay null, never 0.
+      if (p.speedMs !== null) {
+        expect(p.speedMs).toBeGreaterThanOrEqual(0);
+        expect(p.speedMs).toBeLessThanOrEqual(6.5);
+      }
+      if (p.fromDeg !== null) {
+        expect(p.fromDeg).toBeGreaterThanOrEqual(0);
+        expect(p.fromDeg).toBeLessThanOrEqual(360);
+      }
+    }
   });
 
   it('unknown route → 404 JSON', async () => {

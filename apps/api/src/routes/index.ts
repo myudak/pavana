@@ -14,6 +14,8 @@ import {
   LocationSearchQuerySchema,
   LocationSearchResponseSchema,
   OfficialLinksResponseSchema,
+  WindFieldQuerySchema,
+  WindFieldSchema,
 } from '@pavana/shared';
 import type { FastifyPluginAsync } from 'fastify';
 import { OFFICIAL_LINKS } from '../data/official-links';
@@ -21,6 +23,7 @@ import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
+import { getWindField } from '../services/wind-field';
 import { parseInput } from './validate';
 
 export interface RoutesOptions {
@@ -67,6 +70,11 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers
   app.get('/api/insights', async (req) => {
     const point = parseInput(LatLonQuerySchema, req.query);
     return InsightsResponseSchema.parse(await getInsights(providers, point));
+  });
+
+  app.get('/api/wind-field', async (req) => {
+    const { bbox } = parseInput(WindFieldQuerySchema, req.query);
+    return WindFieldSchema.parse(await getWindField(providers, bbox));
   });
 
   app.get('/api/official-links', async () =>
