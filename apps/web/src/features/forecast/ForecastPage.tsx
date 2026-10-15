@@ -31,7 +31,9 @@ export default function ForecastPage() {
           <LocationPicker />
           {isDemo && <DemoPill />}
         </div>
-        <h1 className="font-heading text-4xl font-bold tracking-tight drop-shadow-sm">{t.forecast.title}</h1>
+        <h1 className="font-heading text-4xl font-bold tracking-tight drop-shadow-sm">
+          {t.forecast.title}
+        </h1>
       </header>
 
       <Tabs defaultValue="air" className="gap-4">
@@ -48,23 +50,43 @@ export default function ForecastPage() {
         </TabsList>
 
         <TabsContent value="air">
-          <Panel title={<>{t.forecast.airTitle} <span className="normal-case tracking-normal">({t.today.unit})</span></>}>
-            <QueryState query={forecast} skeleton={<Skeleton className="h-56 w-full rounded-2xl" />}>
-              {(f) => <ForecastChart hours={f.hours} timeZone={tz} nowLabel={t.insights.nowMarker} />}
+          <Panel
+            title={
+              <>
+                {t.forecast.airTitle}{' '}
+                <span className="normal-case tracking-normal">({t.today.unit})</span>
+              </>
+            }
+          >
+            <QueryState
+              query={forecast}
+              skeleton={<Skeleton className="h-56 w-full rounded-2xl" />}
+            >
+              {(f) => (
+                <ForecastChart hours={f.hours} timeZone={tz} nowLabel={t.insights.nowMarker} />
+              )}
             </QueryState>
           </Panel>
         </TabsContent>
         <TabsContent value="smoke">
           <Panel title={t.forecast.smokeTitle}>
-            <QueryState query={exposure} skeleton={<Skeleton className="h-48 w-full rounded-2xl" />}>
+            <QueryState
+              query={exposure}
+              skeleton={<Skeleton className="h-48 w-full rounded-2xl" />}
+            >
               {(x) => <SmokeBars hours={x.hours} timeZone={tz} />}
             </QueryState>
-            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">{t.exposure.disclaimer}</p>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+              {t.exposure.disclaimer}
+            </p>
           </Panel>
         </TabsContent>
         <TabsContent value="weather">
           <Panel title={t.forecast.weatherTitle}>
-            <QueryState query={forecast} skeleton={<Skeleton className="h-36 w-full rounded-2xl" />}>
+            <QueryState
+              query={forecast}
+              skeleton={<Skeleton className="h-36 w-full rounded-2xl" />}
+            >
               {(f) => <WeatherTable hours={f.hours} timeZone={tz} />}
             </QueryState>
           </Panel>
@@ -91,7 +113,9 @@ export default function ForecastPage() {
                 </span>
               </div>
               {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
-              <p className="text-sm leading-relaxed text-muted-foreground">{t.forecast.modelBody}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {t.forecast.modelBody}
+              </p>
             </div>
           </div>
           <details className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">

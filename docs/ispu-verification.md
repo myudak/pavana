@@ -10,13 +10,13 @@
 Sumber: transkripsi draft PermenLHK No. P.14/MENLHK/SETJEN/KUM.1/7/2020
 (`packages/shared/src/aq/ispu.ts`, `PM25_BREAKPOINTS_DRAFT`).
 
-| PM2.5 (µg/m³) | ISPU  | Kategori           |
-| ------------- | ----- | ------------------ |
-| 0–15,5        | 0–50  | Baik               |
-| 15,5–55,4     | 50–100 | Sedang            |
-| 55,4–150,4    | 100–200 | Tidak sehat      |
+| PM2.5 (µg/m³) | ISPU    | Kategori           |
+| ------------- | ------- | ------------------ |
+| 0–15,5        | 0–50    | Baik               |
+| 15,5–55,4     | 50–100  | Sedang             |
+| 55,4–150,4    | 100–200 | Tidak sehat        |
 | 150,4–250,4   | 200–300 | Sangat tidak sehat |
-| 250,4–500     | 300–500 | Berbahaya        |
+| 250,4–500     | 300–500 | Berbahaya          |
 
 Fungsi `pm25ToIspuDraft()` diberi label draft dan **tidak ditampilkan di UI** selama
 `ISPU_VERIFIED` bernilai `false`. UI menampilkan PM2.5 (µg/m³) + kategori indikatif US AQI.

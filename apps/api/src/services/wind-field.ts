@@ -1,8 +1,4 @@
-import {
-  type BBox,
-  type WindField,
-  type WindFieldPoint,
-} from '@pavana/shared';
+import { type BBox, type WindField, type WindFieldPoint } from '@pavana/shared';
 import { NotImplementedError } from '../domain/errors';
 import type { ProviderBundle } from '../providers/types';
 
@@ -35,7 +31,7 @@ const KM_PER_DEG = 111.19;
 
 export function demoWindVector(lat: number, lon: number, validAt: string): WindFieldPoint {
   // Base flow: FROM 135° (south-east trades) → TO 315°.
-  const toRad = ((315 * Math.PI) / 180);
+  const toRad = (315 * Math.PI) / 180;
   let east = Math.sin(toRad) * (2.2 + 0.8 * Math.sin(lon * 0.3) + 0.6 * Math.cos(lat * 0.5));
   let north = Math.cos(toRad) * (2.2 + 0.8 * Math.sin(lon * 0.3) + 0.6 * Math.cos(lat * 0.5));
   for (const v of VORTICES) {

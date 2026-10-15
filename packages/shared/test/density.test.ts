@@ -165,7 +165,12 @@ describe('normalizeField', () => {
 
 describe('regional fixture field metrics', () => {
   const fixture = JSON.parse(
-    readFileSync(fileURLToPath(new URL('../../../fixtures/regional-kalimantan-hotspots.json', import.meta.url)), 'utf8'),
+    readFileSync(
+      fileURLToPath(
+        new URL('../../../fixtures/regional-kalimantan-hotspots.json', import.meta.url),
+      ),
+      'utf8',
+    ),
   ) as { hotspots: { lat: number; lon: number; frpMw: number | null }[] };
 
   it('meets the land-coverage criteria', () => {

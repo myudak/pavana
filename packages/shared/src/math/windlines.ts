@@ -98,9 +98,16 @@ export function sampleWind(
   const d = at(i1, j1);
   if (!a || !b || !c || !d) return null;
   return {
-    east: a.east * (1 - tx) * (1 - ty) + b.east * tx * (1 - ty) + c.east * (1 - tx) * ty + d.east * tx * ty,
+    east:
+      a.east * (1 - tx) * (1 - ty) +
+      b.east * tx * (1 - ty) +
+      c.east * (1 - tx) * ty +
+      d.east * tx * ty,
     north:
-      a.north * (1 - tx) * (1 - ty) + b.north * tx * (1 - ty) + c.north * (1 - tx) * ty + d.north * tx * ty,
+      a.north * (1 - tx) * (1 - ty) +
+      b.north * tx * (1 - ty) +
+      c.north * (1 - tx) * ty +
+      d.north * tx * ty,
   };
 }
 
@@ -136,10 +143,7 @@ export function traceStreamlines(
   const seeds: [number, number][] = [];
   for (let lat = minLat + stepDeg / 2; lat < maxLat; lat += stepDeg) {
     for (let lon = minLon + stepDeg / 2; lon < maxLon; lon += stepDeg) {
-      seeds.push([
-        lat + (rand() - 0.5) * stepDeg * 0.8,
-        lon + (rand() - 0.5) * stepDeg * 0.8,
-      ]);
+      seeds.push([lat + (rand() - 0.5) * stepDeg * 0.8, lon + (rand() - 0.5) * stepDeg * 0.8]);
     }
   }
   for (let i = seeds.length - 1; i > 0; i--) {
@@ -178,7 +182,12 @@ export function traceStreamlines(
       if (!vm) break;
       const sm = Math.hypot(vm.east, vm.north);
       if (sm < opts.minSpeedMs) break;
-      const [nl, nt] = stepKm(clat, clon, (vm.east / sm) * opts.stepKm, (vm.north / sm) * opts.stepKm);
+      const [nl, nt] = stepKm(
+        clat,
+        clon,
+        (vm.east / sm) * opts.stepKm,
+        (vm.north / sm) * opts.stepKm,
+      );
       if (nl < minLon || nl > maxLon || nt < minLat || nt > maxLat) break;
       if (occupied.has(occKey(nt, nl)) && !mine.has(occKey(nt, nl))) break;
       clat = nt;

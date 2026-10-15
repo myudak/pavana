@@ -11,8 +11,7 @@ const PAD_DEG = 2.5;
  * Dark basemap for the Dusk/Haze look. Free CARTO basemap; attribution comes from
  * the style JSON via the MapLibre control. Final tile provider still pending (B3).
  */
-export const DARK_STYLE_URL =
-  'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+export const DARK_STYLE_URL = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
 /** Shared hotspot query (bbox around the selected location). Used by Map and Home preview. */
 export function useHotspots() {

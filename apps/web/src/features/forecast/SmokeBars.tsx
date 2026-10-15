@@ -32,7 +32,9 @@ export function SmokeBars({ hours, timeZone }: { hours: ExposureHour[]; timeZone
         {hours
           .filter((_, i) => i % 6 === 0)
           .map((h, i) => (
-            <span key={h.validAt}>{i === 0 ? t.exposure.stepNow : formatTime(h.validAt, timeZone)}</span>
+            <span key={h.validAt}>
+              {i === 0 ? t.exposure.stepNow : formatTime(h.validAt, timeZone)}
+            </span>
           ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-3 text-xs">
