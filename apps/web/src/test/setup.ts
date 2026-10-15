@@ -30,3 +30,6 @@ if (!window.URL.createObjectURL) {
   window.URL.createObjectURL = () => 'blob:mock';
   window.URL.revokeObjectURL = () => {};
 }
+
+// jsdom lacks Element.scrollTo, called by assistant-ui's thread auto-scroll.
+Element.prototype.scrollTo ??= function scrollTo() {};

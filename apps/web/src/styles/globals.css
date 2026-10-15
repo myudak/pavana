@@ -47,6 +47,43 @@
   }
 }
 
+/* Pavi bobbing gently (mascot) — callers wrap it in motion-safe:. */
+@keyframes pv-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6%);
+  }
+}
+
+/* Halo behind priority icons that need attention now. */
+@keyframes pv-pulse-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Three leaves taking turns while Pavi is "typing". */
+@keyframes pv-leaf {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px) rotate(-20deg);
+    opacity: 1;
+  }
+}
+
 /* Haze accent for text/icons: the light-theme blush is too pale for text, so use a deeper pink there. */
 :root {
   --pv-haze: #db2777;

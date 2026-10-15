@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@assistant-ui/react": "0.15.22",
     "@hugeicons/core-free-icons": "^4.3.5",
     "@hugeicons/react": "^1.1.10",
     "@pavana/brand": "workspace:*",
@@ -43,6 +44,7 @@
     "@vitejs/plugin-react": "^5.2.0",
     "esbuild": "~0.25.12",
     "jsdom": "^26.1.0",
+    "sharp": "0.34.5",
     "tailwindcss": "^4.3.3",
     "vite": "^7.3.7",
     "vitest": "^3.2.7"
