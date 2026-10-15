@@ -35,6 +35,7 @@
 
   /* Glass + hairline tokens for the Today hero (dark values are richer; see below). */
   --pv-glass: rgba(255, 255, 255, 0.78);
+  --pv-glass-hero: rgba(255, 255, 255, 0.6);
   --pv-glass-border: rgba(194, 65, 12, 0.22);
   --pv-hairline: rgba(31, 41, 55, 0.12);
   --pv-gradient-headline: linear-gradient(90deg, #4338ca 0%, #db2777 100%);
@@ -42,7 +43,8 @@
   --pv-hero-sub: #4b5563;
   --pv-shadow-lift: 0 12px 40px rgba(31, 41, 55, 0.12);
   --pv-glow-accent: 0 0 24px rgba(219, 39, 119, 0.35);
-
+  /* Restrained shadow for the translucent hero panels. */
+  --pv-shadow-soft: 0 8px 24px rgba(31, 41, 55, 0.1);
   /* Air-quality category colors. Always pair with a text label (never color-only). */
   --pv-aq-good: #16a34a;
   --pv-aq-moderate: #ca8a04;
@@ -104,6 +106,10 @@
   --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
   --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
   --pv-glass: rgba(15, 20, 48, 0.68);
+  /* Lighter glass for the translucent hero panels (landscape stays visible). */
+  --pv-glass-hero: rgba(15, 20, 48, 0.45);
+  /* Restrained shadow for the translucent hero panels. */
+  --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
   --pv-glass-border: rgba(129, 140, 248, 0.28);
   --pv-hairline: rgba(255, 255, 255, 0.12);
   --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);
@@ -151,6 +157,10 @@
     --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
     --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
     --pv-glass: rgba(15, 20, 48, 0.68);
+    /* Lighter glass for the translucent hero panels (landscape stays visible). */
+    --pv-glass-hero: rgba(15, 20, 48, 0.45);
+    /* Restrained shadow for the translucent hero panels. */
+    --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
     --pv-glass-border: rgba(129, 140, 248, 0.28);
     --pv-hairline: rgba(255, 255, 255, 0.12);
     --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);

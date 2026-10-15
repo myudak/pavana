@@ -52,17 +52,21 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
   `@fontsource-variable/comfortaa` (rentang variable 300–700; dependensi paket ini).
   Comfortaa dipilih agar wordmark lebih bulat dan lembut; bobot 700 dipakai agar
   mendekati ketebalan referensi. **Tidak diklaim identik** dengan referensi maupun Vernosa.
-- Outfit (OFL 1.1, `@fontsource-variable/outfit`) tetap menjadi font display/headings dan
-  tertinggal sebagai fallback dalam di tumpukan wordmark, tetapi **bukan lagi font interim
-  wordmark**.
+- Outfit (OFL 1.1, `@fontsource-variable/outfit`) tidak lagi dipakai untuk antarmuka;
+  tersisa hanya sebagai fallback terdalam di tumpukan wordmark.
 
 ## Peran font
 
 - Wordmark `pavana`: Comfortaa Bold (token `--pv-font-wordmark`, utilitas `font-wordmark`).
-- Judul & angka besar: Plus Jakarta Sans semibold/bold (token `--pv-font-heading`,
-  utilitas `font-heading`) — humanis, paling dekat referensi. Outfit (`font-display`)
-  bukan untuk judul aplikasi.
-- Isi/label/navigasi: Plus Jakarta Sans regular/medium (body default).
+  **Tidak** ikut beralih ke Inter — bentuk huruf wordmark dipertahankan.
+- Seluruh antarmuka memakai **Inter** (`@fontsource-variable/inter`, OFL 1.1), satu keluarga
+  untuk semua peran dengan hierarki bobot:
+  - Judul halaman & pesan status utama: Inter Bold/700 (`font-bold`).
+  - Isi & deskripsi: Inter Regular/400 (default body).
+  - Label & navigasi: Inter Medium/500 (`font-medium`).
+  - Angka & nilai AQI/PM2.5: Inter SemiBold/600 (`font-semibold`, `tabular-nums`).
+  Token `--pv-font-display`, `--pv-font-heading`, dan `--pv-font-body` semuanya Inter
+  (utilitas `font-display`, `font-heading`, `font-sans`).
 
 ## Ikon aplikasi (turunan huruf "p")
 
