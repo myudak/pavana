@@ -275,6 +275,7 @@ export const id = {
     modelBody:
       'Model LightGBM dengan fitur titik panas berbasis arah angin sedang dikembangkan dan belum dievaluasi. Angka di sini berasal dari prakiraan PM2.5 dan indikator deterministik, bukan dari model tersebut.',
     windSpeed: 'Kecepatan',
+    windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
     temperature: 'Suhu',
     humidity: 'Kelembapan',
   },

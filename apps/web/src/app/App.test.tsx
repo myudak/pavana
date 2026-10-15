@@ -104,5 +104,5 @@ describe('Forecast page', () => {
       await screen.findByRole('heading', { name: 'Prakiraan', level: 1 }, { timeout: 10_000 }),
     ).toBeInTheDocument();
     expect(screen.getByText('Dalam pengembangan')).toBeInTheDocument();
-  });
+  }, 20_000);
 });

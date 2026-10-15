@@ -12,7 +12,10 @@ export function WeatherTable({ hours, timeZone }: { hours: ForecastHour[]; timeZ
       <table className="w-max border-separate border-spacing-x-1 text-center text-sm">
         <thead>
           <tr className="text-xs text-muted-foreground">
-            <th className="sticky left-0 z-10 bg-transparent pr-2 text-left font-normal" scope="col">
+            <th
+              className="sticky left-0 z-10 bg-transparent pr-2 text-left font-normal"
+              scope="col"
+            >
               <span className="sr-only">Jam</span>
             </th>
             {hours.map((h, i) => (
@@ -27,11 +30,15 @@ export function WeatherTable({ hours, timeZone }: { hours: ForecastHour[]; timeZ
             <th scope="row">{t.tiles.wind}</th>
             {hours.map((h) => {
               const w = h.weather;
-              const s = w?.windDirectionFromDeg == null ? null : windSummary(w.windDirectionFromDeg, t);
+              const s =
+                w?.windDirectionFromDeg == null ? null : windSummary(w.windDirectionFromDeg, t);
               return (
                 <td key={h.validAt}>
                   {s ? (
-                    <span className="inline-flex flex-col items-center gap-0.5" title={t.tiles.windFrom(s.fromName)}>
+                    <span
+                      className="inline-flex flex-col items-center gap-0.5"
+                      title={t.tiles.windFrom(s.fromName)}
+                    >
                       <WindArrow toDeg={s.toDeg} className="text-haze" />
                       <span className="tabular text-xs">
                         {w?.windSpeedMs == null ? '—' : formatNumber(msToKmh(w.windSpeedMs))}
@@ -56,15 +63,15 @@ export function WeatherTable({ hours, timeZone }: { hours: ForecastHour[]; timeZ
             <th scope="row">{t.forecast.humidity}</th>
             {hours.map((h) => (
               <td key={h.validAt} className="tabular text-muted-foreground">
-                {h.weather?.relativeHumidityPct == null ? '—' : `${formatNumber(h.weather.relativeHumidityPct)}%`}
+                {h.weather?.relativeHumidityPct == null
+                  ? '—'
+                  : `${formatNumber(h.weather.relativeHumidityPct)}%`}
               </td>
             ))}
           </tr>
         </tbody>
       </table>
-      <p className="mt-2 text-[11px] text-muted-foreground">
-        {t.tiles.wind}: km/j · panah = arah angin bertiup
-      </p>
+      <p className="mt-2 text-[11px] text-muted-foreground">{t.forecast.windLegend}</p>
     </div>
   );
 }
