@@ -38,6 +38,10 @@ const glassCard =
 const heroGlass =
   'border-glass-border bg-glass-hero backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1126]/60 dark:[box-shadow:var(--pv-shadow-soft)]';
 
+/** Compact padding for the below-fold forecast cards (homepage only) — the shared
+    Card keeps `p-4` everywhere else. */
+const forecastCard = 'p-3';
+
 /** "Now → peak" category status for the AQI card's right panel. Null-safe. */
 function ForecastStatus({
   nowCat,
@@ -56,17 +60,17 @@ function ForecastStatus({
   return (
     <div>
       {unique.length === 0 ? (
-        <p className="text-lg font-medium text-ink-muted">{t.today.notEnough}</p>
+        <p className="text-base font-medium text-ink-muted">{t.today.notEnough}</p>
       ) : unique.length === 1 ? (
-        <p className="text-lg font-medium text-primary-strong">{t.aqCategory[unique[0]!]}</p>
+        <p className="text-base font-medium text-primary-strong">{t.aqCategory[unique[0]!]}</p>
       ) : (
-        <p className="flex flex-wrap items-center gap-2 text-lg font-medium">
+        <p className="flex flex-wrap items-center gap-2 text-base font-medium">
           <span className="text-primary-strong">{t.aqCategory[unique[0]!]}</span>
           <ArrowRight className="size-5 text-ink-muted" aria-hidden />
           <span className="text-accent-strong">{t.aqCategory[unique[1]!]}</span>
         </p>
       )}
-      <p className="mt-2 line-clamp-3 text-[15px] leading-[22px] text-ink-muted">
+      <p className="mt-1.5 line-clamp-3 text-sm leading-[21px] text-ink-muted">
         {t.trendHeadline[trend]}
       </p>
     </div>
@@ -104,42 +108,42 @@ export function TodayPage() {
 
         return (
           <div>
-            {/* ============ FIRST SCREEN — full-bleed hero ============ */}
-            <section className="relative -mt-16 min-h-[100dvh] overflow-clip lg:-mt-[88px] lg:min-h-[max(100dvh,760px)]">
+            {/* ============ FIRST SCREEN — compact hero so the next section peeks on desktop ============ */}
+            <section className="relative -mt-16 min-h-[100dvh] overflow-clip lg:-mt-16 lg:min-h-0">
               <DuskBackdrop className="absolute inset-0" />
 
-              {/* Demo chip: visible without shifting the hero layout. */}
-              {c.state === 'demo' && (
-                <p
-                  role="note"
-                  title={t.demoBannerDetail}
-                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-glass-hero px-3 py-1.5 text-xs text-ink backdrop-blur-md md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[92px]"
-                >
-                  <FlaskConical className="size-3.5 shrink-0" aria-hidden />
-                  {t.demoBanner}
-                </p>
-              )}
-
               <div className="px-[6.25vw]">
-                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-12 lg:pb-6 lg:pt-[120px] xl:grid-cols-[minmax(0,1fr)_minmax(0,330px)]">
+                <div className="relative mx-auto grid w-full max-w-[1344px] gap-8 pb-10 pt-24 lg:gap-6 lg:pb-2 lg:pt-[76px] xl:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
                   {/* Left column — reference composition: dominant two-tier
                       headline, short description, then the AQI panel. */}
                   <div className="min-w-0 max-w-[720px]">
-                    <p className="text-[clamp(1.65rem,2.6vw,2.5rem)] font-light leading-none text-[var(--pv-hero-lead)] dark:[text-shadow:0_2px_24px_rgba(6,9,24,0.65)]">
+                    {/* Demo chip: in-flow so it aligns with the hero column and
+                        never overlaps the headline; nowrap keeps it one line. */}
+                    {c.state === 'demo' && (
+                      <p
+                        role="note"
+                        title={t.demoBannerDetail}
+                        className="mb-2 inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-full border border-glass-border bg-glass-hero px-3 py-1 text-xs text-ink backdrop-blur-md"
+                      >
+                        <FlaskConical className="size-3.5 shrink-0" aria-hidden />
+                        <span className="whitespace-nowrap">{t.demoBanner}</span>
+                      </p>
+                    )}
+                    <p className="text-[clamp(1.3rem,1.9vw,1.8rem)] font-light leading-tight text-[var(--pv-hero-lead)] dark:[text-shadow:0_2px_24px_rgba(6,9,24,0.65)]">
                       {t.today.heroLead}
                     </p>
                     <h1
                       className={cn(
-                        'mt-3 max-w-full bg-clip-text font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))]',
+                        'mb-[-0.12em] mt-1.5 max-w-full bg-clip-text pb-[0.12em] font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))]',
                         heroLabelLong
-                          ? 'text-[clamp(2.1rem,4.2vw,3.75rem)] leading-[1.1]'
-                          : 'text-[clamp(2.9rem,5.6vw,5rem)] leading-[1.02]',
+                          ? 'text-[clamp(1.7rem,3.2vw,2.8rem)] leading-[1.12]'
+                          : 'text-[clamp(2.2rem,4.3vw,3.75rem)] leading-[1.08]',
                       )}
                       style={{ backgroundImage: 'var(--pv-gradient-headline)' }}
                     >
                       {heroLabel}
                     </h1>
-                    <p className="mt-4 max-w-[480px] text-[clamp(1.05rem,1.4vw,1.3rem)] leading-[1.55] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)]">
+                    <p className="mt-2 max-w-[520px] text-[clamp(0.95rem,1.1vw,1.1rem)] leading-[1.55] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)]">
                       {heroDesc}
                     </p>
 
@@ -147,11 +151,11 @@ export function TodayPage() {
                     <section
                       aria-label={t.today.pm25Label}
                       className={cn(
-                        'mt-5 grid overflow-hidden rounded-[20px] border md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]',
+                        'mt-3 grid overflow-hidden rounded-[20px] border md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]',
                         heroGlass,
                       )}
                     >
-                      <div className="min-w-0 p-4 md:px-5 md:py-4">
+                      <div className="min-w-0 p-3 md:px-4 md:py-3">
                         <p className="text-sm font-medium uppercase tracking-[0.18em] text-ink-muted dark:text-white/60">
                           {t.today.pm25Label}
                         </p>
@@ -161,7 +165,7 @@ export function TodayPage() {
                           <>
                             <div className="mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-2">
                               <p className="flex items-baseline gap-2">
-                                <span className="text-[clamp(2.25rem,3vw,2.9rem)] font-semibold leading-none tabular-nums text-ink dark:text-white">
+                                <span className="text-[clamp(1.85rem,2.3vw,2.35rem)] font-semibold leading-none tabular-nums text-ink dark:text-white">
                                   {formatNumber(pm)}
                                 </span>
                                 <span className="text-sm text-ink-muted dark:text-white/60">{t.today.unit}</span>
@@ -201,7 +205,7 @@ export function TodayPage() {
                           </>
                         )}
                       </div>
-                      <div className="min-w-0 border-t border-hairline p-4 dark:border-white/10 md:border-l md:border-t-0 md:px-5 md:py-4">
+                      <div className="min-w-0 border-t border-hairline p-3 dark:border-white/10 md:border-l md:border-t-0 md:px-4 md:py-3">
                         <Link
                           to="/insight"
                           className="flex items-center justify-between gap-2 text-sm text-ink hover:opacity-80"
@@ -229,7 +233,7 @@ export function TodayPage() {
                       </div>
                     </section>
 
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                       <DataStateBadge state={c.state} />
                       <ProvenanceNote
                         provenance={c.airQuality.provenance}
@@ -238,7 +242,7 @@ export function TodayPage() {
                       />
                     </div>
 
-                    <div className="mb-2 mt-3 flex items-end justify-between gap-3">
+                    <div className="mb-1 mt-2 flex items-end justify-between gap-3">
                       <p className="text-[13px] font-medium tracking-[0.25em] text-ink-muted">
                         {t.today.hourlyLabel}
                       </p>
@@ -257,7 +261,7 @@ export function TodayPage() {
                         {Array.from({ length: 6 }).map((_, i) => (
                           <div
                             key={i}
-                            className="h-[124px] min-w-[104px] flex-1 animate-pulse rounded-2xl border border-glass-border bg-glass-hero sm:min-w-0"
+                            className="h-[90px] min-w-[100px] flex-1 animate-pulse rounded-2xl border border-glass-border bg-glass-hero sm:min-w-0"
                           />
                         ))}
                       </div>
@@ -274,16 +278,16 @@ export function TodayPage() {
                     <Link
                       to="/insight"
                       className={cn(
-                        'mt-3 flex min-h-[56px] items-center gap-3 rounded-[18px] border px-4 py-2',
+                        'mt-2 flex min-h-[48px] items-center gap-3 rounded-[18px] border px-4 py-1',
                         heroGlass,
                       )}
                     >
                       <Wind
-                        className="size-8 shrink-0 text-primary-strong"
+                        className="size-7 shrink-0 text-primary-strong"
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-base font-medium">
+                        <span className="block text-[15px] font-medium">
                           {t.trendHeadline[c.trend]}
                         </span>
                         {windText && (
@@ -300,18 +304,18 @@ export function TodayPage() {
                   </div>
 
                   {/* Right column: hotspot block, bottom-aligned with the hourly strip */}
-                  <div className="flex min-w-0 flex-col justify-end lg:pt-24 xl:pt-36">
+                  <div className="flex min-w-0 flex-col justify-end lg:pt-8 xl:pt-10">
                     <div className="flex items-stretch gap-8">
                       <div
                         aria-hidden
                         className="hidden w-px shrink-0 self-stretch bg-hairline dark:bg-white/15 lg:block"
                       />
                       <div className="min-w-0 flex-1">
-                        <Mountain className="size-9 text-accent-strong" aria-hidden />
-                        <p className="mt-3 text-[10px] font-medium tracking-[0.2em] text-ink-muted">
+                        <Mountain className="size-8 text-accent-strong" aria-hidden />
+                        <p className="mt-2 text-[10px] font-medium tracking-[0.2em] text-ink-muted">
                           {t.today.hotspotEyebrow}
                         </p>
-                        <p className="mt-2 flex items-center gap-2 text-[18px]">
+                        <p className="mt-1.5 flex items-center gap-2 text-base">
                           {hotspotQuery.isPending ? (
                             <span
                               className="inline-block h-[18px] w-32 animate-pulse rounded bg-surface-muted"
@@ -330,12 +334,12 @@ export function TodayPage() {
                             </>
                           )}
                         </p>
-                        <p className="mt-2 max-w-[240px] text-sm leading-[21px] text-ink-muted">
+                        <p className="mt-1.5 max-w-[240px] text-sm leading-[21px] text-ink-muted">
                           {t.map.hotspotDisclaimer}
                         </p>
                         <Link
                           to="/peta"
-                          className="mt-4 inline-flex h-10 w-[132px] items-center justify-center gap-2 rounded-full border border-accent/50 text-sm font-medium hover:[box-shadow:var(--pv-glow-accent)]"
+                          className="mt-3 inline-flex h-9 w-[132px] items-center justify-center gap-2 rounded-full border border-accent/50 text-sm font-medium hover:[box-shadow:var(--pv-glow-accent)]"
                         >
                           {t.map.openFull} <ArrowRight className="size-4" aria-hidden />
                         </Link>
@@ -348,10 +352,10 @@ export function TodayPage() {
 
             {/* ============ BELOW THE FOLD — kept features on canvas ============ */}
             <div className="bg-canvas">
-              <div className="px-[6.25vw] pb-28 pt-10 lg:py-14">
+              <div className="px-[6.25vw] pb-28 pt-6 lg:py-8">
                 <div className="mx-auto grid w-full max-w-[1344px] gap-4 lg:grid-cols-12 lg:gap-5">
-                  <Card className={cn('lg:col-span-7', glassCard)}>
-                    <CardHeader>
+                  <Card className={cn('lg:col-span-7', glassCard, forecastCard)}>
+                    <CardHeader className="mb-2">
                       <CardTitle>
                         {t.insights.chartTitle}{' '}
                         <span className="normal-case tracking-normal">({t.today.unit})</span>
@@ -383,8 +387,8 @@ export function TodayPage() {
                     </QueryState>
                   </Card>
 
-                  <Card className={cn('lg:col-span-5', glassCard)}>
-                    <CardHeader>
+                  <Card className={cn('lg:col-span-5', glassCard, forecastCard)}>
+                    <CardHeader className="mb-2">
                       <CardTitle>{t.map.title}</CardTitle>
                       <Link
                         to="/peta"
@@ -405,8 +409,8 @@ export function TodayPage() {
                     </Suspense>
                   </Card>
 
-                  <Card className={cn('lg:col-span-6', glassCard)}>
-                    <CardHeader>
+                  <Card className={cn('lg:col-span-6', glassCard, forecastCard)}>
+                    <CardHeader className="mb-2">
                       <CardTitle>{t.today.whyTitle}</CardTitle>
                       <Link
                         to="/insight"
@@ -420,8 +424,8 @@ export function TodayPage() {
                     </QueryState>
                   </Card>
 
-                  <Card className={cn('lg:col-span-6', glassCard)}>
-                    <CardHeader>
+                  <Card className={cn('lg:col-span-6', glassCard, forecastCard)}>
+                    <CardHeader className="mb-2">
                       <CardTitle>{t.today.actionsTitle}</CardTitle>
                     </CardHeader>
                     <ul className="list-disc space-y-1 pl-5 text-sm">
@@ -432,7 +436,7 @@ export function TodayPage() {
                         <li key="health-advice">{t.today.healthAdvice[cat]}</li>
                       )}
                     </ul>
-                    <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-muted">
+                    <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-muted">
                       <Info className="size-3.5" aria-hidden /> {t.today.actionsNote}{' '}
                       {t.today.healthAdviceSource}{' '}
                       <Link to="/info" className="underline">
@@ -441,8 +445,8 @@ export function TodayPage() {
                     </p>
                   </Card>
 
-                  <Card className={cn('lg:col-span-12', glassCard)}>
-                    <CardHeader>
+                  <Card className={cn('lg:col-span-12', glassCard, forecastCard)}>
+                    <CardHeader className="mb-2">
                       <CardTitle>{t.today.timelineTitle}</CardTitle>
                     </CardHeader>
                     <QueryState query={forecast}>

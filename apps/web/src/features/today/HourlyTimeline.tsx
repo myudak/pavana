@@ -46,7 +46,7 @@ export function HourlyTimeline({
   if (variant === 'strip') {
     const slots = hours.slice(0, 6);
     return (
-      <ol className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+      <ol className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
         {slots.map((h, i) => {
           const pm = h.airQuality.pm25UgM3;
           const cat = categoryOf(pm);
@@ -54,7 +54,7 @@ export function HourlyTimeline({
             <li
               key={h.validAt}
               className={cn(
-                'flex min-w-[104px] flex-1 snap-start flex-col items-center gap-1 rounded-2xl border border-glass-border bg-glass-hero px-2 py-2 text-center backdrop-blur-xl dark:[box-shadow:var(--pv-shadow-soft)] sm:min-w-0',
+                'flex min-w-[100px] flex-1 snap-start flex-col items-center gap-0.5 rounded-2xl border border-glass-border bg-glass-hero px-2 py-0.5 text-center backdrop-blur-xl dark:[box-shadow:var(--pv-shadow-soft)] sm:min-w-0',
                 i === 0 &&
                   'border-accent/55 bg-accent/[0.16] font-bold dark:[box-shadow:var(--pv-glow-accent)]',
               )}
@@ -67,7 +67,7 @@ export function HourlyTimeline({
                 style={{ boxShadow: `0 0 12px var(${AQ_CSS_VAR[cat]})` }}
                 aria-hidden
               />
-              <span className="text-lg font-semibold tabular-nums">{formatNumber(pm)}</span>
+              <span className="text-base font-semibold tabular-nums">{formatNumber(pm)}</span>
               <WindCell
                 ms={h.weather?.windSpeedMs ?? null}
                 fromDeg={h.weather?.windDirectionFromDeg ?? null}
