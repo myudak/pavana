@@ -22,7 +22,12 @@
   --color-on-primary: var(--pv-on-primary);
   --color-accent: var(--pv-accent);
   --color-accent-soft: var(--pv-accent-soft);
+  --color-accent-strong: var(--pv-accent-strong);
   --color-ring: var(--pv-ring);
+
+  --color-glass-border: var(--pv-glass-border);
+  --color-glass-hero: var(--pv-glass-hero);
+  --color-hairline: var(--pv-hairline);
 
   --color-aq-good: var(--pv-aq-good);
   --color-aq-moderate: var(--pv-aq-moderate);

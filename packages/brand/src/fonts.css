@@ -1,7 +1,8 @@
-/* Comfortaa = wordmark interim; Outfit = display headings; Plus Jakarta Sans = body. */
+/* Inter = interface typography (headings, body, labels, numbers).
+   Comfortaa = wordmark interim; Outfit = wordmark fallback only. */
+@import '@fontsource-variable/inter';
 @import '@fontsource-variable/comfortaa';
 @import '@fontsource-variable/outfit';
-@import '@fontsource-variable/plus-jakarta-sans';
 
 /*
  * Wordmark utama: Vernosa Variable Regular (Qiubare Studio, via MyFonts) — PENDING.

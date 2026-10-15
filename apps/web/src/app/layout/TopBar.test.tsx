@@ -1,0 +1,66 @@
+import { render, screen } from '@testing-library/react';
+import { createMemoryRouter, RouterProvider } from 'react-router';
+import { describe, expect, it } from 'vitest';
+import { AppShell } from '@/app/layout/AppShell';
+import { AppProviders, createQueryClient } from '@/app/providers';
+
+function renderAt(path: string) {
+  const router = createMemoryRouter(
+    [
+      {
+        element: <AppShell />,
+        children: [
+          { index: true, element: <div>Hari Ini</div> },
+          { path: 'peta', element: <div>Peta</div> },
+          { path: 'insight', element: <div>Insight</div> },
+          { path: 'info', element: <div>Info</div> },
+        ],
+      },
+    ],
+    { initialEntries: [path] },
+  );
+  return render(
+    <AppProviders queryClient={createQueryClient()}>
+      <RouterProvider router={router} />
+    </AppProviders>,
+  );
+}
+
+describe('Top bar nav', () => {
+  it('marks the current destination active on both desktop and mobile navs', async () => {
+    renderAt('/');
+    const todayLinks = await screen.findAllByRole('link', { name: 'Hari Ini' });
+    // Desktop top bar + mobile bottom tab bar.
+    expect(todayLinks.length).toBeGreaterThanOrEqual(2);
+    for (const link of todayLinks) {
+      expect(link).toHaveAttribute('aria-current', 'page');
+    }
+    const mapLinks = await screen.findAllByRole('link', { name: 'Peta' });
+    for (const link of mapLinks) {
+      expect(link).not.toHaveAttribute('aria-current', 'page');
+    }
+  });
+
+  it('switches the active item when navigating', async () => {
+    renderAt('/peta');
+    const mapLinks = await screen.findAllByRole('link', { name: 'Peta' });
+    expect(mapLinks.length).toBeGreaterThanOrEqual(2);
+    for (const link of mapLinks) {
+      expect(link).toHaveAttribute('aria-current', 'page');
+    }
+  });
+
+  it('renders the bell as honestly non-functional with no notification dot', async () => {
+    renderAt('/');
+    const bell = await screen.findByRole('button', { name: 'Segera hadir' });
+    expect(bell).toHaveAttribute('aria-disabled', 'true');
+    expect(bell).toHaveAttribute('title', 'Segera hadir');
+    // No real notification state → no pink dot badge inside the button.
+    expect(bell.querySelector('span')).toBeNull();
+  });
+
+  it('shows the location pill trigger', async () => {
+    renderAt('/');
+    expect(await screen.findByRole('button', { name: 'Sungai Raya' })).toBeInTheDocument();
+  });
+});

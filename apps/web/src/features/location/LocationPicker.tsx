@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { Crosshair, MapPin, Search } from 'lucide-react';
+import { ChevronDown, Crosshair, MapPin, Search } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { useCopy } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { useSelectedLocation } from './location-context';
 
-/** Compact location chip that expands into search + opt-in geolocation. */
-export function LocationPicker() {
+/**
+ * Compact location chip that expands into search + opt-in geolocation.
+ * Top-bar pill: transparent, pin + name + chevron, hairline underline.
+ */
+export function LocationPicker({ className }: { className?: string }) {
   const t = useCopy();
   const { location, setLocation } = useSelectedLocation();
   const [open, setOpen] = useState(false);
@@ -54,22 +58,24 @@ export function LocationPicker() {
   };
 
   return (
-    <div className="relative" ref={rootRef}>
-      <Button
-        variant="outline"
-        size="sm"
-        className="max-w-[9rem] sm:max-w-none"
+    <div className={cn('relative', className)} ref={rootRef}>
+      <button
+        type="button"
         aria-expanded={open}
         aria-controls={panelId}
+        aria-label={location.label}
         onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 border-b border-hairline pb-3 text-sm font-medium text-ink hover:text-accent"
       >
-        <MapPin aria-hidden /> <span className="min-w-0 truncate">{location.label}</span>
-      </Button>
+        <MapPin className="size-4 shrink-0" aria-hidden />
+        <span className="max-w-36 truncate">{location.label}</span>
+        <ChevronDown className="size-4 shrink-0 text-ink-muted" aria-hidden />
+      </button>
 
       {open && (
         <div
           id={panelId}
-          className="absolute right-0 z-20 mt-2 w-72 space-y-2 rounded-card border border-border bg-surface p-3 shadow-lg"
+          className="absolute right-0 z-20 mt-2 w-72 space-y-2 rounded-card border border-glass-border bg-surface p-3 shadow-lg dark:bg-[var(--pv-glass)] dark:backdrop-blur-xl"
         >
           <label className="flex items-center gap-2 rounded-full border border-border px-3 py-2">
             <Search className="size-4 text-ink-muted" aria-hidden />

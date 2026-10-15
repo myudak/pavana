@@ -51,7 +51,7 @@ export function InfoPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-[1344px] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
       {conditions.data?.state === 'demo' && <DemoBanner />}
 
       <AtmosphereSection labelledBy="info-title" className="scroll-mt-24">

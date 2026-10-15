@@ -26,6 +26,15 @@ export const id = {
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
+  brand: {
+    eyebrow: 'KUALITAS UDARA & TITIK PANAS',
+    tagline: 'Pantau udara, bersiap lebih awal.',
+  },
+
+  notifications: {
+    soon: 'Segera hadir',
+  },
+
   nav: { today: 'Hari Ini', map: 'Peta', insights: 'Insight', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',
@@ -68,6 +77,14 @@ export const id = {
 
   today: {
     currentTitle: 'PM2.5 saat ini',
+    heroLead: 'Kualitas udara saat ini',
+    pm25Label: 'PM2.5',
+    todayForecast: 'Prakiraan hari ini',
+    hourlyLabel: 'PRAKIRAAN PER JAM',
+    hotspotEyebrow: 'AKTIVITAS TITIK PANAS',
+    hotspotCount: (n: number) => `${n} deteksi satelit`,
+    hotspotUnavailable: 'Tidak tersedia',
+    notEnough: 'Data belum cukup',
     now: 'Kini',
     seeAll: 'Lihat semua',
     unit: 'µg/m³',
