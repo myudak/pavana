@@ -11,6 +11,55 @@ export const id = {
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
+  mobile: {
+    appName: 'Pavana',
+    locationTitle: 'Pilih lokasi',
+    locationPermission:
+      'Pavana menggunakan lokasi saat diminta untuk memilih area kualitas udara. Lokasi dibulatkan dan disimpan hanya di perangkat ini.',
+    locationPrivacy:
+      'Lokasi tersimpan di perangkat, dibulatkan hingga sekitar 1 km. Tidak ada pelacakan di latar belakang.',
+    locationError: 'Lokasi belum bisa diperoleh. Coba lagi atau pilih lokasi secara manual.',
+    changeLocation: 'Ubah lokasi',
+    selectedLocation: 'Lokasi dipilih',
+    demoLocation: 'Kembali ke demo Kubu Raya',
+    close: 'Tutup',
+    refresh: 'Perbarui data',
+    temperature: 'Suhu',
+    humidity: 'Kelembapan',
+    wind: 'Angin',
+    speedUnit: 'm/s',
+    degreeUnit: '°C',
+    humidityUnit: '%',
+    aqi: 'US AQI',
+    referenceTime: 'Waktu data',
+    forecastHint: 'Nilai per jam · kategori US AQI bersifat indikatif',
+    noForecast: 'Belum ada prakiraan untuk ditampilkan.',
+    noHotspots: 'Tidak ada deteksi dalam area yang diminta. Ini tidak berarti tidak ada api.',
+    hotspotDetail: 'Detail deteksi',
+    hotspotSource: 'Deteksi anomali panas',
+    confidence: { low: 'Rendah', nominal: 'Nominal', high: 'Tinggi' },
+    powerUnit: 'MW',
+    mapPreview: 'Pratinjau koordinat',
+    mapPreviewNote:
+      'Peta dasar interaktif tersedia di aplikasi Android dan iOS. Pratinjau ini hanya menunjukkan koordinat deteksi.',
+    mapArea: 'Deteksi di area sekitar lokasi dipilih. Peta dasar memerlukan internet.',
+    dataSource: 'Sumber aplikasi',
+    bundledDemo: 'Demo di perangkat',
+    backend: 'Backend Pavana',
+    backendDescription:
+      'Gunakan respons API Pavana. Label demo atau live mengikuti sumber data yang dikembalikan backend.',
+    backendUnavailable: 'Alamat backend belum dikonfigurasi.',
+    demoDescription:
+      'Skenario sintetis Kubu Raya yang sama dengan aplikasi web, dapat dibuka tanpa koneksi API.',
+    version: 'Versi mobile · 0.1.0',
+    methodUnavailable:
+      'Keterangan model belum tersedia. Tidak ada metrik atau atribusi model yang ditampilkan.',
+    openLinkError: 'Tautan belum bisa dibuka di perangkat ini.',
+    startupError: 'Aplikasi belum bisa dimuat. Tutup dan buka kembali Pavana.',
+    requestError:
+      'Data belum bisa dimuat. Periksa koneksi dan konfigurasi backend, lalu coba lagi.',
+  },
+
   nav: { today: 'Hari Ini', map: 'Peta', insights: 'Insight', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',

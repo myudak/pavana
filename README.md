@@ -19,6 +19,7 @@ Product brief: [`docs/PAVANA_HANDOFF.md`](docs/PAVANA_HANDOFF.md).
 | ---------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | [`apps/web`](apps/web)                   | The app — Hari Ini, Peta, Insight, Info                               | React 19, Vite, Tailwind v4, shadcn/ui, TanStack Query, React Router, MapLibre, Recharts |
 | [`apps/landing`](apps/landing)           | Marketing / landing page                                              | Astro 5, Tailwind v4                                                                     |
+| [`apps/mobile`](apps/mobile)             | Android/iOS port — Hari Ini, Peta, Insight, Info                        | Expo SDK 57, React Native, Expo Router                                                     |
 | [`apps/api`](apps/api)                   | HTTP API, provider adapters, deterministic insights                   | Fastify 5, Zod 4                                                                         |
 | [`packages/shared`](packages/shared)     | Schemas/types + pure geo, wind, AQI math (single source of truth)     | TypeScript, Zod                                                                          |
 | [`packages/brand`](packages/brand)       | Design tokens (Ember/Mist light, Dusk/Haze dark), fonts, logo mark    | CSS                                                                                      |

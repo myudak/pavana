@@ -14,11 +14,18 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/coverage/**',
       '**/node_modules/**',
+      '**/.expo/**',
       'ml/**',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['apps/mobile/**/*.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    plugins: { 'react-hooks': reactHooks },
+    rules: reactHooks.configs.recommended.rules,
+  },
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [
