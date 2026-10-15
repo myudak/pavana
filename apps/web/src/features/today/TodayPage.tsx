@@ -1,121 +1,112 @@
-import { ArrowRight, Info } from 'lucide-react';
+import { InformationCircleIcon } from '@hugeicons/core-free-icons';
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router';
-import { AqCategoryPill } from '@/components/AqCategoryPill';
-import { DataStateBadge } from '@/components/DataStateBadge';
 import { DemoBanner } from '@/components/DemoBanner';
-import { ProvenanceNote } from '@/components/ProvenanceNote';
+import { Icon } from '@/components/Icon';
+import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { FactorList } from '@/features/insights/FactorList';
-import { AQ_STYLE, categoryOf } from '@/lib/aq';
-import { formatNumber } from '@/lib/format';
+import { categoryOf } from '@/lib/aq';
 import { useCopy } from '@/lib/i18n';
-import { useConditions, useForecast, useInsights } from '@/lib/queries';
-import { cn } from '@/lib/utils';
-import { HourlyTimeline } from './HourlyTimeline';
+import { useConditions, useExposure, useInsights } from '@/lib/queries';
+import { ConditionTiles } from './ConditionTiles';
+import { ExposureHero } from './ExposureHero';
+import { HourlyStrip } from './HourlyStrip';
+import { SmokeTimeline } from './SmokeTimeline';
+
+// MapLibre stays out of the main bundle.
+const MapPreview = lazy(() =>
+  import('@/features/map/MapPreview').then((m) => ({ default: m.MapPreview })),
+);
+
+function HeroSkeleton() {
+  return (
+    <div className="space-y-4 pt-6">
+      <Skeleton className="h-6 w-40 rounded-full" />
+      <Skeleton className="h-24 w-4/5 rounded-2xl" />
+      <Skeleton className="h-36 w-full rounded-3xl" />
+    </div>
+  );
+}
 
 export function TodayPage() {
   const t = useCopy();
   const conditions = useConditions();
-  const forecast = useForecast(24);
+  const exposure = useExposure(24);
   const insights = useInsights();
 
   return (
-    <div className="space-y-4">
-      <QueryState query={conditions}>
-        {(c) => {
-          const tz = c.location.timezone;
-          const cat = categoryOf(c.airQuality.pm25UgM3);
-          return (
-            <>
-              {c.state === 'demo' && <DemoBanner />}
+    <QueryState query={conditions} skeleton={<HeroSkeleton />}>
+      {(c) => {
+        const tz = c.location.timezone;
+        const cat = categoryOf(c.airQuality.pm25UgM3);
+        const e = exposure.data;
+        return (
+          <div className="space-y-4">
+            <ExposureHero conditions={c} exposure={e} />
 
-              <header className="space-y-1 pt-2">
-                <p className="text-sm text-ink-muted">
-                  {c.location.name}
-                  {c.location.admin2 ? `, ${c.location.admin2}` : ''}
-                </p>
-                <h1 className="font-display text-3xl font-medium leading-tight tracking-tight">
-                  {t.trendHeadline[c.trend]}
-                </h1>
-              </header>
-
-              <Card className={cn('relative overflow-hidden', AQ_STYLE[cat].soft)}>
-                <CardHeader>
-                  <CardTitle>{t.today.currentTitle}</CardTitle>
-                  <DataStateBadge state={c.state} />
-                </CardHeader>
-                {c.airQuality.pm25UgM3 === null ? (
-                  <p className="text-ink-muted">{t.today.noData}</p>
-                ) : (
-                  <div className="space-y-3">
-                    <p className="flex items-baseline gap-2">
-                      <span className="font-display text-6xl font-medium tabular-nums tracking-tight">
-                        {formatNumber(c.airQuality.pm25UgM3)}
-                      </span>
-                      <span className="text-lg text-ink-muted">{t.today.unit}</span>
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <AqCategoryPill category={cat} />
-                      {c.airQuality.aqi && (
-                        <span className="text-xs text-ink-muted" title={t.aqiIndicative}>
-                          US AQI {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <ProvenanceNote
-                  provenance={c.airQuality.provenance}
-                  timeZone={tz}
-                  className="mt-4"
-                />
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.today.timelineTitle}</CardTitle>
-                </CardHeader>
-                <QueryState query={forecast}>
-                  {(f) => <HourlyTimeline hours={f.hours} timeZone={tz} />}
+            <div className="grid items-start gap-4 lg:grid-cols-5 [&>*]:min-w-0">
+              <div className="space-y-4 lg:col-span-3">
+                <QueryState
+                  query={exposure}
+                  skeleton={<Skeleton className="h-64 w-full rounded-3xl" />}
+                >
+                  {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
                 </QueryState>
-              </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.today.whyTitle}</CardTitle>
-                  <Link
-                    to="/insight"
-                    className="inline-flex items-center gap-1 text-sm font-medium text-primary-strong"
-                  >
-                    {t.today.whyMore} <ArrowRight className="size-4" aria-hidden />
-                  </Link>
-                </CardHeader>
-                <QueryState query={insights}>
-                  {(i) => <FactorList factors={i.factors} timeZone={tz} />}
-                </QueryState>
-              </Card>
+                <Panel title={t.home.hourlyTitle}>
+                  <QueryState query={exposure} inline>
+                    {(x) => <HourlyStrip hours={x.hours} timeZone={tz} />}
+                  </QueryState>
+                </Panel>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.today.actionsTitle}</CardTitle>
-                </CardHeader>
-                <ul className="list-disc space-y-1 pl-5 text-sm">
-                  {t.today.actions.map((a) => (
-                    <li key={a}>{a}</li>
-                  ))}
-                </ul>
-                <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-muted">
-                  <Info className="size-3.5" aria-hidden /> {t.today.actionsNote}{' '}
-                  <Link to="/info" className="underline">
-                    {t.info.linksTitle}
-                  </Link>
-                </p>
-              </Card>
-            </>
-          );
-        }}
-      </QueryState>
-    </div>
+                <ConditionTiles conditions={c} now={e?.hours[0]} />
+              </div>
+
+              <div className="space-y-4 lg:col-span-2">
+                <Panel title={t.home.whyTitle} action={{ to: '/prakiraan', label: t.home.whyCta }}>
+                  <QueryState query={insights} inline>
+                    {(i) => <FactorList factors={i.factors} timeZone={tz} compact />}
+                  </QueryState>
+                </Panel>
+
+                <Panel title={t.home.mapTitle} action={{ to: '/peta', label: t.home.mapCta }}>
+                  <Suspense fallback={<Skeleton className="h-48 w-full rounded-2xl" />}>
+                    <MapPreview />
+                  </Suspense>
+                </Panel>
+
+                <Panel title={t.today.actionsTitle}>
+                  <ul className="space-y-2 text-sm leading-relaxed">
+                    {cat !== 'unknown' && (
+                      <li className="rounded-2xl bg-foreground/5 p-3 font-medium">
+                        {t.today.healthAdvice[cat]}
+                      </li>
+                    )}
+                    {t.today.actions.map((a) => (
+                      <li key={a} className="px-1 text-muted-foreground">
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-3 flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                    <Icon icon={InformationCircleIcon} className="mt-px size-3.5" />
+                    <span>
+                      {t.today.actionsNote} {t.today.healthAdviceSource}{' '}
+                      <Link to="/info" className="underline underline-offset-2">
+                        {t.info.linksTitle}
+                      </Link>
+                    </span>
+                  </p>
+                </Panel>
+              </div>
+            </div>
+
+            {c.state === 'demo' && <DemoBanner />}
+          </div>
+        );
+      }}
+    </QueryState>
   );
 }

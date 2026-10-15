@@ -3,6 +3,7 @@
   "build": {
     "development": { "developmentClient": true, "distribution": "internal" },
     "preview": {
+      "autoIncrement": true,
       "distribution": "internal",
       "environment": "preview",
       "env": {

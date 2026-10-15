@@ -8,8 +8,10 @@
   not "Unhealthy for sensitive groups"). Follow `packages/shared`, not the boards.
 - Animated smoke plumes in the boards are illustrative; Pavana does not render smoke overlays
   without a genuine smoke-transport forecast.
-- The icon in the boards is a raster concept. The provisional production mark is the hand-made SVG
-  in `packages/brand/assets/mark.svg`.
+- Logo concept boards are raster explorations only. The production identity is the
+  **wordmark "pavana"** (Comfortaa Bold interim; Vernosa pending) — see
+  `packages/brand/README.md`. There is no logo mark;
+  the former `assets/mark.svg` wind-flow symbol has been removed.
 
 | File                           | Shows                                                                                   |
 | ------------------------------ | --------------------------------------------------------------------------------------- |

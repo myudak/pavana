@@ -1,0 +1,41 @@
+---
+// C3: tim & JOINTS. Nama anggota belum ditentukan (lihat docs/PRD.md §2 — kolom PIC masih
+// kosong), jadi tidak ada nama yang dicantumkan. Jangan menambahkan nama tanpa konfirmasi tim.
+import { Award01Icon, UserGroupIcon } from '@hugeicons/core-free-icons';
+import Icon from './Icon.astro';
+---
+
+<section id="tim" class="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-24">
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <span class="flex size-10 items-center justify-center rounded-2xl bg-haze/15 text-haze">
+        <Icon icon={UserGroupIcon} class="size-5" />
+      </span>
+      <h2 class="mt-4 font-heading text-2xl font-bold tracking-tight">
+        Dibangun untuk JOINTS 2026.
+      </h2>
+      <p class="mt-3 leading-relaxed text-ink-muted">
+        Pavana dikerjakan oleh tim kecil untuk kompetisi JOINTS 2026, subtema Sustainability —
+        dengan fokus pada kesadaran asap kebakaran dan kualitas udara untuk warga Kalimantan Barat.
+        Daftar anggota tim akan dilengkapi setelah pembagian peran final.
+      </p>
+    </div>
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <span class="flex size-10 items-center justify-center rounded-2xl bg-haze/15 text-haze">
+        <Icon icon={Award01Icon} class="size-5" />
+      </span>
+      <h2 class="mt-4 font-heading text-2xl font-bold tracking-tight">Kenapa ini penting.</h2>
+      <p class="mt-3 leading-relaxed text-ink-muted">
+        Tantangan sustainability JOINTS mencakup komunitas di sekitar hutan dan lahan gambut yang
+        kesulitan memantau titik panas lebih awal, serta keterlambatan informasi saat bencana.
+        Pavana menjawab sisi informasinya: kesadaran kualitas udara yang cepat dipahami, berbasis
+        lokasi, dan jujur soal keterbatasannya.
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-ink-muted">
+        Pavana bukan aplikasi pertama soal kebakaran di Indonesia — dan tidak mengklaim demikian.
+        Kontribusinya adalah integrasi data otoritatif yang berpusat pada pengguna, plus indikator
+        statistik sadar-angin untuk prakiraan PM2.5 jangka pendek (masih dalam penelitian).
+      </p>
+    </div>
+  </div>
+</section>

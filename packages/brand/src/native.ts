@@ -20,6 +20,14 @@ export const light = {
   hazardous: '#7f1d1d',
   unknown: '#6b7280',
   hero: '#ffedd5',
+  accent: '#db2777',
+  glass: 'rgba(255,255,255,0.74)',
+  glassBorder: 'rgba(31,41,55,0.09)',
+  subtle: 'rgba(31,41,55,0.05)',
+  none: '#2563eb',
+  low: '#7c3aed',
+  exposureModerate: '#ea580c',
+  high: '#db2777',
 };
 export type Palette = typeof light;
 export const dark: Palette = {
@@ -43,9 +51,18 @@ export const dark: Palette = {
   hazardous: '#fb7185',
   unknown: '#a6adbd',
   hero: '#262b5a',
+  accent: '#f472b6',
+  glass: 'rgba(23,27,46,0.74)',
+  glassBorder: 'rgba(238,240,244,0.09)',
+  subtle: 'rgba(238,240,244,0.05)',
+  none: '#60a5fa',
+  low: '#a78bfa',
+  exposureModerate: '#fb923c',
+  high: '#f472b6',
 };
 export const nativeFonts = {
-  display: 'Outfit_500Medium',
+  display: 'PlusJakartaSans_700Bold',
+  wordmark: 'Comfortaa_500Medium',
   body: 'PlusJakartaSans_400Regular',
   medium: 'PlusJakartaSans_600SemiBold',
 };

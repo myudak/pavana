@@ -11,6 +11,7 @@ import {
   type StyleProp,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { nativeFonts } from '@pavana/brand/native';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -19,6 +20,7 @@ import { useSettings } from '../lib/settings';
 import { t } from '../lib/copy';
 import { formatDateTime } from '../lib/format';
 import { Icon, type IconName } from './Icon';
+import { Scene, useBlurTarget } from './Scene';
 
 export function Copy({
   children,
@@ -49,18 +51,41 @@ export function Copy({
   );
 }
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  const { colors } = useSettings();
+  const { colors, isDark } = useSettings();
+  const blurTarget = useBlurTarget();
   return (
     <View
-      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }, style]}
+      style={[
+        styles.card,
+        { backgroundColor: colors.glass, borderColor: colors.glassBorder },
+        style,
+      ]}
     >
+      <BlurView
+        pointerEvents="none"
+        intensity={24}
+        tint={isDark ? 'dark' : 'light'}
+        blurTarget={blurTarget}
+        blurMethod="dimezisBlurViewSdk31Plus"
+        style={StyleSheet.absoluteFill}
+      />
       {children}
     </View>
   );
 }
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <Copy heading style={{ fontSize: 20, lineHeight: 26, marginBottom: 14 }}>
+    <Copy
+      style={{
+        fontFamily: nativeFonts.medium,
+        fontSize: 11,
+        lineHeight: 18,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        marginBottom: 14,
+        opacity: 0.75,
+      }}
+    >
       {children}
     </Copy>
   );
@@ -100,41 +125,104 @@ export function Action({
   );
 }
 export function Page({ children, title }: { children: ReactNode; title?: string }) {
-  const { colors, location } = useSettings();
+  const { colors, isDark, setTheme } = useSettings();
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
       style={{ flex: 1, backgroundColor: colors.canvas }}
     >
-      <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <View style={styles.row}>
-            <Icon name="wind" color={colors.primary} size={29} />
-            <Copy heading style={{ fontSize: 29, lineHeight: 36, letterSpacing: -1.2 }}>
-              {t.appName}
-            </Copy>
+      <ScrollView
+        contentContainerStyle={{ minHeight: '100%', paddingBottom: 110 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Scene tall={!title}>
+          <View style={styles.page}>
+            <View style={styles.header}>
+              <View style={styles.row}>
+                <Copy
+                  style={{
+                    fontFamily: nativeFonts.wordmark,
+                    fontSize: 25,
+                    lineHeight: 36,
+                    letterSpacing: -1.4,
+                  }}
+                >
+                  {t.appName}
+                </Copy>
+              </View>
+              <View style={styles.row}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t.insights.notif.title}
+                  onPress={() => router.push('/notifikasi')}
+                  style={[
+                    styles.circle,
+                    { backgroundColor: colors.subtle, borderColor: colors.glassBorder },
+                  ]}
+                >
+                  <Icon name="bell" color={colors.ink} size={19} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t.mobile.toggleTheme}
+                  onPress={() => setTheme(isDark ? 'light' : 'dark')}
+                  style={[
+                    styles.circle,
+                    { backgroundColor: colors.subtle, borderColor: colors.glassBorder },
+                  ]}
+                >
+                  <Icon name={isDark ? 'sun' : 'moon'} color={colors.ink} size={20} />
+                </Pressable>
+              </View>
+            </View>
+            {title !== t.info.title && <LocationLine />}
+            {title && (
+              <Copy heading style={{ fontSize: 36, lineHeight: 44, letterSpacing: -1 }}>
+                {title}
+              </Copy>
+            )}
+            {children}
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t.mobile.changeLocation}
-            onPress={() => router.push('/lokasi')}
-            style={[
-              styles.locationChip,
-              { borderColor: colors.border, backgroundColor: colors.surface },
-            ]}
-          >
-            <Icon name="pin" color={colors.primary} size={16} />
-            <Copy style={{ fontSize: 12, maxWidth: 140 }}>{location.label}</Copy>
-          </Pressable>
-        </View>
-        {title && (
-          <Copy heading style={{ fontSize: 34, lineHeight: 40, letterSpacing: -1 }}>
-            {title}
-          </Copy>
-        )}
-        {children}
+        </Scene>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+export function LocationLine() {
+  const { colors, location, mode } = useSettings();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 8,
+        marginBottom: 6,
+      }}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t.mobile.changeLocation}
+        onPress={() => router.push('/lokasi')}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flexShrink: 1, minHeight: 36 }}
+      >
+        <Icon name="pin" color={colors.accent} size={16} />
+        <Copy style={{ fontFamily: nativeFonts.medium, fontSize: 13 }}>{location.label}</Copy>
+        <Icon name="chevron" color={colors.muted} size={13} />
+      </Pressable>
+      {mode === 'demo' && (
+        <View
+          style={{
+            borderRadius: 20,
+            backgroundColor: colors.demoSoft,
+            paddingHorizontal: 9,
+            paddingVertical: 3,
+          }}
+        >
+          <Copy style={{ fontSize: 10, lineHeight: 15, color: colors.demo }}>{t.mode.demo}</Copy>
+        </View>
+      )}
+    </View>
   );
 }
 export function StateBadge({ state }: { state: DataState }) {
@@ -184,7 +272,7 @@ export function Source({ provenance, timezone }: { provenance: Provenance; timez
   return (
     <Copy muted style={{ fontSize: 10, lineHeight: 17, marginTop: 10 }}>
       {t.common.source}: {provenance.provider} · {t.provenanceKind[provenance.kind]}
-      {'\n'}
+      {' · '}
       {t.common.validAt} {formatDateTime(provenance.validAt, timezone)}
     </Copy>
   );
@@ -228,11 +316,19 @@ export const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',
-    padding: 22,
-    paddingBottom: 40,
-    gap: 18,
+    padding: 16,
+    paddingTop: 12,
+    gap: 16,
   },
-  card: { borderWidth: 1, borderRadius: 26, padding: 22 },
+  card: { borderWidth: 1, borderRadius: 24, padding: 16, overflow: 'hidden' },
+  circle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

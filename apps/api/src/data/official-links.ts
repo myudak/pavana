@@ -3,7 +3,11 @@ import type { OfficialLink } from '@pavana/shared';
 /**
  * Curated entry points to authoritative sources. These are LINKS, not an alert feed —
  * Pavana does not issue official warnings or evacuation instructions.
- * Re-check URLs periodically.
+ *
+ * E5 — terakhir diperiksa 2026-10-15 (permintaan HTTP otomatis):
+ * BMKG PM2.5, SPARTAN, SiPongi, NASA FIRMS, BPBD Kalbar → terbuka (HTTP 200).
+ * BNPB (https://bnpb.go.id/) → 403 untuk permintaan otomatis (kemungkinan proteksi bot);
+ * domain resminya tetap dipertahankan, mohon verifikasi manual di browser.
  */
 export const OFFICIAL_LINKS: OfficialLink[] = [
   {
@@ -40,5 +44,12 @@ export const OFFICIAL_LINKS: OfficialLink[] = [
     publisher: 'BNPB',
     url: 'https://bnpb.go.id/',
     description: 'Informasi dan arahan resmi penanggulangan bencana.',
+  },
+  {
+    id: 'bpbd-kalbar',
+    title: 'BPBD Provinsi Kalimantan Barat',
+    publisher: 'BPBD Kalbar',
+    url: 'https://bpbd.kalbarprov.go.id/',
+    description: 'Informasi penanggulangan bencana daerah, termasuk laporan harian posko karhutla.',
   },
 ];

@@ -1,57 +1,56 @@
-import { Platform, View } from 'react-native';
-import Constants from 'expo-constants';
-import MapView, { Marker } from 'react-native-maps';
-import { useSettings } from '../lib/settings';
-import { t } from '../lib/copy';
-import CoordinateMap, { type HotspotMapProps } from './CoordinateMap';
-
+import { useEffect, useRef } from 'react';
+import { Linking, StyleSheet, View } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { DEFAULT_LAYERS, useMapDocument } from './map-document';
+import type { HotspotMapProps } from './CoordinateMap';
 export default function HotspotMap(props: HotspotMapProps) {
-  const { location, hotspots, onSelect } = props;
-  const { colors, isDark } = useSettings();
-  // Google Maps may crash on Android without API-key metadata. Keep the build usable.
-  if (Platform.OS === 'android' && Constants.expoConfig?.extra?.nativeMapsEnabled !== true) {
-    return <CoordinateMap {...props} note={t.mobile.mapNotConfigured} />;
-  }
+  const ref = useRef<WebView>(null);
+  const html = useMapDocument(props);
+  const layers = JSON.stringify(props.layers ?? DEFAULT_LAYERS);
+  const sync = () =>
+    ref.current?.injectJavaScript(
+      `window.pavanaSetLayers?.(${layers});window.pavanaRegion?.(${props.region === true});true;`,
+    );
+  useEffect(() => {
+    ref.current?.injectJavaScript(`window.pavanaSetLayers?.(${layers});true;`);
+  }, [layers]);
+  useEffect(() => {
+    ref.current?.injectJavaScript(`window.pavanaRegion?.(${props.region === true});true;`);
+  }, [props.region]);
   return (
-    <View
-      style={{
-        height: 360,
-        borderRadius: 26,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: colors.border,
-      }}
-    >
-      <MapView
-        key={location.lat + ':' + location.lon}
-        style={{ flex: 1 }}
-        initialRegion={{
-          latitude: location.lat,
-          longitude: location.lon,
-          latitudeDelta: 5.4,
-          longitudeDelta: 5.4,
+    <View style={StyleSheet.absoluteFill}>
+      <WebView
+        ref={ref}
+        originWhitelist={['*']}
+        source={{ html }}
+        style={{ flex: 1, backgroundColor: 'transparent' }}
+        javaScriptEnabled
+        domStorageEnabled
+        scrollEnabled={false}
+        setSupportMultipleWindows={false}
+        allowsInlineMediaPlayback={false}
+        onShouldStartLoadWithRequest={(request) => {
+          if (request.url === 'about:blank' || request.url.startsWith('about:srcdoc')) return true;
+          if (
+            request.url.startsWith('https://carto.com/') ||
+            request.url.startsWith('https://www.openstreetmap.org/')
+          )
+            void Linking.openURL(request.url).catch(() => {});
+          return false;
         }}
-        userInterfaceStyle={isDark ? 'dark' : 'light'}
-        showsUserLocation={false}
-        showsMyLocationButton={false}
-        rotateEnabled={false}
-      >
-        <Marker
-          coordinate={{ latitude: location.lat, longitude: location.lon }}
-          title={t.mobile.selectedLocation}
-          pinColor={colors.primary}
-        />
-        {hotspots.map((hotspot) => (
-          <Marker
-            key={hotspot.id}
-            coordinate={{ latitude: hotspot.lat, longitude: hotspot.lon }}
-            title={t.mobile.hotspotSource}
-            description={hotspot.satellite + ' · ' + hotspot.instrument}
-            pinColor={colors.unhealthy_sensitive}
-            onPress={() => onSelect(hotspot)}
-          />
-        ))}
-      </MapView>
+        onMessage={(event) => {
+          try {
+            const data = JSON.parse(event.nativeEvent.data) as { type?: string; id?: string };
+            if (data.type === 'ready') sync();
+            if (data.type === 'select') {
+              const selected = props.hotspots.find((h) => h.id === data.id);
+              if (selected) props.onSelect(selected);
+            }
+          } catch {
+            /* Ignore messages outside the map bridge contract. */
+          }
+        }}
+      />
     </View>
   );
 }

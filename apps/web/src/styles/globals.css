@@ -3,8 +3,90 @@
 @import '@pavana/brand/tokens.css';
 @import '@pavana/brand/theme.css';
 
+/*
+ * shadcn/ui token names mapped onto Pavana tokens, so generated primitives
+ * (components/ui) follow the brand without editing their class names.
+ * Note: shadcn's `accent` is a subtle hover surface. The brand's pink accent
+ * is exposed as `haze` instead.
+ */
+@theme inline {
+  --color-background: var(--pv-canvas);
+  --color-foreground: var(--pv-ink);
+  --color-card: var(--pv-surface);
+  --color-card-foreground: var(--pv-ink);
+  --color-popover: var(--pv-surface);
+  --color-popover-foreground: var(--pv-ink);
+  --color-primary-foreground: var(--pv-on-primary);
+  --color-secondary: var(--pv-surface-muted);
+  --color-secondary-foreground: var(--pv-ink);
+  --color-muted: var(--pv-surface-muted);
+  --color-muted-foreground: var(--pv-ink-muted);
+  --color-accent: var(--pv-surface-muted);
+  --color-accent-foreground: var(--pv-ink);
+  --color-destructive: var(--pv-state-error);
+  --color-input: var(--pv-border);
+
+  --color-haze: var(--pv-haze);
+  --color-haze-soft: var(--pv-accent-soft);
+
+  --radius-sm: calc(var(--pv-radius) - 8px);
+  --radius-md: calc(var(--pv-radius) - 4px);
+  --radius-lg: var(--pv-radius);
+  --radius-xl: calc(var(--pv-radius) + 4px);
+  --radius-2xl: calc(var(--pv-radius) + 8px);
+
+  --animate-drift: drift 40s ease-in-out infinite alternate;
+
+  @keyframes drift {
+    from {
+      transform: scale(1.06) translate3d(-1.5%, 0, 0);
+    }
+    to {
+      transform: scale(1.06) translate3d(1.5%, -1%, 0);
+    }
+  }
+}
+
+/* Haze accent for text/icons: the light-theme blush is too pale for text, so use a deeper pink there. */
+:root {
+  --pv-haze: #db2777;
+}
+:root[data-theme='dark'] {
+  --pv-haze: var(--pv-accent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pv-haze: var(--pv-accent);
+  }
+}
+
 @layer base {
+  * {
+    border-color: var(--pv-border);
+  }
+
   body {
     min-height: 100dvh;
+    background-color: var(--pv-canvas);
   }
+
+  /* Numbers line up in timelines and tables. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Frosted card over the landscape background. */
+@utility glass {
+  background-color: color-mix(in oklab, var(--pv-surface) 74%, transparent);
+  border: 1px solid color-mix(in oklab, var(--pv-ink) 9%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }

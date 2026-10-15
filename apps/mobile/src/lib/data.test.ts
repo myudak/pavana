@@ -7,6 +7,21 @@ import { lineSegments } from './chart';
 afterEach(() => vi.unstubAllGlobals());
 
 describe('native data contract', () => {
+  it('keeps the redesigned exposure timeline and regional wind tied to demo provenance', async () => {
+    const exposure = await demoClient.exposure(DEMO_LOCATION);
+    expect(exposure.hours[0]?.validAt).toBe(raw.meta.referenceTime);
+    expect(exposure.method).toBe('deterministic_indicators');
+    expect(exposure.provenance.every((p) => p.isDemo && p.kind === 'fixture')).toBe(true);
+    const missing = await demoClient.exposure({ lat: -6.2, lon: 106.8 });
+    expect(missing.state).toBe('insufficient');
+    expect(missing.summary.peakLevel).toBe('unknown');
+    expect(missing.hours).toEqual([]);
+    const field = await demoClient.windField([108, -4, 118, 7]);
+    expect(field.validAt).toBe(raw.meta.referenceTime);
+    expect(field.points.every((p) => p.provenance.isDemo && p.provenance.kind === 'fixture')).toBe(
+      true,
+    );
+  });
   it('uses the existing fixture and pinned reference time', async () => {
     const result = await demoClient.conditions(DEMO_LOCATION);
     expect(result.airQuality.pm25UgM3).toBe(raw.hours[0]!.airQuality.pm25UgM3);

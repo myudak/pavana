@@ -6,6 +6,9 @@
 import {
   ConditionsResponseSchema,
   ForecastResponseSchema,
+  ExposureResponseSchema,
+  WindFieldSchema,
+  SourcesResponseSchema,
   InsightsResponseSchema,
   HotspotsResponseSchema,
   OfficialLinksResponseSchema,
@@ -17,6 +20,9 @@ import { createFixtureProviders } from '../../../api/src/providers/fixture';
 import type { ProviderBundle } from '../../../api/src/providers/types';
 import { getConditions } from '../../../api/src/services/conditions';
 import { getForecast } from '../../../api/src/services/forecast';
+import { getExposure } from '../../../api/src/services/exposure';
+import { getWindField } from '../../../api/src/services/wind-field';
+import { getSources } from '../../../api/src/services/sources';
 import { getInsights } from '../../../api/src/services/insights';
 import { OFFICIAL_LINKS } from '../../../api/src/data/official-links';
 
@@ -31,8 +37,12 @@ export const DEMO_LOCATION = { lat: -0.1, lon: 109.38, label: 'Sungai Raya' };
 export const demoClient = {
   conditions: async (point: LatLon) =>
     ConditionsResponseSchema.parse(await getConditions(providers, point)),
-  forecast: async (point: LatLon) =>
-    ForecastResponseSchema.parse(await getForecast(providers, point, 24)),
+  forecast: async (point: LatLon, hours = 48) =>
+    ForecastResponseSchema.parse(await getForecast(providers, point, hours)),
+  exposure: async (point: LatLon) =>
+    ExposureResponseSchema.parse(await getExposure(providers, point, 24)),
+  windField: async (bbox: BBox) => WindFieldSchema.parse(await getWindField(providers, bbox)),
+  sources: async () => SourcesResponseSchema.parse(await getSources(providers)),
   insights: async (point: LatLon) =>
     InsightsResponseSchema.parse(await getInsights(providers, point)),
   hotspots: async (bbox: BBox) =>
@@ -43,7 +53,7 @@ export const demoClient = {
         bbox,
         from: new Date(fixture.referenceTime.getTime() - 48 * 3600000),
         to: fixture.referenceTime,
-        limit: 500,
+        limit: 1500,
       }),
     }),
   locations: async (q: string) =>

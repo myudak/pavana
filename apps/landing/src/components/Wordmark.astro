@@ -1,13 +1,15 @@
 ---
-import mark from '@pavana/brand/mark.svg?raw';
-
 interface Props {
   class?: string;
 }
+
 const { class: className = '' } = Astro.props;
 ---
 
-<span class:list={['inline-flex items-center gap-2 text-ink', className]}>
-  <span aria-hidden="true" class="size-7 text-primary [&>svg]:size-full" set:html={mark} />
-  <span class="font-display text-2xl font-medium tracking-[-0.05em]">pavana</span>
+<!-- Identitas Pavana = wordmark "pavana" saja. Utilitas `font-wordmark` = Vernosa
+  (pending, lihat packages/brand/src/fonts.css) dengan fallback Comfortaa interim. -->
+<span
+  class:list={['inline-flex items-center', !/\btext-/.test(className) && 'text-ink', className]}
+>
+  <span class="font-wordmark text-2xl font-bold tracking-[-0.05em]">pavana</span>
 </span>

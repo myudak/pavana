@@ -4,11 +4,10 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
-import { Outfit_500Medium } from '@expo-google-fonts/outfit';
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_600SemiBold,
-} from '@expo-google-fonts/plus-jakarta-sans';
+import Comfortaa_500Medium from '../../assets/fonts/Comfortaa_500Medium.ttf';
+import PlusJakartaSans_400Regular from '../../assets/fonts/PlusJakartaSans_400Regular.ttf';
+import PlusJakartaSans_600SemiBold from '../../assets/fonts/PlusJakartaSans_600SemiBold.ttf';
+import PlusJakartaSans_700Bold from '../../assets/fonts/PlusJakartaSans_700Bold.ttf';
 import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { SettingsProvider, useSettings } from '../lib/settings';
 import { t } from '../lib/copy';
@@ -31,9 +30,10 @@ export default function RootLayout() {
       }),
   );
   const [fontsLoaded, fontError] = useFonts({
-    Outfit_500Medium,
+    Comfortaa_500Medium,
     PlusJakartaSans_400Regular,
     PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
   });
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -72,6 +72,10 @@ function Navigation({ fontsReady }: { fontsReady: boolean }) {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="notifikasi"
+          options={{ presentation: 'modal', title: t.insights.notif.title }}
+        />
         <Stack.Screen
           name="lokasi"
           options={{ presentation: 'modal', title: t.mobile.locationTitle }}

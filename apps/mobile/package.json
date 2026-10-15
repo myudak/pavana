@@ -1,10 +1,13 @@
 {
   "name": "@pavana/mobile",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pavana for Android and iOS (Expo + React Native)",
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo-google-fonts/outfit": "^0.4.3",
+    "@expo-google-fonts/comfortaa": "^0.4.2",
+    "@react-native-masked-view/masked-view": "0.3.2",
+    "expo-blur": "~57.0.3",
+    "react-native-webview": "13.16.1",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@pavana/brand": "workspace:*",
     "@pavana/shared": "workspace:*",
@@ -22,7 +25,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
-    "react-native-maps": "1.27.2",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.2",

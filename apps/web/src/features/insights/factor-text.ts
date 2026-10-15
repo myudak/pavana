@@ -1,6 +1,7 @@
-import { bearingToCompass16, type Factor } from '@pavana/shared';
-import { formatNumber, formatTime } from '@/lib/format';
-import type { Copy } from '@/lib/i18n';
+import type { Factor } from '@pavana/shared';
+import { formatNumber, formatTime } from '../../lib/format';
+import type { Copy } from '../../lib/i18n';
+import { compassId, msToKmh } from '../../lib/wind';
 
 const num = (v: unknown, digits = 0) => formatNumber(typeof v === 'number' ? v : null, digits);
 
@@ -18,10 +19,10 @@ export function describeFactor(f: Factor, t: Copy, timeZone: string): string {
     case 'wind':
       if (typeof m.directionFromDeg !== 'number') return t.factor.detail.missing;
       return t.factor.detail.wind(
-        String(m.compassFrom),
+        compassId(m.directionFromDeg, t),
         num(m.directionFromDeg),
-        num(m.speedMs, 1),
-        bearingToCompass16(Number(m.flowToDeg)),
+        typeof m.speedMs === 'number' ? num(msToKmh(m.speedMs)) : '—',
+        compassId(Number(m.flowToDeg), t).toLowerCase(),
       );
     case 'upwind_hotspots':
       if (m.score === null) return t.factor.detail.missing;

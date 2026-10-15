@@ -2,6 +2,9 @@ import Svg, { Path } from 'react-native-svg';
 import type { ColorValue } from 'react-native';
 
 const paths = {
+  home: 'm3 10 9-7 9 7v10h-6v-7H9v7H3V10Z',
+  bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M9 21h6',
+  moon: 'M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10Z',
   wind: 'M3 7h12a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 17h6a3 3 0 1 1-3 3',
   sun: 'M12 3v1m0 16v1M3 12h1m16 0h1M5.6 5.6l.7.7m11.4 11.4.7.7m0-12.8-.7.7M6.3 17.7l-.7.7M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   map: 'm3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15',
@@ -35,7 +38,7 @@ export function Icon({
       strokeWidth={1.7}
       strokeLinecap="round"
       strokeLinejoin="round"
-      accessible={false}
+      aria-hidden={true}
     >
       <Path d={paths[name]} />
     </Svg>

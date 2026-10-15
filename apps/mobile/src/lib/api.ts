@@ -3,6 +3,10 @@ import {
   ApiErrorSchema,
   ConditionsResponseSchema,
   ForecastResponseSchema,
+  ExposureResponseSchema,
+  WindFieldSchema,
+  SourcesResponseSchema,
+  WeatherReferenceResponseSchema,
   HotspotsResponseSchema,
   InsightsResponseSchema,
   LocationSearchResponseSchema,
@@ -43,11 +47,18 @@ export function createApiClient(base: string) {
     conditions: (point: LatLon, signal?: AbortSignal) =>
       get('/api/conditions', { ...point }, ConditionsResponseSchema, signal),
     forecast: (point: LatLon, signal?: AbortSignal) =>
-      get('/api/forecast', { ...point, hours: 24 }, ForecastResponseSchema, signal),
+      get('/api/forecast', { ...point, hours: 48 }, ForecastResponseSchema, signal),
+    exposure: (point: LatLon, signal?: AbortSignal) =>
+      get('/api/exposure', { ...point, hours: 24 }, ExposureResponseSchema, signal),
+    windField: (bbox: BBox, signal?: AbortSignal) =>
+      get('/api/wind-field', { bbox: bbox.join(',') }, WindFieldSchema, signal),
+    sources: (signal?: AbortSignal) => get('/api/sources', {}, SourcesResponseSchema, signal),
+    weatherReference: (point: LatLon, signal?: AbortSignal) =>
+      get('/api/weather-reference', { ...point }, WeatherReferenceResponseSchema, signal),
     insights: (point: LatLon, signal?: AbortSignal) =>
       get('/api/insights', { ...point }, InsightsResponseSchema, signal),
     hotspots: (bbox: BBox, signal?: AbortSignal) =>
-      get('/api/hotspots', { bbox: bbox.join(',') }, HotspotsResponseSchema, signal),
+      get('/api/hotspots', { bbox: bbox.join(','), limit: 1500 }, HotspotsResponseSchema, signal),
     locations: (q: string, signal?: AbortSignal) =>
       get('/api/locations/search', { q }, LocationSearchResponseSchema, signal),
     officialLinks: (signal?: AbortSignal) =>

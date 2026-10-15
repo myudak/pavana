@@ -1,12 +1,17 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { pm25ToUsAqi } from '@pavana/shared';
 import { nativeFonts } from '@pavana/brand/native';
-import { pm25ToUsAqi, windFromToFlowBearing, bearingToCompass16 } from '@pavana/shared';
-import { useConditions, useForecast, useInsights } from '../../lib/queries';
+import {
+  useConditions,
+  useExposure,
+  useInsights,
+  useHotspots,
+  boundsAround,
+} from '../../lib/queries';
 import { useSettings } from '../../lib/settings';
 import { t } from '../../lib/copy';
-import { formatNumber } from '../../lib/format';
+import { formatNumber, formatTime, tzAbbr } from '../../lib/format';
 import {
   Action,
   Card,
@@ -16,182 +21,225 @@ import {
   QueryBoundary,
   SectionTitle,
   Source,
-  StateBadge,
 } from '../../components/ui';
-import { HourlyForecast } from '../../components/Forecast';
+import { ConditionTiles, HourlyStrip, SmokeTimeline, Sparkline } from '../../components/Exposure';
+import GradientHeading from '../../components/GradientHeading';
 import { Factors } from '../../components/Factors';
-import { Icon } from '../../components/Icon';
+import HotspotMap from '../../components/HotspotMap';
 
 export default function TodayScreen() {
-  const { colors } = useSettings();
-  const conditions = useConditions();
-  const forecast = useForecast();
-  const insights = useInsights();
+  const { colors, location } = useSettings();
+  const conditions = useConditions(),
+    exposure = useExposure(),
+    insights = useInsights(),
+    hotspots = useHotspots();
+  const e = exposure.data;
+  const peak = e?.summary.peakLevel ?? 'unknown';
+  const peakHour = e?.hours.find((h) => h.validAt === e.summary.peakAt);
   return (
     <Page>
       <QueryBoundary query={conditions}>
-        {(data) => {
-          const category = pm25ToUsAqi(data.airQuality.pm25UgM3)?.category ?? 'unknown';
-          const timezone = data.location.timezone;
-          const weather = data.weather;
-          const windFrom = weather?.windDirectionFromDeg ?? null;
+        {(c) => {
+          const category = pm25ToUsAqi(c.airQuality.pm25UgM3)?.category ?? 'unknown';
+          const tz = c.location.timezone;
           return (
             <>
-              <DemoNotice show={data.airQuality.provenance.isDemo} />
-              <View style={{ gap: 8 }}>
-                <Copy muted style={{ fontSize: 12 }}>
-                  {data.location.name} · {data.location.admin2 ?? data.location.admin1}
+              <View style={{ gap: 8, marginBottom: 4 }}>
+                <Copy style={{ fontSize: 13, fontFamily: nativeFonts.medium, opacity: 0.85 }}>
+                  {t.exposure.eyebrow}
                 </Copy>
-                <Copy heading style={{ fontSize: 32, lineHeight: 38, letterSpacing: -0.8 }}>
-                  {t.trendHeadline[data.trend]}
-                </Copy>
-              </View>
-              <LinearGradient
-                colors={[colors.hero, colors.surface]}
-                style={{
-                  borderRadius: 30,
-                  padding: 24,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-                  <Copy muted style={{ fontSize: 12 }}>
-                    {t.today.currentTitle}
-                  </Copy>
-                  <StateBadge state={data.state} />
-                </View>
-                <View
-                  style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 18 }}
-                >
-                  <Copy heading style={{ fontSize: 76, lineHeight: 88, letterSpacing: -3 }}>
-                    {formatNumber(data.airQuality.pm25UgM3, 1)}
-                  </Copy>
-                  <Copy muted>{t.today.unit}</Copy>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 5 }}>
-                  <View
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: colors[category],
-                    }}
-                  />
-                  <Copy style={{ color: colors[category], fontFamily: nativeFonts.medium }}>
-                    {t.aqCategory[category]}
-                  </Copy>
-                </View>
-                {data.airQuality.aqi && (
-                  <Copy muted style={{ fontSize: 11, marginTop: 6 }}>
-                    {t.mobile.aqi} {data.airQuality.aqi.value} · {t.aqiIndicativeShort}
+                <GradientHeading>{t.exposure.headline[peak]}</GradientHeading>
+                {e && peak !== 'unknown' && (
+                  <Copy style={{ fontSize: 14, lineHeight: 23, opacity: 0.85 }}>
+                    {e.summary.peakAt
+                      ? t.exposure.peakAt(formatTime(e.summary.peakAt, tz) + ' ' + tzAbbr(tz)) +
+                        '. '
+                      : ''}
+                    {peakHour ? t.exposure.driver[peakHour.driver] : ''}
                   </Copy>
                 )}
-                {data.airQuality.pm25UgM3 === null && <Copy muted>{t.today.noData}</Copy>}
-                <Source provenance={data.airQuality.provenance} timezone={timezone} />
-              </LinearGradient>
+                {e?.summary.hotspotsAvailable === false && (
+                  <Copy muted style={{ fontSize: 11 }}>
+                    {t.hotspotsUnavailable}
+                  </Copy>
+                )}
+              </View>
               <Card>
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                  <View style={{ flex: 1, gap: 5 }}>
-                    <Copy muted style={{ fontSize: 11 }}>
-                      {t.mobile.temperature}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'flex-end',
+                    justifyContent: 'space-between',
+                    gap: 6,
+                  }}
+                >
+                  <View style={{ flexShrink: 1 }}>
+                    <Copy
+                      muted
+                      style={{
+                        fontFamily: nativeFonts.medium,
+                        fontSize: 10,
+                        letterSpacing: 1.6,
+                        textTransform: 'uppercase',
+                        marginBottom: 4,
+                      }}
+                    >
+                      {t.today.currentTitle}
                     </Copy>
-                    <Copy heading style={{ fontSize: 26, lineHeight: 32 }}>
-                      {formatNumber(weather?.temperatureC, 1)}
-                      {t.mobile.degreeUnit}
-                    </Copy>
+                    {c.airQuality.pm25UgM3 === null ? (
+                      <Copy muted>{t.today.noData}</Copy>
+                    ) : (
+                      <Copy heading style={{ fontSize: 58, lineHeight: 66, letterSpacing: -2 }}>
+                        {formatNumber(c.airQuality.pm25UgM3)}
+                        <Copy muted style={{ fontSize: 12 }}>
+                          {' '}
+                          {t.today.unit}
+                        </Copy>
+                      </Copy>
+                    )}
                   </View>
-                  <View style={{ flex: 1, gap: 5 }}>
-                    <Copy muted style={{ fontSize: 11 }}>
-                      {t.mobile.humidity}
-                    </Copy>
-                    <Copy heading style={{ fontSize: 26, lineHeight: 32 }}>
-                      {formatNumber(weather?.relativeHumidityPct)}
-                      {t.mobile.humidityUnit}
-                    </Copy>
-                  </View>
+                  {e && (
+                    <Sparkline
+                      values={e.hours.slice(0, 13).map((h) => h.pm25UgM3)}
+                      width={122}
+                      height={66}
+                    />
+                  )}
                 </View>
                 <View
                   style={{
                     flexDirection: 'row',
-                    gap: 12,
+                    flexWrap: 'wrap',
+                    gap: 8,
                     alignItems: 'center',
-                    borderTopWidth: 1,
-                    borderTopColor: colors.border,
-                    paddingTop: 16,
-                    marginTop: 16,
+                    marginTop: 12,
                   }}
                 >
                   <View
                     style={{
-                      transform: [
-                        {
-                          rotate: (windFrom === null ? 0 : windFromToFlowBearing(windFrom)) + 'deg',
-                        },
-                      ],
+                      flexDirection: 'row',
+                      gap: 5,
+                      alignItems: 'center',
+                      backgroundColor: colors[category] + '22',
+                      paddingHorizontal: 8,
+                      paddingVertical: 2,
+                      borderRadius: 20,
                     }}
                   >
-                    <Icon
-                      name={windFrom === null ? 'wind' : 'arrow'}
-                      color={colors.primary}
-                      size={26}
+                    <View
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: colors[category],
+                      }}
                     />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Copy heading>
-                      {t.mobile.wind} · {formatNumber(weather?.windSpeedMs, 1)} {t.mobile.speedUnit}
-                    </Copy>
-                    <Copy muted style={{ fontSize: 11 }}>
-                      {t.map.windFrom}{' '}
-                      {windFrom === null ? t.aqCategory.unknown : bearingToCompass16(windFrom)}
+                    <Copy style={{ fontFamily: nativeFonts.medium, fontSize: 12 }}>
+                      {t.aqCategory[category]}
                     </Copy>
                   </View>
+                  {c.airQuality.aqi && (
+                    <Copy muted style={{ fontSize: 10 }}>
+                      {t.tiles.aqi} {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
+                    </Copy>
+                  )}
                 </View>
-                {weather && <Source provenance={weather.provenance} timezone={timezone} />}
+                {category !== 'unknown' && (
+                  <Copy muted style={{ fontSize: 13, lineHeight: 22, marginTop: 8 }}>
+                    {t.today.heroDesc[category]}
+                  </Copy>
+                )}
+                <Source provenance={c.airQuality.provenance} timezone={tz} />
+                {c.station && (
+                  <View
+                    style={{
+                      padding: 12,
+                      borderRadius: 16,
+                      backgroundColor: colors.subtle,
+                      marginTop: 12,
+                    }}
+                  >
+                    <Copy style={{ fontSize: 11 }}>
+                      {t.station.line(
+                        c.station.name,
+                        formatNumber(c.station.airQuality.pm25UgM3),
+                        formatNumber(c.station.distanceKm, 1),
+                      )}
+                    </Copy>
+                    <Source provenance={c.station.airQuality.provenance} timezone={tz} />
+                  </View>
+                )}
               </Card>
+              <QueryBoundary query={exposure}>
+                {(value) => <SmokeTimeline exposure={value} />}
+              </QueryBoundary>
               <Card>
-                <SectionTitle>{t.today.timelineTitle}</SectionTitle>
-                <QueryBoundary query={forecast}>
-                  {(value) => <HourlyForecast forecast={value} />}
+                <SectionTitle>{t.home.hourlyTitle}</SectionTitle>
+                <QueryBoundary query={exposure}>
+                  {(value) => <HourlyStrip hours={value.hours} timezone={tz} />}
                 </QueryBoundary>
               </Card>
+              <ConditionTiles conditions={c} hour={e?.hours[0]} />
               <Card>
-                <SectionTitle>{t.today.whyTitle}</SectionTitle>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                  <SectionTitle>{t.home.whyTitle}</SectionTitle>
+                  <Pressable accessibilityRole="link" onPress={() => router.push('/prakiraan')}>
+                    <Copy style={{ fontSize: 10, color: colors.primary }}>{t.home.whyCta} ›</Copy>
+                  </Pressable>
+                </View>
                 <QueryBoundary query={insights}>
-                  {(value) => <Factors factors={value.factors} timezone={timezone} />}
+                  {(value) => <Factors factors={value.factors} timezone={tz} />}
                 </QueryBoundary>
-                <View style={{ marginTop: 18 }}>
-                  <Action
-                    label={t.today.whyMore}
-                    icon="chart"
-                    onPress={() => router.push('/insight')}
-                    secondary
-                  />
-                </View>
               </Card>
-              <Action
-                label={t.mobile.refresh}
-                icon="refresh"
-                onPress={() => {
-                  void conditions.refetch();
-                  void forecast.refetch();
-                  void insights.refetch();
-                }}
-                secondary
-              />
               <Card>
-                <Copy muted style={{ fontSize: 12 }}>
-                  {t.today.actionsNote}
-                </Copy>
-                <View style={{ marginTop: 14 }}>
-                  <Action
-                    label={t.info.linksTitle}
-                    icon="external"
-                    onPress={() => router.push('/info')}
-                    secondary
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                  <SectionTitle>{t.home.mapTitle}</SectionTitle>
+                  <Pressable accessibilityRole="link" onPress={() => router.push('/peta')}>
+                    <Copy style={{ fontSize: 10, color: colors.primary }}>{t.home.mapCta} ›</Copy>
+                  </Pressable>
+                </View>
+                <View style={{ height: 200, borderRadius: 16, overflow: 'hidden' }}>
+                  <HotspotMap
+                    location={location}
+                    bbox={boundsAround(location)}
+                    hotspots={hotspots.data?.hotspots ?? []}
+                    onSelect={() => router.push('/peta')}
+                    compact
                   />
                 </View>
               </Card>
+              <Card>
+                <SectionTitle>{t.today.actionsTitle}</SectionTitle>
+                {category !== 'unknown' && (
+                  <Copy
+                    style={{
+                      fontFamily: nativeFonts.medium,
+                      fontSize: 12,
+                      backgroundColor: colors.subtle,
+                      padding: 12,
+                      borderRadius: 16,
+                      marginBottom: 10,
+                    }}
+                  >
+                    {t.today.healthAdvice[category]}
+                  </Copy>
+                )}
+                {t.today.actions.map((item) => (
+                  <Copy muted key={item} style={{ fontSize: 12, marginBottom: 8 }}>
+                    {item}
+                  </Copy>
+                ))}
+                <Copy muted style={{ fontSize: 10, lineHeight: 17 }}>
+                  {t.today.actionsNote} {t.today.healthAdviceSource}
+                </Copy>
+                <Action
+                  label={t.info.linksTitle}
+                  onPress={() => router.push('/info')}
+                  secondary
+                  icon="external"
+                />
+              </Card>
+              <DemoNotice show={c.state === 'demo'} />
             </>
           );
         }}

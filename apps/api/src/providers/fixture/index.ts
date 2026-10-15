@@ -12,6 +12,7 @@ import type {
   WeatherProvider,
 } from '../types';
 import { kubuRayaScenario, type Scenario } from './scenario';
+import { regionalHotspots } from './regional';
 
 export const FIXTURE_PROVIDER_ID = 'pavana-fixture';
 
@@ -57,10 +58,17 @@ export function createFixtureProviders(scenario: Scenario = kubuRayaScenario): F
       id,
       getHotspots: async ({ bbox, from, to, limit }) => {
         const [minLon, minLat, maxLon, maxLat] = bbox;
-        return scenario.hotspots
-          .filter((h) => h.lon >= minLon && h.lon <= maxLon && h.lat >= minLat && h.lat <= maxLat)
-          .filter((h) => !from || Date.parse(h.acquiredAt) >= from.getTime())
-          .filter((h) => !to || Date.parse(h.acquiredAt) <= to.getTime())
+        const inBbox = (h: { lon: number; lat: number }) =>
+          h.lon >= minLon && h.lon <= maxLon && h.lat >= minLat && h.lat <= maxLat;
+        const inWindow = (acquiredAt: string) => {
+          const t = Date.parse(acquiredAt);
+          return (!from || t >= from.getTime()) && (!to || t <= to.getTime());
+        };
+        // Scenario first (preserves existing local behavior), then the regional
+        // field. The regional fixture keeps a keep-out zone around the scenario
+        // location, so local queries are unaffected.
+        return [...scenario.hotspots, ...regionalHotspots]
+          .filter((h) => inBbox(h) && inWindow(h.acquiredAt))
           .slice(0, limit);
       },
     },

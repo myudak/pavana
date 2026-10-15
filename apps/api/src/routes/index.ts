@@ -1,9 +1,14 @@
 /**
  * HTTP routes. Every response is parsed through its shared schema before sending,
  * so the contract in `@pavana/shared` is enforced at runtime (a drift = 500 in dev/tests).
+ *
+ * `?demo=1` on any route serves the fixture scenario instead of the primary bundle,
+ * so the pitch demo stays one tap away while production runs on live data.
  */
 import {
   ConditionsResponseSchema,
+  ExposureQuerySchema,
+  ExposureResponseSchema,
   ForecastQuerySchema,
   ForecastResponseSchema,
   HealthResponseSchema,
@@ -14,43 +19,63 @@ import {
   LocationSearchQuerySchema,
   LocationSearchResponseSchema,
   OfficialLinksResponseSchema,
+  SourcesResponseSchema,
+  WeatherReferenceResponseSchema,
+  WindFieldQuerySchema,
+  WindFieldSchema,
 } from '@pavana/shared';
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { OFFICIAL_LINKS } from '../data/official-links';
 import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
+import { getExposure } from '../services/exposure';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
+import { getSources } from '../services/sources';
+import { getWeatherReference } from '../services/weather-reference';
+import { getWindField } from '../services/wind-field';
 import { parseInput } from './validate';
 
 export interface RoutesOptions {
+  /** Primary bundle (live in production). */
   providers: ProviderBundle;
+  /** Fixture bundle served for `?demo=1`. */
+  demo: ProviderBundle;
   version: string;
 }
 
-export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers, version }) => {
+export const routes: FastifyPluginAsync<RoutesOptions> = async (
+  app,
+  { providers, demo, version },
+) => {
+  const pick = (req: FastifyRequest): ProviderBundle =>
+    (req.query as Record<string, unknown> | undefined)?.['demo'] === '1' ? demo : providers;
+
   app.get('/health', async () =>
     HealthResponseSchema.parse({ status: 'ok', mode: providers.mode, version }),
   );
 
+  app.get('/api/sources', async (req) => SourcesResponseSchema.parse(await getSources(pick(req))));
+
   app.get('/api/locations/search', async (req) => {
     const { q } = parseInput(LocationSearchQuerySchema, req.query);
-    return LocationSearchResponseSchema.parse({ results: await providers.locations.search(q) });
+    return LocationSearchResponseSchema.parse({ results: await pick(req).locations.search(q) });
   });
 
   app.get('/api/conditions', async (req) => {
     const point = parseInput(LatLonQuerySchema, req.query);
-    return ConditionsResponseSchema.parse(await getConditions(providers, point));
+    return ConditionsResponseSchema.parse(await getConditions(pick(req), point));
   });
 
   app.get('/api/forecast', async (req) => {
     const { lat, lon, hours } = parseInput(ForecastQuerySchema, req.query);
-    return ForecastResponseSchema.parse(await getForecast(providers, { lat, lon }, hours));
+    return ForecastResponseSchema.parse(await getForecast(pick(req), { lat, lon }, hours));
   });
 
   app.get('/api/hotspots', async (req) => {
+    const p = pick(req);
     const q = parseInput(HotspotsQuerySchema, req.query);
-    const hotspots = await providers.hotspots.getHotspots({
+    const hotspots = await p.hotspots.getHotspots({
       bbox: q.bbox,
       from: q.from ? new Date(q.from) : undefined,
       to: q.to ? new Date(q.to) : undefined,
@@ -58,7 +83,7 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers
     });
     return HotspotsResponseSchema.parse({
       // Hotspot detections are point events; an empty list means "no detections", not "no fire".
-      state: providers.isDemo ? 'demo' : 'live',
+      state: p.isDemo ? 'demo' : 'live',
       bbox: q.bbox,
       hotspots,
     });
@@ -66,7 +91,22 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers
 
   app.get('/api/insights', async (req) => {
     const point = parseInput(LatLonQuerySchema, req.query);
-    return InsightsResponseSchema.parse(await getInsights(providers, point));
+    return InsightsResponseSchema.parse(await getInsights(pick(req), point));
+  });
+
+  app.get('/api/exposure', async (req) => {
+    const { lat, lon, hours } = parseInput(ExposureQuerySchema, req.query);
+    return ExposureResponseSchema.parse(await getExposure(pick(req), { lat, lon }, hours));
+  });
+
+  app.get('/api/wind-field', async (req) => {
+    const { bbox } = parseInput(WindFieldQuerySchema, req.query);
+    return WindFieldSchema.parse(await getWindField(pick(req), bbox));
+  });
+
+  app.get('/api/weather-reference', async (req) => {
+    const point = parseInput(LatLonQuerySchema, req.query);
+    return WeatherReferenceResponseSchema.parse(await getWeatherReference(pick(req), point));
   });
 
   app.get('/api/official-links', async () =>

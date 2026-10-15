@@ -40,6 +40,19 @@
   --pv-aq-hazardous: #7f1d1d;
   --pv-aq-unknown: #9ca3af;
 
+  /* Smoke-exposure potential levels (none → high). Always pair with a text label. */
+  --pv-exp-none: #2563eb;
+  --pv-exp-low: #7c3aed;
+  --pv-exp-moderate: #ea580c;
+  --pv-exp-high: #db2777;
+  --pv-exp-unknown: #9ca3af;
+
+  /* Amber warning (attention states, from the olive branch). */
+  --pv-warning: #d97706;
+  --pv-warning-strong: #b45309;
+  --pv-warning-soft: #fef3c7;
+  --pv-warning-ink: #78350f;
+
   /* Data-state colors */
   --pv-state-demo: #7c3aed;
   --pv-state-stale: #b45309;
@@ -47,6 +60,16 @@
 
   --pv-radius: 1rem;
   --pv-font-display: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  /* Peran font: wordmark = Comfortaa (brand), judul & angka = Plus Jakarta Sans
+     (humanis, paling dekat referensi), isi = Plus Jakarta Sans. */
+  --pv-font-heading:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
+     Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
+     setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
+  --pv-font-wordmark:
+    'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif,
+    system-ui, sans-serif;
   --pv-font-body:
     'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
@@ -75,10 +98,30 @@
   --pv-aq-very-unhealthy: #c084fc;
   --pv-aq-hazardous: #fb7185;
   --pv-aq-unknown: #9ca3af;
+  --pv-exp-none: #60a5fa;
+  --pv-exp-low: #a78bfa;
+  --pv-exp-moderate: #fb923c;
+  --pv-exp-high: #f472b6;
+  --pv-exp-unknown: #9ca3af;
+  --pv-warning: #f59e0b;
+  --pv-warning-strong: #fbbf24;
+  --pv-warning-soft: #2e2411;
+  --pv-warning-ink: #fef3c7;
 
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
   --pv-state-error: #f87171;
+
+  /* Dusk / Haze decorative effects (dark only). */
+  --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
+  --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
+  --pv-glass: rgba(23, 27, 46, 0.72);
+  --pv-hero-scrim: linear-gradient(
+    180deg,
+    rgba(14, 17, 32, 0.28) 0%,
+    rgba(14, 17, 32, 0.66) 72%,
+    #0e1120 100%
+  );
 }
 
 /* No explicit choice → follow the OS. Keep in sync with the block above. */
@@ -105,9 +148,29 @@
     --pv-aq-very-unhealthy: #c084fc;
     --pv-aq-hazardous: #fb7185;
     --pv-aq-unknown: #9ca3af;
+    --pv-exp-none: #60a5fa;
+    --pv-exp-low: #a78bfa;
+    --pv-exp-moderate: #fb923c;
+    --pv-exp-high: #f472b6;
+    --pv-exp-unknown: #9ca3af;
+    --pv-warning: #f59e0b;
+    --pv-warning-strong: #fbbf24;
+    --pv-warning-soft: #2e2411;
+    --pv-warning-ink: #fef3c7;
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;
+
+    /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
+    --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
+    --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
+    --pv-glass: rgba(23, 27, 46, 0.72);
+    --pv-hero-scrim: linear-gradient(
+      180deg,
+      rgba(14, 17, 32, 0.28) 0%,
+      rgba(14, 17, 32, 0.66) 72%,
+      #0e1120 100%
+    );
   }
 }
 

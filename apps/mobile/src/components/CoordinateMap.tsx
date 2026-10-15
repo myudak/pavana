@@ -12,6 +12,10 @@ export interface HotspotMapProps {
   hotspots: Hotspot[];
   onSelect(hotspot: Hotspot): void;
   note?: string;
+  compact?: boolean;
+  layers?: ('hotspots' | 'density' | 'wind' | 'plumes')[];
+  region?: boolean;
+  plumeHours?: number;
 }
 export default function CoordinateMap({
   location,

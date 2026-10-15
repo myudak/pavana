@@ -26,3 +26,19 @@ export function useInsights() {
     queryFn: ({ signal }) => api.insights(location, signal),
   });
 }
+
+export function useExposure(hours = 24) {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['exposure', location.lat, location.lon, hours],
+    queryFn: ({ signal }) => api.exposure(location, hours, signal),
+  });
+}
+
+/** Curated official links (BMKG, SiPongi, BPBD…) — location-independent. */
+export function useOfficialLinks() {
+  return useQuery({
+    queryKey: ['official-links'],
+    queryFn: ({ signal }) => api.officialLinks(signal),
+  });
+}

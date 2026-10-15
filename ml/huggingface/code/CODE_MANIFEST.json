@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "repo_id": "myudak/pavana",
+  "kind": "code bundle",
+  "prepared_at_utc": "2026-10-15T10:13:34.507198+00:00",
+  "notes": [
+    "This manifest describes the files in the revision it is read at.",
+    "The code revision and the data revision are separate pins; record both in a run.",
+    "Install the bundle itself; it carries no data, no credentials and no local artifacts."
+  ],
+  "files": [
+    {
+      "path": "code/README.md",
+      "bytes": 3252,
+      "sha256": "cdd09ab96a023163aa3b87ca1db9dc05c3ea27605dd23898de6b9f1fc35ec361"
+    },
+    {
+      "path": "code/ml/README.md",
+      "bytes": 9436,
+      "sha256": "4d5add96fdcb999a1246ef9e3236f7aea51f2ab9f8c2970ce7f22ce9e8ede437"
+    },
+    {
+      "path": "code/ml/notebooks/00_cloud_setup.ipynb",
+      "bytes": 21161,
+      "sha256": "bbf6e64eba754733ec7ed2eeee24227c97c867828ad540399e55c1e8e510fa1e"
+    },
+    {
+      "path": "code/ml/notebooks/02_data_sources.ipynb",
+      "bytes": 16385,
+      "sha256": "337c223af8269816267573b0ff97ac0bd0bdbdaac387c523b72deea1918da5db"
+    },
+    {
+      "path": "code/ml/notebooks/03_feature_engineering.ipynb",
+      "bytes": 11343,
+      "sha256": "f33659a997f8e8210450b0fe56510876f5e3e1bcbf831c608cefa85d85fdd95e"
+    },
+    {
+      "path": "code/ml/notebooks/04_baselines_and_lightgbm.ipynb",
+      "bytes": 13394,
+      "sha256": "ef15a028deae9c4124a9634a24a60be20ba9348d7a0b5b2c4c5389f52136c15d"
+    },
+    {
+      "path": "code/ml/pyproject.toml",
+      "bytes": 1012,
+      "sha256": "ee591347e226286a8110eb980fd3e78f5eedcc52c8ceb5fd1f0df5d4f9eee646"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/__init__.py",
+      "bytes": 299,
+      "sha256": "49cd72fafd90f1bbea8f382231e879db654b0c42b86a51fc95a1711b7862f50c"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/config.py",
+      "bytes": 533,
+      "sha256": "bdb9b59a9672dd13f1ae798b04354ee93956e67c142ef8b8090c8bf5316419fd"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/__init__.py",
+      "bytes": 166,
+      "sha256": "97c9e65b93b08cda76e15bd4d45f28654ca7750ba448a61801d8611497d2b663"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/firms.py",
+      "bytes": 11618,
+      "sha256": "19bd63f8795c668c7a57f7a2cb85c2eb6ca64776c89d7b854c1f38b7594ed135"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/fixtures.py",
+      "bytes": 1999,
+      "sha256": "b1bb5fabd2c3923505060099a73ee073b1d18905f0a25e61c19592f96c6c147b"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/open_meteo.py",
+      "bytes": 7253,
+      "sha256": "df1337a8fb94197996f356d4b63215d0fb5a7423cf9f4291fab501a2c2145b06"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/openaq.py",
+      "bytes": 1137,
+      "sha256": "6ac580ea4bfdb3b02ff5791578a9fc7f9b39d8d0ed2f2a6140558936e165ddf8"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/data/research.py",
+      "bytes": 37139,
+      "sha256": "4d9b74aefdc48564f433a40603a4266c67d2efc105a89a93a7d9b3f55ea4de07"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/evaluation/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/evaluation/metrics.py",
+      "bytes": 1341,
+      "sha256": "08a5c8bdd56cde6526457862e58e525f5346bd23a934a9ad0720cf8375215934"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/evaluation/splits.py",
+      "bytes": 1287,
+      "sha256": "87734025300efd664ca275e9e9fe4907fe6a24608f8d2a4e808812058760117d"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/__init__.py",
+      "bytes": 147,
+      "sha256": "659674ff3c5f09e98f077ea8756c6f30f80d5b7aaa598d28d7d36a1780b4384b"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/geo.py",
+      "bytes": 1354,
+      "sha256": "7746be1f58e16b62b8652412706f81d5e78879c75186a3f5583e843dccc4faf4"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/lags.py",
+      "bytes": 700,
+      "sha256": "eb2dbdd38e4f28f1af04fad6806461da1556c6fbf35d5e9553b3e0f02b743e5f"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/model_table.py",
+      "bytes": 20985,
+      "sha256": "c4e1957332ccfb56a86628e1e2283deca43cb3d8eab21b3b04bd4919b8463a10"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/upwind.py",
+      "bytes": 3645,
+      "sha256": "400d4ea6551ab231f255d4545951849c48343c07490da750e85851db4009b266"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/features/wind.py",
+      "bytes": 819,
+      "sha256": "7a9c1addc7ad3ec0a6bdbd95651454a375662ac37fd5e37fbcebc636604aaf39"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/models/__init__.py",
+      "bytes": 186,
+      "sha256": "503d7dcd6db45a1e8e2dd3fbf8d96961380798b80d4507c27951df04991dbd3f"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/models/baselines.py",
+      "bytes": 430,
+      "sha256": "b8a8e9bb4ec48406c697e9de939c872a9af7f4ee019b79144640b4675d865958"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/models/experiment.py",
+      "bytes": 52376,
+      "sha256": "b88b75a8b9dd6ce8e6cd4bcba85a13f1a60fdd83a3e7ccc1f453e2075c94188f"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/models/lgbm.py",
+      "bytes": 6265,
+      "sha256": "73ca1bdba7825067d9ae444bcf2b0d72b246a5c9882d31948bc6f516d8b8fdbc"
+    },
+    {
+      "path": "code/ml/src/pavana_ml/paths.py",
+      "bytes": 758,
+      "sha256": "009bec34b29c380dfe08a1d984ce67ae6898221c389790970223ab20beacb24a"
+    }
+  ]
+}

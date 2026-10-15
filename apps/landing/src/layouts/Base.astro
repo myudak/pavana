@@ -1,4 +1,5 @@
 ---
+import { id } from '../../../web/src/lib/i18n/id';
 import '../styles/global.css';
 
 interface Props {
@@ -6,14 +7,11 @@ interface Props {
   description?: string;
 }
 
-const {
-  title = 'Pavana — Prakiraan kualitas udara & asap kebakaran',
-  description = 'Prakiraan kualitas udara dan potensi dampak asap kebakaran, berdasarkan lokasimu.',
-} = Astro.props;
+const { title = id.landing.title, description = id.landing.description } = Astro.props;
 
 const site = Astro.site ?? new URL('https://pavana.myudak.com');
 const canonical = new URL(Astro.url.pathname, site).href;
-const ogImage = new URL('/og.png', site).href;
+const ogImage = new URL('/og.jpg', site).href;
 
 // Describes only what the product is — no ratings, offers or coverage claims.
 const jsonLd = {

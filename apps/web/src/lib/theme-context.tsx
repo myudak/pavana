@@ -65,3 +65,22 @@ export function useTheme(): Ctx {
   if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');
   return ctx;
 }
+
+/** Effective dark mode (follows pref + OS). Tracks `data-theme` changes. */
+export function useDarkMode(): boolean {
+  const { pref } = useTheme();
+  const [dark, setDark] = useState(
+    () => typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark',
+  );
+  useEffect(() => {
+    const update = () => setDark(document.documentElement.dataset.theme === 'dark');
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+    return () => obs.disconnect();
+  }, [pref]);
+  return dark;
+}
