@@ -1,13 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="pavana">
-  <!-- Pavana app icon v1: turunan tipografis huruf "p" — konstruksi geometris
-    (batang + mangkuk lingkaran, ujung membulat) yang menggema wordmark.
-    Wordmark penuh tidak terbaca pada ukuran ikon persegi, jadi dipakai satu
-    huruf awal — bukan simbol terpisah. Bukan glif font Outfit, melainkan
-    konstruksi vektor yang disengaja agar deterministik di semua perender. -->
+  <!-- Ikon aplikasi v2: turunan tipografis huruf "p" lowercase dari Comfortaa
+    bobot 700 — keluarga font yang sama dengan wordmark "pavana" (interim aktif,
+    lihat packages/brand/README.md). Outline diekstrak dari glyph Comfortaa
+    Variable (wght 700) dan disimpan sebagai <path>, bukan <text>, supaya
+    bentuknya deterministik tanpa bergantung pada font saat favicon dirender.
+    Huruf diletakkan tepat di tengah kanvas pada tinggi 46/64; stroke 1 unit
+    adalah kompensasi optis agar tetap terbaca pada ukuran tab 16 px.
+    Warna mengikuti token brand: huruf Mist #F5F1EB di atas gradasi dusk
+    ungu gelap ke mauve berasap (#252B4D → #4E3B5E → #8A5F74, dari
+    design/references/dusk-haze-app-showcase.webp). -->
   <title>pavana</title>
-  <rect width="64" height="64" rx="16" fill="#1F2937" />
-  <g stroke="#F5F1EB" stroke-width="9" fill="none" stroke-linecap="round">
-    <path d="M24 13v38" />
-    <circle cx="37" cy="27" r="10.5" />
-  </g>
+  <defs>
+    <linearGradient id="pv-favicon-dusk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#252B4D" />
+      <stop offset="0.55" stop-color="#4E3B5E" />
+      <stop offset="1" stop-color="#8A5F74" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#pv-favicon-dusk)" />
+  <path
+    fill="#F5F1EB"
+    stroke="#F5F1EB"
+    stroke-width="1"
+    stroke-linejoin="round"
+    d="M18.845 55Q17.555 55 16.706 54.15Q15.856 53.301 15.856 52.011L15.856 25.29Q15.915 20.661 18.024 16.969Q20.134 13.278 23.767 11.139Q27.4 9 31.971 9Q36.6 9 40.233 11.139Q43.866 13.278 46.005 16.969Q48.144 20.661 48.144 25.29Q48.144 29.92 46.181 33.582Q44.218 37.245 40.819 39.383Q37.42 41.522 33.143 41.522Q29.685 41.522 26.785 40.087Q23.884 38.651 21.833 36.19L21.833 52.011Q21.833 53.301 21.013 54.15Q20.192 55 18.845 55ZM31.971 36.248Q34.959 36.248 37.303 34.813Q39.647 33.377 41.024 30.887Q42.401 28.396 42.401 25.29Q42.401 22.126 41.024 19.636Q39.647 17.145 37.303 15.71Q34.959 14.274 31.971 14.274Q29.041 14.274 26.668 15.71Q24.294 17.145 22.946 19.636Q21.599 22.126 21.599 25.29Q21.599 28.396 22.946 30.887Q24.294 33.377 26.668 34.813Q29.041 36.248 31.971 36.248Z"
+  />
 </svg>
