@@ -1173,8 +1173,25 @@ karena suntingan CP5 membuat tabelnya tidak rapi, sehingga tersisa 2 berkas **mi
 (`docs/data-sources.md`, `docs/PAVANA_Konsep_Produk.md`) yang sengaja tidak diformat massal.
 
 Belum ditutup: bundle kode HF di PR #6 (head `34309823…`) kini **menyimpang** dari repo untuk
-`code/ml/src/pavana_ml/data/firms.py`; unggah ulang belum dilakukan karena perbaikan ini belum
-di-commit. Cabang, commit, dan PR Git juga belum dibuat (belum diminta).
+`code/ml/src/pavana_ml/data/firms.py`; unggahan ulang belum dilakukan.
+
+**Commit dan PR (15 Oktober 2026).** Pekerjaan CP0–CP5 beserta perbaikan loader di-commit di cabang
+`ml/cams-t6h-retro-pipeline` (basis `origin/main` `d7323c5`) sebagai tiga commit terpisah —
+pipeline, tooling cloud/publikasi, lalu dokumentasi — dan dibuka sebagai
+<https://github.com/myudak/pavana/pull/1> (32 berkas, +9.586/−244, belum di-merge). CI pada commit
+tersebut lulus seluruhnya: JS/TS (lint, typecheck, test, build) 45 detik dan Python ML (ruff,
+pytest, nbstripout) 20 detik, plus dua deployment Vercel *preview*.
+
+Dua berkas yang sebelumnya "di luar scope" ikut diformat karena ikut dikirim dan CI memeriksanya —
+`ml/huggingface/README.md` dan `ml/scripts/publish_hf_dataset.py` (`ruff format`), serta
+`docs/data-sources.md` dan `README.md` (prettier). Tidak ada lagi temuan ruff/format pada berkas yang
+di-commit; 16 temuan ruff yang tersisa berasal dari `ml/notebooks/pavana_bmkg_kalimantan.ipynb` yang
+**tidak** ikut dikirim.
+
+Sengaja tidak di-commit (pekerjaan pengguna, bukan bagian pipeline ML):
+`ml/notebooks/pavana_bmkg_kalimantan.ipynb`, `docs/PAVANA_Konsep_Produk.{md,pdf}`,
+`ml/Pavana-Pembagian-Kerja.{md,pdf}`, dan perubahan `docs/PAVANA_HANDOFF.md`. Berkas-berkas itu tetap
+ada di working tree, belum tersentuh.
 
 ### Checkpoint saat dokumen dibuat
 
