@@ -58,11 +58,12 @@ export function LocationPicker() {
       <Button
         variant="outline"
         size="sm"
+        className="max-w-[9rem] sm:max-w-none"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
       >
-        <MapPin aria-hidden /> {location.label}
+        <MapPin aria-hidden /> <span className="min-w-0 truncate">{location.label}</span>
       </Button>
 
       {open && (
