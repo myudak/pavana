@@ -1,69 +1,81 @@
-import { DataStateBadge } from '@/components/DataStateBadge';
+import { AtmosphereSection } from '@/components/AtmosphereSection';
 import { DemoBanner } from '@/components/DemoBanner';
 import { QueryState } from '@/components/QueryState';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCopy } from '@/lib/i18n';
-import { useForecast, useInsights } from '@/lib/queries';
-import { FactorList } from './FactorList';
-import { ForecastChart } from './ForecastChart';
+import { useConditions, useForecast, useInsights, useOfficialLinks } from '@/lib/queries';
+import { InsightAlert } from './InsightAlert';
+import { InsightHeader } from './InsightHeader';
+import { InsightMetricCards } from './InsightMetricCards';
+import { InsightNotifications } from './InsightNotifications';
+import { PM25TimeSeries } from './PM25TimeSeries';
 
+/**
+ * Insight — banner → hero PM2.5 time series → prominent notifications panel with
+ * per-notification recommendations → compact indicators → short guidance.
+ * Indonesian-only copy lives in lib/i18n/id.ts; every number carries provenance.
+ */
 export default function InsightsPage() {
   const t = useCopy();
+  const conditions = useConditions();
+  // Widest offered range (API caps at 72h); the chart slices client-side.
+  const forecast = useForecast(48);
   const insights = useInsights();
-  const forecast = useForecast(24);
+  const officialLinks = useOfficialLinks();
 
   return (
     <div className="space-y-4">
-      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.insights.title}</h1>
+      <QueryState query={conditions}>
+        {(c) => {
+          const forecastHours = forecast.data?.hours ?? [];
+          return (
+            <>
+              {c.state === 'demo' && <DemoBanner />}
+              <InsightHeader state={c.state} />
+              <InsightAlert conditions={c} forecastHours={forecastHours} />
 
-      <QueryState query={insights}>
-        {(i) => (
-          <>
-            {i.state === 'demo' && <DemoBanner />}
+              <AtmosphereSection
+                id="prakiraan-pm25"
+                labelledBy="prakiraan-pm25-title"
+                className="scroll-mt-24"
+              >
+                <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                  <h2
+                    id="prakiraan-pm25-title"
+                    className="font-heading text-xl font-semibold tracking-tight"
+                  >
+                    {t.insights.chartTitle}{' '}
+                    <span className="text-sm font-normal text-ink-muted">({t.today.unit})</span>
+                  </h2>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {t.insights.chartTitle}{' '}
-                  <span className="normal-case tracking-normal">({t.today.unit})</span>
-                </CardTitle>
-                <DataStateBadge state={i.state} />
-              </CardHeader>
-              <QueryState query={forecast}>
-                {(f) => (
-                  <ForecastChart hours={f.hours} timeZone={i.location.timezone} nowLabel={t.insights.nowMarker} />
-                )}
-              </QueryState>
-            </Card>
+                <QueryState query={forecast}>
+                  {(f) => <PM25TimeSeries hours={f.hours} timeZone={c.location.timezone} />}
+                </QueryState>
 
-            <div className="grid items-start gap-4 lg:grid-cols-2 lg:gap-5">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.insights.factorsTitle}</CardTitle>
-                </CardHeader>
-                <FactorList factors={i.factors} timeZone={i.location.timezone} />
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.insights.methodTitle}</CardTitle>
-                  <Badge variant="muted">{i.model.method}</Badge>
-                </CardHeader>
-                {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
-                <p className="text-sm">{t.insights.methodDeterministic}</p>
-                <details className="mt-3 rounded-xl bg-surface-muted p-3 text-sm">
-                  <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
+                <details className="mt-4 rounded-2xl bg-surface-muted p-3 text-sm">
+                  <summary className="flex min-h-11 cursor-pointer items-center font-medium">
+                    {t.insights.howTitle}
+                  </summary>
+                  <p className="mt-1 text-ink-muted">{t.insights.methodDeterministic}</p>
                   <ul className="mt-2 list-disc space-y-2 pl-5 text-ink-muted">
                     {t.insights.howBody.map((p) => (
                       <li key={p}>{p}</li>
                     ))}
                   </ul>
                 </details>
-              </Card>
-            </div>
-          </>
-        )}
+              </AtmosphereSection>
+
+              <InsightNotifications
+                conditions={c}
+                insights={insights.data}
+                forecastHours={forecastHours}
+                officialLinks={officialLinks}
+              />
+
+              <InsightMetricCards conditions={c} insights={insights} />
+            </>
+          );
+        }}
       </QueryState>
     </div>
   );
