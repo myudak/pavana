@@ -5,7 +5,21 @@
  * Wording rules: no certainty we don't have ("asap akan tiba pukul 16.00"), no "aman",
  * no evacuation instructions. Hotspot ≠ confirmed fire. PM2.5 ≠ "asap kebakaran".
  */
-import type { DataState, FactorId, FactorSignal, Trend, UsAqiCategory } from '@pavana/shared';
+import type {
+  DataState,
+  FactorId,
+  FactorSignal,
+  ProvenanceKind,
+  Trend,
+  UsAqiCategory,
+} from '@pavana/shared';
+import type {
+  NotificationId,
+  NotificationPriority,
+  RecommendationRule,
+} from '@/features/insights/insight-derive';
+
+type Compass8Code = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
 
 export const id = {
   appName: 'pavana',
@@ -142,17 +156,182 @@ export const id = {
     title: 'Insight',
     chartTitle: 'Prakiraan PM2.5',
     nowMarker: 'Kini',
-    factorsTitle: 'Faktor',
-    methodTitle: 'Metode',
-    methodDeterministic:
-      'Indikator deterministik — bukan model machine learning. Belum ada model terlatih dan tervalidasi.',
+    methodDeterministic: 'Indikator deterministik — bukan model machine learning.',
     howTitle: 'Bagaimana ini dihitung?',
     howBody: [
-      'Titik panas (hotspot) adalah deteksi anomali panas oleh satelit. Itu bukan konfirmasi kebakaran, dan ketiadaan deteksi tidak berarti tidak ada api.',
-      'PM2.5 adalah partikel halus dari berbagai sumber (kebakaran, kendaraan, industri). Kenaikan PM2.5 tidak otomatis disebabkan oleh kebakaran tertentu.',
-      'Indikator "titik panas searah angin" menjumlahkan deteksi yang berada di arah datangnya angin, diberi bobot jarak, intensitas (FRP), dan umur deteksi. Ini indikator pendukung, bukan peluang asap tiba.',
-      'Pavana tidak memprediksi penyebaran api dan tidak memberikan perintah evakuasi. Ikuti arahan otoritas setempat.',
+      'Titik panas = deteksi anomali panas satelit, bukan konfirmasi kebakaran.',
+      'PM2.5 bisa berasal dari kebakaran, kendaraan, dan industri.',
+      'Indikator "titik panas searah angin" bersifat pendukung, bukan peluang asap tiba.',
+      'Pavana tidak memprediksi penyebaran api dan tidak memberi perintah evakuasi.',
     ],
+
+    // Mata angin 8 arah (dipakai kartu Angin & rekomendasi).
+    compass8: {
+      N: 'utara',
+      NE: 'timur laut',
+      E: 'timur',
+      SE: 'tenggara',
+      S: 'selatan',
+      SW: 'barat daya',
+      W: 'barat',
+      NW: 'barat laut',
+    } satisfies Record<Compass8Code, string>,
+
+    // B. Banner peringatan. Hanya judul + satu baris meta + aksi; rentang prakiraan
+    // sudah terlihat di grafik, jadi tidak diulang sebagai teks.
+    alert: {
+      worseningTitle: 'Prakiraan PM2.5 meningkat',
+      forecastPending: 'Detail prakiraan belum tersedia.',
+      updatedAt: (at: string) => `Diperbarui ${at}`,
+      improvingTitle: 'Prakiraan PM2.5 membaik',
+      stableTitle: 'Prakiraan PM2.5 relatif stabil',
+      unknownTitle: 'Belum cukup data untuk memperkirakan perubahan',
+      unknownBody: 'Perubahan belum dapat dinilai dari data yang tersedia.',
+      insufficientTitle: 'Data tidak cukup untuk lokasi ini',
+      insufficientBody: 'Data kualitas udara belum tersedia untuk lokasi ini.',
+      staleTitle: 'Data lama',
+      staleBody: 'Angka mungkin sudah tidak mewakili kondisi saat ini.',
+      seeMap: 'Lihat di peta',
+      officialGuide: 'Panduan & sumber resmi',
+    },
+
+    // C. Grafik utama.
+    chart: {
+      rangesLabel: 'Rentang waktu',
+      ranges: {
+        24: '24 jam',
+        48: '48 jam',
+        168: '7 hari',
+      } satisfies Record<number, string>,
+      legendMeasurement: 'Pengukuran stasiun',
+      legendNow: 'Kini',
+      dataType: {
+        observation: 'Pengukuran',
+        forecast: 'Prakiraan',
+        derived: 'Estimasi',
+        fixture: 'Estimasi ilustratif',
+      } satisfies Record<ProvenanceKind, string>,
+      illustrativeTag: 'Data ilustratif',
+      tooltipType: 'Jenis data',
+      statsMin: 'Min',
+      statsAvg: 'Rata-rata',
+      statsPeak: 'Puncak',
+      empty: 'Tidak ada data PM2.5 untuk rentang ini.',
+      srLabel: (n: number) => `Grafik prakiraan PM2.5 dengan ${n} titik data`,
+    },
+
+    // D. Tiga indikator inti.
+    cards: {
+      airTitle: 'Kualitas udara',
+      windTitle: 'Angin',
+      hotspotTitle: 'Hotspot',
+      windFrom: (name: string, code: string) => `Dari ${name} (${code})`,
+      windSpeed: (kmh: string) => `${kmh} km/jam`,
+      windScope: 'Konteks sebaran asap',
+      windRelevance: 'Konteks arah sebaran asap — bukan bukti asap akan mencapai lokasi Anda.',
+      windMissing: 'Data angin tidak tersedia untuk lokasi ini.',
+      hotspotScope: (radius: string, window: string) =>
+        `Dalam radius ${radius} km · ${window} jam terakhir`,
+      hotspotScopeArea: 'Area pencarian di sekitar lokasi terpilih.',
+      hotspotNone: 'Tidak ada deteksi di area pencarian — bukan berarti tidak ada kebakaran.',
+      hotspotError: 'Jumlah titik panas tidak dapat dimuat.',
+      seeChart: 'Lihat grafik',
+      seeMap: 'Lihat di peta',
+    },
+
+    // E. Panel notifikasi.
+    notif: {
+      title: 'Notifikasi',
+      subtitle: 'Yang perlu Anda perhatikan.',
+      priority: {
+        attention: 'Perlu perhatian',
+        watch: 'Pantau',
+        info: 'Info resmi',
+      } satisfies Record<NotificationPriority, string>,
+      note: 'Bukan peringatan resmi · dirangkum dari data halaman.',
+      pm25RiseTitle: 'Prakiraan PM2.5 meningkat',
+      pm25Body: 'PM2.5 diperkirakan meningkat.',
+      combinedBody: 'PM2.5 meningkat bersamaan dengan deteksi titik panas searah angin.',
+      staleBody: 'Angka terakhir belum mencerminkan kondisi saat ini.',
+      insufficientBody: 'Perubahan kualitas udara belum dapat dinilai.',
+      hotspotTitle: 'Titik panas terdeteksi di sekitar wilayah',
+      hotspotBody: (n: string) => `${n} deteksi satelit — indikasi titik panas, bukan kebakaran.`,
+      officialTitle: 'Informasi resmi karhutla',
+      officialBody: 'Kanal resmi status karhutla & kualitas udara.',
+      officialError: 'Tautan resmi tidak dapat dimuat.',
+      validTime: 'Berlaku',
+      detectTime: 'Deteksi',
+      combinedTitle: 'Potensi dampak asap meningkat',
+      staleTitle: 'Data belum diperbarui',
+      insufficientTitle: 'Data kualitas udara belum tersedia',
+    },
+
+    // Rekomendasi tindakan — aturan deterministik, satu bundel copy per notifikasi.
+    rec: {
+      open: 'Lihat rekomendasi',
+      illustrativeNote: 'Data ilustratif — bukan pengamatan nyata.',
+      rules: {
+        combined: {
+          trigger: (v) =>
+            `PM2.5 naik${v.peakAt ? ` (puncak ~${v.peakAt})` : ''}, ${v.hotspotCount} deteksi titik panas dalam ${v.radiusKm} km, angin dari ${v.windFrom}.`,
+          reason: () => 'Sebagian deteksi berada di arah datangnya angin.',
+          actions: [
+            'Prioritaskan kewaspadaan terhadap potensi dampak asap.',
+            'Kurangi aktivitas luar ruangan bila memburuk.',
+            'Pantau prakiraan, peta, dan kanal resmi.',
+          ],
+          limit:
+            'Titik panas bukan konfirmasi kebakaran; angin bukan bukti asap mencapai lokasi Anda.',
+        },
+        'pm25-rise': {
+          trigger: (v) =>
+            `PM2.5 naik${v.peakUgM3 ? ` hingga ${v.peakUgM3} µg/m³` : ''}${v.peakAt ? `, puncak ~${v.peakAt}` : ''}.`,
+          reason: (v) => `Diperbarui ${v.updatedAt}.`,
+          actions: [
+            'Kurangi aktivitas luar ruangan (anak, lansia, penderita gangguan pernapasan).',
+            'Pakai respirator seperti N95 bila harus keluar.',
+            'Tutup pintu dan jendela bila asap mulai masuk.',
+          ],
+          limit: 'Kenaikan PM2.5 tidak otomatis berasal dari kebakaran tertentu.',
+        },
+        hotspots: {
+          trigger: (v) =>
+            `${v.hotspotCount} deteksi satelit dalam ${v.radiusKm} km, ${v.windowHours} jam terakhir.`,
+          reason: (v) => (v.detectionAt ? `Deteksi terakhir ${v.detectionAt}.` : 'Indikator awal.'),
+          actions: [
+            'Pantau perkembangan pada halaman Peta.',
+            'Cek kanal resmi setempat (BMKG, BPBD, SiPongi).',
+          ],
+          limit: 'Tidak adanya deteksi bukan berarti tidak ada kebakaran.',
+        },
+        official: {
+          trigger: () => 'Tautan ke sumber resmi karhutla.',
+          reason: () => 'Pavana tidak menerbitkan peringatan resmi.',
+          actions: [
+            'Ikuti arahan otoritas; evakuasi hanya bila diperintahkan.',
+          ],
+          limit: 'Belum terhubung ke feed pengumuman resmi.',
+        },
+        'data-stale': {
+          trigger: (v) => `Data terakhir diperbarui ${v.updatedAt}.`,
+          reason: () => 'Angka lama bisa berbeda dari kondisi saat ini.',
+          actions: [
+            'Cek sumber resmi (BMKG, BPBD, SiPongi).',
+            'Muat ulang halaman atau pilih lokasi lain.',
+          ],
+          limit: 'Tren PM2.5 tidak ditampilkan.',
+        },
+        'data-insufficient': {
+          trigger: () => 'Data kualitas udara belum tersedia.',
+          reason: () => 'Tanpa data, perubahan tidak dapat dinilai.',
+          actions: [
+            'Cek sumber informasi resmi.',
+            'Jangan menyimpulkan kondisi aman.',
+          ],
+          limit: 'Angka PM2.5 tidak ditampilkan.',
+        },
+      } satisfies Record<NotificationId, RecommendationRule>,
+    },
   },
 
   info: {
