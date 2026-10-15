@@ -4,6 +4,8 @@
  */
 import {
   ConditionsResponseSchema,
+  DailyForecastQuerySchema,
+  DailyForecastResponseSchema,
   ForecastQuerySchema,
   ForecastResponseSchema,
   HealthResponseSchema,
@@ -21,6 +23,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { OFFICIAL_LINKS } from '../data/official-links';
 import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
+import { getDailyForecast } from '../services/daily';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
 import { getWindField } from '../services/wind-field';
@@ -49,6 +52,11 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers
   app.get('/api/forecast', async (req) => {
     const { lat, lon, hours } = parseInput(ForecastQuerySchema, req.query);
     return ForecastResponseSchema.parse(await getForecast(providers, { lat, lon }, hours));
+  });
+
+  app.get('/api/forecast/daily', async (req) => {
+    const { lat, lon, days } = parseInput(DailyForecastQuerySchema, req.query);
+    return DailyForecastResponseSchema.parse(await getDailyForecast(providers, { lat, lon }, days));
   });
 
   app.get('/api/hotspots', async (req) => {

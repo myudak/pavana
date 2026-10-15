@@ -19,14 +19,14 @@ export const OFFICIAL_LINKS: OfficialLink[] = [
   },
   {
     id: 'bmkg-spartan',
-    title: 'SPARTAN — Sistem Peringatan Kebakaran',
+    title: 'SPARTAN: Sistem Peringatan Kebakaran',
     publisher: 'BMKG',
     url: 'https://spartan.bmkg.go.id/',
     description: 'Informasi tingkat kemudahan kebakaran dan sebaran asap dari BMKG.',
   },
   {
     id: 'sipongi',
-    title: 'SiPongi — Karhutla Monitoring System',
+    title: 'SiPongi: Karhutla Monitoring System',
     publisher: 'Kementerian Kehutanan',
     url: 'https://sipongi.gakkum.kehutanan.go.id/',
     description: 'Status titik panas dan kebakaran hutan & lahan di Indonesia.',
@@ -50,7 +50,6 @@ export const OFFICIAL_LINKS: OfficialLink[] = [
     title: 'BPBD Provinsi Kalimantan Barat',
     publisher: 'BPBD Kalbar',
     url: 'https://bpbd.kalbarprov.go.id/',
-    description:
-      'Informasi penanggulangan bencana daerah, termasuk laporan harian posko karhutla.',
+    description: 'Informasi penanggulangan bencana daerah, termasuk laporan harian posko karhutla.',
   },
 ];
