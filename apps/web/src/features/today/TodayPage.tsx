@@ -1,20 +1,22 @@
-import { ArrowRight, Info, MapPin } from 'lucide-react';
+import type { ForecastHour, Trend } from '@pavana/shared';
+import { ArrowRight, ChevronRight, FlaskConical, Info, Leaf, Mountain, Wind } from 'lucide-react';
 import { Suspense, lazy } from 'react';
 import { Link } from 'react-router';
-import { AqCategoryPill } from '@/components/AqCategoryPill';
 import { DataStateBadge } from '@/components/DataStateBadge';
-import { DemoBanner } from '@/components/DemoBanner';
 import { ProvenanceNote } from '@/components/ProvenanceNote';
 import { QueryState } from '@/components/QueryState';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FactorList } from '@/features/insights/FactorList';
+import { describeFactor } from '@/features/insights/factor-text';
+import { useHotspots } from '@/features/map/use-hotspots';
 import { categoryOf } from '@/lib/aq';
 import { formatNumber } from '@/lib/format';
-import { useCopy } from '@/lib/i18n';
+import { useCopy, type Copy } from '@/lib/i18n';
 import { useConditions, useForecast, useInsights } from '@/lib/queries';
 import { cn } from '@/lib/utils';
-import { DuskHero } from './DuskHero';
+import { DuskBackdrop } from './DuskBackdrop';
 import { HourlyTimeline } from './HourlyTimeline';
+import { summarizeDayForecast } from './forecast-summary';
 
 // Heavy visual chunks (Recharts, MapLibre) stay out of the main bundle —
 // same lazy pattern as the Map/Insights routes.
@@ -28,102 +30,311 @@ const MapPreview = lazy(() =>
   import('@/features/map/MapPreview').then((m) => ({ default: m.MapPreview })),
 );
 
+/** Glass card shared by the hero and the below-fold sections (dark) / clean white (light). */
+const glassCard =
+  'border-glass-border bg-[var(--pv-glass)] backdrop-blur-[18px] dark:[box-shadow:var(--pv-shadow-lift)]';
+
+/** "Now → peak" category status for the AQI card's right panel. Null-safe. */
+function ForecastStatus({
+  nowCat,
+  hours,
+  trend,
+  t,
+}: {
+  nowCat: ReturnType<typeof categoryOf>;
+  hours: ForecastHour[];
+  trend: Trend;
+  t: Copy;
+}) {
+  const { peakCat } = summarizeDayForecast(hours);
+  const cats = [nowCat, peakCat].filter((c) => c !== 'unknown');
+  const unique = [...new Set(cats)];
+  return (
+    <div>
+      {unique.length === 0 ? (
+        <p className="text-xl font-medium text-ink-muted">{t.today.notEnough}</p>
+      ) : unique.length === 1 ? (
+        <p className="text-xl font-medium text-primary-strong">{t.aqCategory[unique[0]!]}</p>
+      ) : (
+        <p className="flex flex-wrap items-center gap-2 text-xl font-medium">
+          <span className="text-primary-strong">{t.aqCategory[unique[0]!]}</span>
+          <ArrowRight className="size-5 text-ink-muted" aria-hidden />
+          <span className="text-accent-strong">{t.aqCategory[unique[1]!]}</span>
+        </p>
+      )}
+      <p className="mt-2 line-clamp-3 text-[15px] leading-[22px] text-ink-muted">
+        {t.trendHeadline[trend]}
+      </p>
+    </div>
+  );
+}
+
 export function TodayPage() {
   const t = useCopy();
   const conditions = useConditions();
   const forecast = useForecast(24);
   const insights = useInsights();
+  const { query: hotspotQuery } = useHotspots();
 
   return (
-    <div className="space-y-4">
-      <QueryState query={conditions}>
-        {(c) => {
-          const tz = c.location.timezone;
-          const cat = categoryOf(c.airQuality.pm25UgM3);
-          return (
-            <>
-              {c.state === 'demo' && <DemoBanner />}
+    <QueryState query={conditions}>
+      {(c) => {
+        const tz = c.location.timezone;
+        const cat = categoryOf(c.airQuality.pm25UgM3);
+        const pm = c.airQuality.pm25UgM3;
 
-              <header className="space-y-1 pt-2">
-                <p className="flex items-center gap-1.5 text-sm text-ink-muted">
-                  <MapPin className="size-4 shrink-0" aria-hidden />
-                  {c.location.name}
-                  {c.location.admin2 ? `, ${c.location.admin2}` : ''}
+        // Hero subtext: real upwind-detection sentence when the insight names
+        // contributing upwind detections, otherwise the trend headline.
+        const upwind = insights.data?.factors.find((f) => f.id === 'upwind_hotspots');
+        const contributing =
+          typeof upwind?.metrics.contributingCount === 'number'
+            ? upwind.metrics.contributingCount
+            : 0;
+        const heroSub =
+          contributing > 0 && upwind ? describeFactor(upwind, t, tz) : t.trendHeadline[c.trend];
+
+        // Condition banner sub: real wind sentence when available, else empty.
+        const windFactor = insights.data?.factors.find((f) => f.id === 'wind');
+        const windText =
+          windFactor && typeof windFactor.metrics.directionFromDeg === 'number'
+            ? describeFactor(windFactor, t, tz)
+            : '';
+
+        return (
+          <div>
+            {/* ============ FIRST SCREEN — full-bleed hero ============ */}
+            <section className="relative -mt-16 min-h-[100dvh] overflow-clip lg:-mt-[110px] lg:min-h-[max(100dvh,760px)]">
+              <DuskBackdrop className="absolute inset-0" />
+
+              {/* Demo chip: visible without shifting the hero layout. */}
+              {c.state === 'demo' && (
+                <p
+                  role="note"
+                  title={t.demoBannerDetail}
+                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-[var(--pv-glass)] px-3 py-1.5 text-xs text-ink backdrop-blur-xl md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[122px]"
+                >
+                  <FlaskConical className="size-3.5 shrink-0" aria-hidden />
+                  {t.demoBanner}
                 </p>
-                <h1 className="max-w-3xl font-heading text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
-                  {t.trendHeadline[c.trend]}
-                </h1>
-              </header>
+              )}
 
-              <div className="grid items-start gap-4 lg:grid-cols-5 lg:gap-5">
-                <div className="space-y-4 lg:col-span-3">
-                  <section className="relative overflow-hidden rounded-card border border-border">
-                    <DuskHero className="absolute inset-0 hidden h-full w-full dark:block" />
-                    <div
-                      aria-hidden
-                      className="absolute inset-0 hidden dark:block"
-                      style={{ background: 'var(--pv-hero-scrim)' }}
-                    />
-                    <div className="relative space-y-4 p-5 md:p-6">
-                      <p
-                        className={cn(
-                          'font-heading text-5xl font-bold leading-none tracking-tight md:text-6xl',
-                          'dark:bg-gradient-to-r dark:from-accent dark:to-primary dark:bg-clip-text dark:text-transparent',
-                        )}
-                      >
-                        {t.aqCategory[cat]}
-                      </p>
+              <div className="px-[6.25vw]">
+                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-0 lg:pb-[60px] lg:pt-[150px] xl:grid-cols-[minmax(0,59.5%)_minmax(0,1fr)]">
+                  {/* Left column */}
+                  <div className="min-w-0">
+                    <p className="text-[clamp(1.5rem,2.47vw,2.375rem)] font-light leading-snug text-[var(--pv-hero-lead)]">
+                      {t.today.heroLead}
+                    </p>
+                    <h1
+                      className={cn(
+                        'mt-2.5 text-[clamp(2.125rem,3.78vw,3.625rem)] font-bold leading-[clamp(2.5rem,4.17vw,4rem)] tracking-[-0.02em]',
+                        cat !== 'unknown'
+                          ? 'bg-gradient-to-r from-primary-strong to-accent bg-clip-text text-transparent'
+                          : 'text-ink-muted',
+                      )}
+                    >
+                      {t.aqCategory[cat]}
+                    </h1>
+                    <p className="mt-[22px] max-w-[400px] text-[clamp(1rem,1.3vw,1.25rem)] leading-[30px] text-[var(--pv-hero-sub)]">
+                      {heroSub}
+                    </p>
 
-                      <div className="rounded-2xl border border-border bg-surface p-4 dark:border-white/10 dark:bg-[var(--pv-glass)] dark:backdrop-blur dark:[box-shadow:var(--pv-shadow-lift)]">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
-                            {t.today.currentTitle}
-                          </p>
-                          <DataStateBadge state={c.state} />
-                        </div>
-                        {c.airQuality.pm25UgM3 === null ? (
+                    {/* AQI glass card */}
+                    <section
+                      aria-label={t.today.pm25Label}
+                      className={cn(
+                        'mt-[30px] grid overflow-hidden rounded-3xl border md:grid-cols-[63%_minmax(0,1fr)]',
+                        glassCard,
+                      )}
+                    >
+                      <div className="min-w-0 p-5 md:px-6 md:py-5">
+                        <p className="text-[18px] text-ink">{t.today.pm25Label}</p>
+                        {pm === null ? (
                           <p className="mt-2 text-ink-muted">{t.today.noData}</p>
                         ) : (
-                          <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-                            <div className="space-y-2">
+                          <>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-3">
                               <p className="flex items-baseline gap-2">
-                                <span className="font-heading text-6xl font-semibold tabular-nums tracking-tight">
-                                  {formatNumber(c.airQuality.pm25UgM3)}
+                                <span className="text-[clamp(3.5rem,4.69vw,4.5rem)] font-semibold leading-none tabular-nums">
+                                  {formatNumber(pm)}
                                 </span>
-                                <span className="text-lg text-ink-muted">{t.today.unit}</span>
+                                <span className="text-[18px] text-ink-muted">{t.today.unit}</span>
                               </p>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <AqCategoryPill category={cat} />
-                                {c.airQuality.aqi && (
-                                  <span className="text-xs text-ink-muted" title={t.aqiIndicative}>
-                                    US AQI {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
-                                  </span>
+                              <QueryState query={forecast} inline>
+                                {(f) => (
+                                  <Suspense
+                                    fallback={
+                                      <div
+                                        className="h-[44px] w-[236px] shrink-0 animate-pulse rounded-xl bg-surface-muted"
+                                        aria-hidden
+                                      />
+                                    }
+                                  >
+                                    <HeroSparkline hours={f.hours} />
+                                  </Suspense>
                                 )}
-                              </div>
+                              </QueryState>
                             </div>
-                            <QueryState query={forecast} inline>
-                              {(f) => (
-                                <Suspense
-                                  fallback={
-                                    <div
-                                      className="h-14 w-36 shrink-0 animate-pulse rounded-xl bg-surface-muted"
-                                      aria-hidden
-                                    />
-                                  }
+                            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <Leaf className="size-5 shrink-0 text-accent-strong" aria-hidden />
+                              <span className="text-[18px] font-medium text-accent-strong">
+                                {t.aqCategory[cat]}
+                              </span>
+                              {c.airQuality.aqi && (
+                                <span
+                                  className="text-xs text-ink-muted"
+                                  title={t.aqiIndicative}
                                 >
-                                  <HeroSparkline hours={f.hours} />
-                                </Suspense>
+                                  US AQI {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
+                                </span>
                               )}
-                            </QueryState>
-                          </div>
+                            </p>
+                          </>
                         )}
                       </div>
+                      <div className="min-w-0 border-t border-hairline p-5 md:border-l md:border-t-0 md:px-6 md:py-5">
+                        <Link
+                          to="/insight"
+                          className="flex items-center justify-between gap-2 text-[15px] text-ink hover:opacity-80"
+                        >
+                          {t.today.todayForecast}
+                          <ChevronRight className="size-4 shrink-0 text-ink-muted" aria-hidden />
+                        </Link>
+                        <div className="mt-3">
+                          {forecast.isPending ? (
+                            <div className="space-y-2" aria-hidden>
+                              <div className="h-6 w-3/4 animate-pulse rounded bg-surface-muted" />
+                              <div className="h-4 w-full animate-pulse rounded bg-surface-muted" />
+                            </div>
+                          ) : forecast.isError ? (
+                            <p className="text-sm text-ink-muted">{t.common.errorTitle}</p>
+                          ) : (
+                            <ForecastStatus
+                              nowCat={cat}
+                              hours={forecast.data.hours}
+                              trend={c.trend}
+                              t={t}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </section>
 
-                      <ProvenanceNote provenance={c.airQuality.provenance} timeZone={tz} />
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                      <DataStateBadge state={c.state} />
+                      <ProvenanceNote
+                        provenance={c.airQuality.provenance}
+                        timeZone={tz}
+                        className="min-w-0 basis-full sm:basis-auto"
+                      />
                     </div>
-                  </section>
 
-                  <Card>
+                    <div className="mb-2 mt-[14px] flex items-end justify-between gap-3">
+                      <p className="text-[13px] font-medium tracking-[0.25em] text-ink-muted">
+                        {t.today.hourlyLabel}
+                      </p>
+                      <Link
+                        to="/insight"
+                        className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary-strong"
+                      >
+                        {t.today.seeAll} <ArrowRight className="size-4" aria-hidden />
+                      </Link>
+                    </div>
+                    {forecast.isPending ? (
+                      <div
+                        className="h-36 animate-pulse rounded-[20px] border border-glass-border bg-[var(--pv-glass)]"
+                        aria-hidden
+                      />
+                    ) : forecast.isError ? (
+                      <p className="text-sm text-ink-muted">{t.common.errorTitle}</p>
+                    ) : (
+                      <HourlyTimeline
+                        hours={forecast.data.hours}
+                        timeZone={tz}
+                        variant="strip"
+                      />
+                    )}
+
+                    <Link
+                      to="/insight"
+                      className={cn(
+                        'mt-5 flex min-h-[72px] items-center gap-4 rounded-[18px] border px-4 py-3',
+                        glassCard,
+                      )}
+                    >
+                      <Wind
+                        className="size-10 shrink-0 text-primary-strong"
+                        aria-hidden
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-base font-medium">
+                          {t.trendHeadline[c.trend]}
+                        </span>
+                        {windText && (
+                          <span className="mt-0.5 block text-[13px] text-ink-muted">
+                            {windText}
+                          </span>
+                        )}
+                      </span>
+                      <ChevronRight
+                        className="size-5 shrink-0 text-ink-muted"
+                        aria-hidden
+                      />
+                    </Link>
+                  </div>
+
+                  {/* Right column: hotspot block, bottom-aligned with the hourly strip */}
+                  <div className="flex min-w-0 flex-col justify-end xl:pl-[28.8%]">
+                    <div className="flex items-stretch gap-9">
+                      <div
+                        aria-hidden
+                        className="hidden w-px shrink-0 self-stretch bg-hairline xl:block"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <Mountain className="size-9 text-accent-strong" aria-hidden />
+                        <p className="mt-3 text-[10px] font-medium tracking-[0.2em] text-ink-muted">
+                          {t.today.hotspotEyebrow}
+                        </p>
+                        <p className="mt-2 flex items-center gap-2 text-[18px]">
+                          {hotspotQuery.isPending ? (
+                            <span
+                              className="inline-block h-[18px] w-32 animate-pulse rounded bg-surface-muted"
+                              aria-hidden
+                            />
+                          ) : hotspotQuery.isError ? (
+                            <span className="text-ink-muted">{t.today.hotspotUnavailable}</span>
+                          ) : (
+                            <>
+                              <span
+                                className="size-2 shrink-0 rounded-full bg-accent"
+                                style={{ boxShadow: '0 0 10px var(--pv-accent)' }}
+                                aria-hidden
+                              />
+                              {t.today.hotspotCount(hotspotQuery.data.hotspots.length)}
+                            </>
+                          )}
+                        </p>
+                        <p className="mt-2 max-w-[240px] text-sm leading-[21px] text-ink-muted">
+                          {t.map.hotspotDisclaimer}
+                        </p>
+                        <Link
+                          to="/peta"
+                          className="mt-4 inline-flex h-10 w-[132px] items-center justify-center gap-2 rounded-full border border-accent/50 text-sm font-medium hover:[box-shadow:var(--pv-glow-accent)]"
+                        >
+                          {t.map.openFull} <ArrowRight className="size-4" aria-hidden />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ============ BELOW THE FOLD — kept features on canvas ============ */}
+            <div className="bg-canvas">
+              <div className="px-[6.25vw] pb-28 pt-10 lg:py-14">
+                <div className="mx-auto grid w-full max-w-[1344px] gap-4 lg:grid-cols-12 lg:gap-5">
+                  <Card className={cn('lg:col-span-7', glassCard)}>
                     <CardHeader>
                       <CardTitle>
                         {t.insights.chartTitle}{' '}
@@ -156,18 +367,7 @@ export function TodayPage() {
                     </QueryState>
                   </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>{t.today.timelineTitle}</CardTitle>
-                    </CardHeader>
-                    <QueryState query={forecast}>
-                      {(f) => <HourlyTimeline hours={f.hours} timeZone={tz} />}
-                    </QueryState>
-                  </Card>
-                </div>
-
-                <div className="space-y-4 lg:col-span-2">
-                  <Card>
+                  <Card className={cn('lg:col-span-5', glassCard)}>
                     <CardHeader>
                       <CardTitle>{t.map.title}</CardTitle>
                       <Link
@@ -189,7 +389,7 @@ export function TodayPage() {
                     </Suspense>
                   </Card>
 
-                  <Card>
+                  <Card className={cn('lg:col-span-6', glassCard)}>
                     <CardHeader>
                       <CardTitle>{t.today.whyTitle}</CardTitle>
                       <Link
@@ -204,7 +404,7 @@ export function TodayPage() {
                     </QueryState>
                   </Card>
 
-                  <Card>
+                  <Card className={cn('lg:col-span-6', glassCard)}>
                     <CardHeader>
                       <CardTitle>{t.today.actionsTitle}</CardTitle>
                     </CardHeader>
@@ -224,12 +424,21 @@ export function TodayPage() {
                       </Link>
                     </p>
                   </Card>
+
+                  <Card className={cn('lg:col-span-12', glassCard)}>
+                    <CardHeader>
+                      <CardTitle>{t.today.timelineTitle}</CardTitle>
+                    </CardHeader>
+                    <QueryState query={forecast}>
+                      {(f) => <HourlyTimeline hours={f.hours} timeZone={tz} />}
+                    </QueryState>
+                  </Card>
                 </div>
               </div>
-            </>
-          );
-        }}
-      </QueryState>
-    </div>
+            </div>
+          </div>
+        );
+      }}
+    </QueryState>
   );
 }

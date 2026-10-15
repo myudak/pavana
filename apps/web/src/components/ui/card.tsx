@@ -19,7 +19,7 @@ export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
 export function CardTitle({ className, ...props }: ComponentProps<'h2'>) {
   return (
     <h2
-      className={cn('text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted', className)}
+      className={cn('text-xs font-medium uppercase tracking-[0.2em] text-ink-muted', className)}
       {...props}
     />
   );

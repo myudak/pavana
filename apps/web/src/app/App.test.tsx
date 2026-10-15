@@ -59,7 +59,10 @@ describe('Today page', () => {
   it('shows the demo label, PM2.5 with units and a trend headline', async () => {
     renderAt('/');
     expect(await screen.findByText('Mode Demo · Data ilustratif')).toBeInTheDocument();
-    expect(screen.getByText('Kualitas udara diperkirakan memburuk')).toBeInTheDocument();
+    // The trend headline appears in the hero banner and the forecast panel.
+    expect(screen.getAllByText('Kualitas udara diperkirakan memburuk').length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getAllByText('µg/m³').length).toBeGreaterThan(0);
     expect(screen.getByText(/pavana-fixture/)).toBeInTheDocument();
   });
