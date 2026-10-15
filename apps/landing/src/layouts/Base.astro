@@ -10,6 +10,11 @@ const {
   title = 'Pavana — Prakiraan kualitas udara & asap kebakaran',
   description = 'Prakiraan kualitas udara dan potensi dampak asap kebakaran, berdasarkan lokasimu.',
 } = Astro.props;
+
+// C4: URL absolut OG/canonical mengikuti `site` di astro.config.mjs — saat ini masih
+// placeholder `pavana.example` (lihat C5). Ganti site saat domain final dipilih.
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL('/og.svg', Astro.site).href : '/og.svg';
 ---
 
 <!doctype html>
@@ -18,8 +23,16 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pavana" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <script is:inline>

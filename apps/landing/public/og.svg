@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Pavana — prakiraan kualitas udara dan asap kebakaran">
+  <!-- C4: kartu pratinjau tautan tipografis. Wordmark saja, tanpa simbol/data.
+    Urutan font mengikuti token --pv-font-wordmark (Vernosa pending → Comfortaa interim).
+    Render aktual memakai font yang tersedia di perender; tidak diklaim tampil sama
+    di semua platform. Untuk preview WhatsApp/Twitter yang andal masih dibutuhkan
+    PNG Open Graph + domain final (pekerjaan terpisah). -->
+  <title>Pavana</title>
+  <rect width="1200" height="630" rx="0" fill="#F5F1EB"/>
+  <text x="120" y="300" font-family="Vernosa, 'Comfortaa Variable', Comfortaa, Outfit, system-ui, sans-serif" font-size="150" font-weight="700" letter-spacing="-8" fill="#1F2937">pavana</text>
+  <text x="120" y="420" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="40" fill="#6B7280">Prakiraan kualitas udara &amp; potensi dampak asap —</text>
+  <text x="120" y="472" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="40" fill="#6B7280">berdasarkan lokasimu.</text>
+</svg>
