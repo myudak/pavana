@@ -1,26 +1,41 @@
 ---
 // C3: konteks masalah karhutla Kalbar. Disengaja tanpa angka/statistik —
 // tidak ada klaim yang belum terverifikasi. Data contoh selalu berlabel ilustratif.
+import { Alert02Icon, Link01Icon, SparklesIcon } from '@hugeicons/core-free-icons';
+import Icon from './Icon.astro';
+
+const cards = [
+  {
+    icon: Alert02Icon,
+    body: 'Kalimantan Barat, termasuk Kubu Raya, rutin menghadapi kebakaran hutan dan lahan — terutama di lahan gambut saat musim kemarau. Asapnya tidak mengenal batas kecamatan.',
+  },
+  {
+    icon: Link01Icon,
+    body: 'Informasi resmi tersebar di banyak tempat: situs BMKG, SiPongi, BNPB, dan BPBD. Warga harus membuka satu per satu untuk memahami kondisi di lokasinya.',
+  },
+  {
+    icon: SparklesIcon,
+    body: 'Pavana merangkum sinyal yang tersebar — titik panas satelit, arah angin, prakiraan PM2.5 — menjadi satu jawaban sederhana per lokasi, lengkap dengan sumber dan waktu berlakunya.',
+  },
+];
 ---
 
-<section id="masalah" class="mx-auto max-w-6xl px-4 py-20 md:px-8">
-  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-ink-muted">Masalah</p>
-  <h2 class="mt-2 max-w-2xl font-display text-3xl font-medium tracking-tight md:text-4xl">
-    Saat musim kemarau, asap karhutla bisa sampai ke halaman rumah — tanpa kabar yang jelas.
+<section id="masalah" class="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-haze">Masalah</p>
+  <h2 class="mt-2 max-w-3xl font-heading text-3xl font-bold tracking-tight md:text-5xl">
+    Saat kemarau, asap karhutla bisa sampai ke halaman rumah — tanpa kabar yang jelas.
   </h2>
-  <div class="mt-6 grid max-w-4xl gap-4 text-ink-muted md:grid-cols-3">
-    <p class="rounded-[1.25rem] border border-border bg-surface p-6 text-sm leading-relaxed">
-      Kalimantan Barat, termasuk Kubu Raya, rutin menghadapi kebakaran hutan dan lahan — terutama di
-      lahan gambut saat musim kemarau. Asapnya tidak mengenal batas kecamatan.
-    </p>
-    <p class="rounded-[1.25rem] border border-border bg-surface p-6 text-sm leading-relaxed">
-      Informasi resmi tersebar di banyak tempat: situs BMKG, SiPongi, BNPB, dan BPBD. Warga harus
-      membuka satu per satu untuk memahami kondisi di lokasinya.
-    </p>
-    <p class="rounded-[1.25rem] border border-border bg-surface p-6 text-sm leading-relaxed">
-      Pavana merangkum sinyal yang tersebar — titik panas satelit, arah angin, prakiraan PM2.5 —
-      menjadi satu jawaban sederhana per lokasi, lengkap dengan sumber dan waktu berlakunya.
-    </p>
+  <div class="mt-10 grid gap-4 md:grid-cols-3">
+    {
+      cards.map((c) => (
+        <div class="glass rounded-3xl p-6">
+          <span class="flex size-10 items-center justify-center rounded-2xl bg-haze/15 text-haze">
+            <Icon icon={c.icon} class="size-5" />
+          </span>
+          <p class="mt-4 text-sm leading-relaxed text-ink-muted">{c.body}</p>
+        </div>
+      ))
+    }
   </div>
   <p class="mt-6 max-w-4xl text-xs text-ink-muted">
     Semua angka contoh di halaman ini adalah data ilustratif yang diberi label, bukan pengamatan

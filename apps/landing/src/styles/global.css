@@ -3,8 +3,64 @@
 @import '@pavana/brand/tokens.css';
 @import '@pavana/brand/theme.css';
 
+/* Same look as the app (apps/web/src/styles/globals.css): haze accent + frosted glass. */
+@theme inline {
+  --color-haze: var(--pv-haze);
+  --animate-drift: drift 40s ease-in-out infinite alternate;
+
+  @keyframes drift {
+    from {
+      transform: scale(1.06) translate3d(-1.5%, 0, 0);
+    }
+    to {
+      transform: scale(1.06) translate3d(1.5%, -1%, 0);
+    }
+  }
+}
+
+/* The light-theme blush is too pale for text; use a deeper pink there. */
+:root {
+  --pv-haze: #db2777;
+}
+:root[data-theme='dark'] {
+  --pv-haze: var(--pv-accent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pv-haze: var(--pv-accent);
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+  * {
+    border-color: var(--pv-border);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@utility glass {
+  background-color: color-mix(in oklab, var(--pv-surface) 74%, transparent);
+  border: 1px solid color-mix(in oklab, var(--pv-ink) 9%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Frosted glass that stays dark on top of the photo, whatever the theme. */
+@utility glass-dark {
+  background-color: rgba(14, 17, 32, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

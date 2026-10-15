@@ -1,0 +1,41 @@
+---
+import { id } from '../../../web/src/lib/i18n/id';
+
+const c = id.landing.sources;
+// Statuses live in one array (id.landing.sources.items) — flip them there as connectors go live.
+const CHIP = {
+  integrated: 'bg-[#60a5fa]/15 text-[#2563eb] ring-[#60a5fa]/30 dark:text-[#93c5fd]',
+  soon: 'bg-state-stale/15 text-state-stale ring-state-stale/30',
+  link: 'bg-surface-muted text-ink-muted ring-border',
+} as const;
+---
+
+<section id="sumber" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 md:px-8 md:py-28">
+  <div class="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-haze">{c.eyebrow}</p>
+      <h2 class="mt-2 font-heading text-3xl font-bold tracking-tight md:text-4xl">{c.title}</h2>
+      <p class="mt-4 leading-relaxed text-ink-muted">{c.body}</p>
+    </div>
+    <ul class="glass divide-y divide-border rounded-3xl">
+      {
+        c.items.map((s) => (
+          <li class="flex items-center justify-between gap-4 px-5 py-4">
+            <span class="min-w-0">
+              <span class="font-semibold">{s.name}</span>
+              <span class="block text-sm text-ink-muted">{s.use}</span>
+            </span>
+            <span
+              class:list={[
+                'shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1',
+                CHIP[s.status as keyof typeof CHIP],
+              ]}
+            >
+              {c.status[s.status as keyof typeof c.status]}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

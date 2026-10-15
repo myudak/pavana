@@ -18,6 +18,153 @@ export const id = {
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
+  landing: {
+    title: 'Pavana — Weather, Wildfire & Kualitas Udara Indonesia',
+    description:
+      'Kenali Pavana: cuaca (weather), kualitas udara PM2.5, dan konteks asap kebakaran hutan (wildfire) di Indonesia. Coba demo Kubu Raya dengan data ilustratif.',
+    nav: {
+      how: 'Cara kerja',
+      features: 'Fitur',
+      sources: 'Sumber data',
+      faq: 'FAQ',
+      openApp: 'Buka aplikasi',
+    },
+    hero: {
+      category: 'Weather · Air quality · Wildfire',
+      heading: ['Apakah asap kebakaran', 'akan sampai ke tempatmu?'],
+      introduction:
+        'Pavana dirancang untuk membantu memahami cuaca, kualitas udara PM2.5, dan potensi dampak asap kebakaran hutan dan lahan gambut di Indonesia. Jelajahi hubungan angin, titik panas satelit, dan tren kualitas udara dalam tampilan sesederhana aplikasi cuaca.',
+      demoStatus:
+        'Aplikasi saat ini menampilkan demo Kubu Raya, Kalimantan Barat dengan data ilustratif. Integrasi data langsung sedang disiapkan.',
+      ctaPrimary: 'Buka Pavana',
+      ctaDemo: 'Lihat demo',
+      mockBadge: 'Contoh · data ilustratif',
+    },
+    how: {
+      eyebrow: 'Cara kerja',
+      title: 'Satu jawaban sederhana, dari tiga sinyal.',
+      steps: [
+        {
+          title: 'Pilih lokasi',
+          body: 'Cari kota atau kabupaten, atau pakai lokasimu. Pilihan lokasi disimpan di perangkatmu.',
+        },
+        {
+          title: 'Pavana membaca tiga sinyal',
+          body: 'Titik panas satelit, prakiraan arah dan kecepatan angin, serta prakiraan PM2.5 untuk 24 jam ke depan.',
+        },
+        {
+          title: 'Jawaban per jam',
+          body: 'Potensi paparan asap — minim, rendah, sedang, atau tinggi — lengkap dengan sumber dan waktu berlakunya.',
+        },
+      ],
+      diagramTitle: 'Jarak sama, jawaban berbeda.',
+      diagramBody:
+        'Dua rumah sama jauhnya dari titik panas. Yang berada di arah tiupan angin berpotensi terpapar asap; yang di sampingnya jauh lebih kecil. Inilah yang dihitung Pavana — sebagai indikator potensi, bukan kepastian.',
+      fire: 'Titik panas',
+      wind: 'Angin',
+      houseA: 'Searah angin · Tinggi',
+      houseB: 'Di samping · Rendah',
+    },
+    features: {
+      eyebrow: 'Fitur',
+      title: 'Semudah aplikasi cuaca.',
+      status: {
+        available: 'Tersedia',
+        building: 'Dalam pengembangan',
+        planned: 'Belum tersedia',
+      },
+      items: [
+        {
+          key: 'reach',
+          title: 'Apakah asapnya sampai?',
+          body: 'Pilih lokasi, lihat apakah asap dari titik panas berpotensi bergerak ke wilayahmu dalam beberapa jam ke depan.',
+          status: 'available',
+        },
+        {
+          key: 'timeline',
+          title: 'Garis waktu asap',
+          body: 'Geser waktu seperti prakiraan cuaca: kini, +3, +6, +12, sampai +24 jam.',
+          status: 'available',
+        },
+        {
+          key: 'map',
+          title: 'Peta api & angin',
+          body: 'Titik panas satelit, garis aliran angin, dan arah sebaran asap yang indikatif.',
+          status: 'available',
+        },
+        {
+          key: 'why',
+          title: 'Kenapa begini?',
+          body: 'Faktor penyebab dalam bahasa sederhana: tren PM2.5, arah angin, dan titik panas searah angin.',
+          status: 'available',
+        },
+        {
+          key: 'ai',
+          title: 'Prakiraan AI',
+          body: 'Model LightGBM dengan fitur titik panas berbasis arah angin dan penjelasan SHAP. Belum dievaluasi, belum dipakai di aplikasi.',
+          status: 'building',
+        },
+        {
+          key: 'alerts',
+          title: 'Peringatan pintar',
+          body: 'Notifikasi saat prakiraan di lokasi tersimpanmu memburuk, beserta tautan ke peringatan resmi.',
+          status: 'planned',
+        },
+      ],
+    },
+    sources: {
+      eyebrow: 'Sumber data',
+      title: 'Data terbuka, sumbernya selalu terlihat.',
+      body: 'Setiap angka di Pavana menyertakan sumber, jenis data (pengamatan, prakiraan, atau demo), dan waktu berlakunya.',
+      status: {
+        integrated: 'Terintegrasi',
+        soon: 'Segera',
+        link: 'Tautan resmi',
+      },
+      items: [
+        {
+          name: 'Open-Meteo',
+          use: 'Prakiraan angin, suhu, kelembapan, hujan',
+          status: 'integrated',
+        },
+        { name: 'CAMS (Copernicus)', use: 'Prakiraan PM2.5', status: 'integrated' },
+        { name: 'BMKG', use: 'Prakiraan cuaca pembanding & sumber resmi', status: 'integrated' },
+        { name: 'NASA FIRMS', use: 'Titik panas satelit VIIRS', status: 'soon' },
+        { name: 'OpenAQ', use: 'Stasiun pemantau PM2.5 terdekat', status: 'soon' },
+        { name: 'SiPongi · BNPB · BPBD', use: 'Status karhutla & arahan resmi', status: 'link' },
+      ],
+    },
+    cta: {
+      title: 'Lihat apakah asap sampai ke tempatmu.',
+      body: 'Gratis, tanpa akun, langsung dari browser.',
+    },
+    footer: {
+      project: 'Pavana · JOINTS 2026 · Sustainability',
+      disclaimer: 'Bukan sumber peringatan resmi. Ikuti arahan BMKG dan BPBD setempat.',
+      photoCredit: 'Foto lanskap: aset tim Pavana.',
+    },
+    questions: {
+      title: 'Tentang cuaca, wildfire, dan Pavana',
+      items: [
+        {
+          question: 'Apakah Pavana merupakan aplikasi weather atau prakiraan cuaca?',
+          answer:
+            'Pavana mengusung pengalaman seperti aplikasi cuaca (weather), dengan fokus pada hubungan angin, kualitas udara PM2.5, dan potensi dampak asap. Versi saat ini menampilkan skenario demo, bukan prakiraan cuaca langsung.',
+        },
+        {
+          question: 'Apa hubungan Pavana dengan forest fire dan wildfire?',
+          answer:
+            'Forest fire berarti kebakaran hutan, sedangkan wildfire mencakup kebakaran vegetasi yang lebih luas. Pavana dirancang untuk menyajikan konteks titik panas satelit, angin, dan kualitas udara di wilayah rawan kebakaran hutan dan lahan gambut. Titik panas adalah deteksi anomali panas, bukan konfirmasi kebakaran. Pavana tidak memprediksi waktu kedatangan api atau memberi perintah evakuasi.',
+        },
+        {
+          question: 'Apakah data cuaca dan kualitas udara Pavana sudah live?',
+          answer:
+            'Belum untuk publik. Integrasi Open-Meteo, CAMS, dan BMKG sudah dibangun dan sedang diuji; NASA FIRMS dan OpenAQ menyusul. Sementara itu aplikasi menampilkan demo dengan data sintetis untuk Kubu Raya, Kalimantan Barat, dan belum ada model machine learning yang terlatih. Untuk informasi terkini dan arahan resmi, periksa BMKG dan BPBD setempat.',
+        },
+      ],
+    },
+  },
+
   nav: { today: 'Beranda', map: 'Peta', forecast: 'Prakiraan', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',
