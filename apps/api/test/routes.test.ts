@@ -171,14 +171,4 @@ describe('demo mode API', () => {
   });
 });
 
-describe('live mode (providers not implemented yet)', () => {
-  it('returns 501 instead of fake data', async () => {
-    const live = await buildApp({
-      config: loadConfig({ PAVANA_MODE: 'live', LOG_LEVEL: 'silent' }),
-    });
-    const res = await live.inject({ method: 'GET', url: `/api/conditions?${KR}` });
-    expect(res.statusCode).toBe(501);
-    expect(res.json()).toHaveProperty('error.code', 'not_implemented');
-    await live.close();
-  });
-});
+// Live mode is covered offline with recorded upstream responses in live.test.ts.
