@@ -24,3 +24,9 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 } as unknown as typeof ResizeObserver;
+
+// jsdom lacks URL.createObjectURL, called by maplibre-gl at import time.
+if (!window.URL.createObjectURL) {
+  window.URL.createObjectURL = () => 'blob:mock';
+  window.URL.revokeObjectURL = () => {};
+}

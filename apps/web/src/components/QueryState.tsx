@@ -10,12 +10,22 @@ import { useCopy } from '@/lib/i18n';
 export function QueryState<T>({
   query,
   children,
+  inline = false,
 }: {
   query: UseQueryResult<T>;
   children: (data: T) => ReactNode;
+  /** Render borderless loading/error states (for embedding inside another card). */
+  inline?: boolean;
 }) {
   const t = useCopy();
   if (query.isPending) {
+    if (inline) {
+      return (
+        <p className="text-sm text-ink-muted" aria-busy>
+          {t.common.loading}
+        </p>
+      );
+    }
     return (
       <Card className="flex items-center gap-2 text-sm text-ink-muted" aria-busy>
         <Loader2 className="size-4 animate-spin" aria-hidden /> {t.common.loading}
@@ -28,6 +38,13 @@ export function QueryState<T>({
       err instanceof ApiRequestError && err.code === 'not_implemented'
         ? t.common.notImplemented
         : err.message;
+    if (inline) {
+      return (
+        <p className="text-sm text-ink-muted">
+          {t.common.errorTitle}: {msg}
+        </p>
+      );
+    }
     return (
       <Card role="alert" className="space-y-3">
         <p className="flex items-center gap-2 font-medium text-state-error">
