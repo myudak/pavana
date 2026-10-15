@@ -36,7 +36,7 @@ const glassCard =
 
 /** Lighter translucent surface for the hero panels — the landscape stays visible. */
 const heroGlass =
-  'border-glass-border bg-glass-hero backdrop-blur-md dark:[box-shadow:var(--pv-shadow-soft)]';
+  'border-glass-border bg-glass-hero backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1126]/60 dark:[box-shadow:var(--pv-shadow-soft)]';
 
 /** "Now → peak" category status for the AQI card's right panel. Null-safe. */
 function ForecastStatus({
@@ -56,11 +56,11 @@ function ForecastStatus({
   return (
     <div>
       {unique.length === 0 ? (
-        <p className="text-xl font-medium text-ink-muted">{t.today.notEnough}</p>
+        <p className="text-lg font-medium text-ink-muted">{t.today.notEnough}</p>
       ) : unique.length === 1 ? (
-        <p className="text-xl font-medium text-primary-strong">{t.aqCategory[unique[0]!]}</p>
+        <p className="text-lg font-medium text-primary-strong">{t.aqCategory[unique[0]!]}</p>
       ) : (
-        <p className="flex flex-wrap items-center gap-2 text-xl font-medium">
+        <p className="flex flex-wrap items-center gap-2 text-lg font-medium">
           <span className="text-primary-strong">{t.aqCategory[unique[0]!]}</span>
           <ArrowRight className="size-5 text-ink-muted" aria-hidden />
           <span className="text-accent-strong">{t.aqCategory[unique[1]!]}</span>
@@ -87,15 +87,13 @@ export function TodayPage() {
         const cat = categoryOf(c.airQuality.pm25UgM3);
         const pm = c.airQuality.pm25UgM3;
 
-        // Hero subtext: real upwind-detection sentence when the insight names
-        // contributing upwind detections, otherwise the trend headline.
-        const upwind = insights.data?.factors.find((f) => f.id === 'upwind_hotspots');
-        const contributing =
-          typeof upwind?.metrics.contributingCount === 'number'
-            ? upwind.metrics.contributingCount
-            : 0;
-        const heroSub =
-          contributing > 0 && upwind ? describeFactor(upwind, t, tz) : t.trendHeadline[c.trend];
+        // Hero subtext: short per-category description in Indonesian,
+        // dynamic from the live/fixture AQI category.
+        const heroDesc = cat === 'unknown' ? t.today.noData : t.today.heroDesc[cat];
+        // Long category names (e.g. "Tidak sehat bagi kelompok sensitif")
+        // get a smaller fluid size so they wrap fully instead of clipping.
+        const heroLabel = t.aqCategory[cat];
+        const heroLabelLong = heroLabel.length > 20;
 
         // Condition banner sub: real wind sentence when available, else empty.
         const windFactor = insights.data?.factors.find((f) => f.id === 'wind');
@@ -115,7 +113,7 @@ export function TodayPage() {
                 <p
                   role="note"
                   title={t.demoBannerDetail}
-                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-glass-hero px-3 py-1.5 text-xs text-ink backdrop-blur-md md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[100px]"
+                  className="absolute left-4 right-4 top-[4.5rem] inline-flex w-fit items-center gap-1.5 rounded-full border border-glass-border bg-glass-hero px-3 py-1.5 text-xs text-ink backdrop-blur-md md:left-6 md:right-auto lg:left-[6.25vw] lg:top-[92px]"
                 >
                   <FlaskConical className="size-3.5 shrink-0" aria-hidden />
                   {t.demoBanner}
@@ -123,88 +121,95 @@ export function TodayPage() {
               )}
 
               <div className="px-[6.25vw]">
-                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-0 lg:pb-[60px] lg:pt-[132px] xl:grid-cols-[minmax(0,59.5%)_minmax(0,1fr)]">
-                  {/* Left column */}
-                  <div className="min-w-0">
-                    <p className="text-[clamp(1.5rem,2.47vw,2.375rem)] font-light leading-snug text-[var(--pv-hero-lead)]">
+                <div className="relative mx-auto grid w-full max-w-[1344px] gap-10 pb-24 pt-28 lg:gap-12 lg:pb-6 lg:pt-[120px] xl:grid-cols-[minmax(0,1fr)_minmax(0,330px)]">
+                  {/* Left column — reference composition: dominant two-tier
+                      headline, short description, then the AQI panel. */}
+                  <div className="min-w-0 max-w-[720px]">
+                    <p className="text-[clamp(1.65rem,2.6vw,2.5rem)] font-light leading-none text-[var(--pv-hero-lead)] dark:[text-shadow:0_2px_24px_rgba(6,9,24,0.65)]">
                       {t.today.heroLead}
                     </p>
                     <h1
                       className={cn(
-                        'mt-2.5 text-[clamp(2.25rem,4.1vw,4rem)] font-bold leading-[clamp(2.6rem,4.5vw,4.35rem)] tracking-[-0.02em]',
-                        cat !== 'unknown'
-                          ? 'bg-gradient-to-r from-primary-strong to-accent bg-clip-text text-transparent'
-                          : 'text-ink-muted',
+                        'mt-3 max-w-full bg-clip-text font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))]',
+                        heroLabelLong
+                          ? 'text-[clamp(2.1rem,4.2vw,3.75rem)] leading-[1.1]'
+                          : 'text-[clamp(2.9rem,5.6vw,5rem)] leading-[1.02]',
                       )}
+                      style={{ backgroundImage: 'var(--pv-gradient-headline)' }}
                     >
-                      {t.aqCategory[cat]}
+                      {heroLabel}
                     </h1>
-                    <p className="mt-4 max-w-[400px] text-[clamp(1rem,1.3vw,1.25rem)] leading-[30px] text-[var(--pv-hero-sub)]">
-                      {heroSub}
+                    <p className="mt-4 max-w-[480px] text-[clamp(1.05rem,1.4vw,1.3rem)] leading-[1.55] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)]">
+                      {heroDesc}
                     </p>
 
-                    {/* AQI glass card */}
+                    {/* AQI glass card — horizontal: big number left, chart right, one row. */}
                     <section
                       aria-label={t.today.pm25Label}
                       className={cn(
-                        'mt-6 grid overflow-hidden rounded-[20px] border md:grid-cols-[63%_minmax(0,1fr)]',
+                        'mt-5 grid overflow-hidden rounded-[20px] border md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]',
                         heroGlass,
                       )}
                     >
                       <div className="min-w-0 p-4 md:px-5 md:py-4">
-                        <p className="text-[18px] text-ink">{t.today.pm25Label}</p>
+                        <p className="text-sm font-medium uppercase tracking-[0.18em] text-ink-muted dark:text-white/60">
+                          {t.today.pm25Label}
+                        </p>
                         {pm === null ? (
                           <p className="mt-2 text-ink-muted">{t.today.noData}</p>
                         ) : (
                           <>
-                            <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-3">
+                            <div className="mt-1.5 flex flex-wrap items-center gap-x-5 gap-y-2">
                               <p className="flex items-baseline gap-2">
-                                <span className="text-[clamp(3.5rem,4.69vw,4.5rem)] font-semibold leading-none tabular-nums">
+                                <span className="text-[clamp(2.25rem,3vw,2.9rem)] font-semibold leading-none tabular-nums text-ink dark:text-white">
                                   {formatNumber(pm)}
                                 </span>
-                                <span className="text-[18px] text-ink-muted">{t.today.unit}</span>
+                                <span className="text-sm text-ink-muted dark:text-white/60">{t.today.unit}</span>
                               </p>
                               <QueryState query={forecast} inline>
                                 {(f) => (
                                   <Suspense
                                     fallback={
                                       <div
-                                        className="h-[44px] w-[236px] shrink-0 animate-pulse rounded-xl bg-surface-muted"
+                                        className="h-10 w-[160px] shrink-0 animate-pulse rounded-xl bg-surface-muted sm:w-[200px]"
                                         aria-hidden
                                       />
                                     }
                                   >
-                                    <HeroSparkline hours={f.hours} />
+                                    <HeroSparkline
+                                      hours={f.hours}
+                                      className="h-10 w-[160px] sm:w-[200px] xl:w-[220px]"
+                                    />
                                   </Suspense>
                                 )}
                               </QueryState>
                             </div>
-                            <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                              <Leaf className="size-5 shrink-0 text-accent-strong" aria-hidden />
-                              <span className="text-[18px] font-medium text-accent-strong">
+                            <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[15px]">
+                              <Leaf className="size-4 shrink-0 text-accent-strong" aria-hidden />
+                              <span className="font-medium text-accent-strong">
                                 {t.aqCategory[cat]}
                               </span>
                               {c.airQuality.aqi && (
                                 <span
-                                  className="text-xs text-ink-muted"
+                                  className="text-ink-muted dark:text-white/55"
                                   title={t.aqiIndicative}
                                 >
-                                  US AQI {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
+                                  · US AQI {c.airQuality.aqi.value} · {t.aqiIndicativeShort}
                                 </span>
                               )}
                             </p>
                           </>
                         )}
                       </div>
-                      <div className="min-w-0 border-t border-hairline p-4 md:border-l md:border-t-0 md:px-5 md:py-4">
+                      <div className="min-w-0 border-t border-hairline p-4 dark:border-white/10 md:border-l md:border-t-0 md:px-5 md:py-4">
                         <Link
                           to="/insight"
-                          className="flex items-center justify-between gap-2 text-[15px] text-ink hover:opacity-80"
+                          className="flex items-center justify-between gap-2 text-sm text-ink hover:opacity-80"
                         >
                           {t.today.todayForecast}
                           <ChevronRight className="size-4 shrink-0 text-ink-muted" aria-hidden />
                         </Link>
-                        <div className="mt-3">
+                        <div className="mt-2">
                           {forecast.isPending ? (
                             <div className="space-y-2" aria-hidden>
                               <div className="h-6 w-3/4 animate-pulse rounded bg-surface-muted" />
@@ -224,7 +229,7 @@ export function TodayPage() {
                       </div>
                     </section>
 
-                    <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                       <DataStateBadge state={c.state} />
                       <ProvenanceNote
                         provenance={c.airQuality.provenance}
@@ -233,7 +238,7 @@ export function TodayPage() {
                       />
                     </div>
 
-                    <div className="mb-2 mt-[14px] flex items-end justify-between gap-3">
+                    <div className="mb-2 mt-3 flex items-end justify-between gap-3">
                       <p className="text-[13px] font-medium tracking-[0.25em] text-ink-muted">
                         {t.today.hourlyLabel}
                       </p>
@@ -246,9 +251,16 @@ export function TodayPage() {
                     </div>
                     {forecast.isPending ? (
                       <div
-                        className="h-36 animate-pulse rounded-2xl border border-glass-border bg-glass-hero"
+                        className="flex gap-3 overflow-hidden sm:grid sm:grid-cols-6"
                         aria-hidden
-                      />
+                      >
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-[124px] min-w-[104px] flex-1 animate-pulse rounded-2xl border border-glass-border bg-glass-hero sm:min-w-0"
+                          />
+                        ))}
+                      </div>
                     ) : forecast.isError ? (
                       <p className="text-sm text-ink-muted">{t.common.errorTitle}</p>
                     ) : (
@@ -262,12 +274,12 @@ export function TodayPage() {
                     <Link
                       to="/insight"
                       className={cn(
-                        'mt-4 flex min-h-[64px] items-center gap-4 rounded-[18px] border px-4 py-2.5',
+                        'mt-3 flex min-h-[56px] items-center gap-3 rounded-[18px] border px-4 py-2',
                         heroGlass,
                       )}
                     >
                       <Wind
-                        className="size-9 shrink-0 text-primary-strong"
+                        className="size-8 shrink-0 text-primary-strong"
                         aria-hidden
                       />
                       <span className="min-w-0 flex-1">
@@ -288,11 +300,11 @@ export function TodayPage() {
                   </div>
 
                   {/* Right column: hotspot block, bottom-aligned with the hourly strip */}
-                  <div className="flex min-w-0 flex-col justify-end xl:pl-[28.8%]">
-                    <div className="flex items-stretch gap-9">
+                  <div className="flex min-w-0 flex-col justify-end lg:pt-24 xl:pt-36">
+                    <div className="flex items-stretch gap-8">
                       <div
                         aria-hidden
-                        className="hidden w-px shrink-0 self-stretch bg-hairline xl:block"
+                        className="hidden w-px shrink-0 self-stretch bg-hairline dark:bg-white/15 lg:block"
                       />
                       <div className="min-w-0 flex-1">
                         <Mountain className="size-9 text-accent-strong" aria-hidden />

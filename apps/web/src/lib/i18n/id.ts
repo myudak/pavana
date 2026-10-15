@@ -51,7 +51,7 @@ export const id = {
     unknown: 'Tidak diketahui',
   } satisfies Record<UsAqiCategory | 'unknown', string>,
   aqiIndicative: 'Kategori indikatif US AQI dari nilai per jam',
-  aqiIndicativeShort: 'indikatif',
+  aqiIndicativeShort: 'Indikatif',
 
   provenanceKind: {
     observation: 'Pengamatan',
@@ -62,7 +62,20 @@ export const id = {
 
   today: {
     currentTitle: 'PM2.5 saat ini',
-    heroLead: 'Kualitas udara saat ini',
+    heroLead: 'Kualitas udara adalah',
+    // Deskripsi singkat hero per kategori — dinamis mengikuti kategori AQI,
+    // tanpa angka deteksi, radius, arah angin, atau skor indikator.
+    heroDesc: {
+      good: 'Udara relatif bersih. Nikmati aktivitas luar ruangan seperti biasa.',
+      moderate:
+        'Kualitas udara cukup baik. Kelompok yang sensitif sebaiknya memperhatikan kondisi tubuh.',
+      unhealthy_sensitive:
+        'Kelompok sensitif disarankan mengurangi aktivitas berat di luar ruangan.',
+      unhealthy: 'Batasi aktivitas di luar ruangan dan kurangi paparan polusi.',
+      very_unhealthy:
+        'Hindari aktivitas berat di luar ruangan dan kurangi paparan udara luar.',
+      hazardous: 'Hindari aktivitas di luar ruangan sebisa mungkin.',
+    } satisfies Record<UsAqiCategory, string>,
     pm25Label: 'PM2.5',
     todayForecast: 'Prakiraan hari ini',
     hourlyLabel: 'PRAKIRAAN PER JAM',

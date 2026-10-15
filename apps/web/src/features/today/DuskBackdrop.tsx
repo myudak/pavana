@@ -41,19 +41,20 @@ export function DuskBackdrop({ className }: { className?: string }) {
             height={900}
             decoding="async"
             fetchPriority="high"
-            className="h-full w-full object-cover [object-position:78%_50%] md:[object-position:72%_45%]"
+            className="h-full w-full object-cover [object-position:62%_42%] md:[object-position:58%_40%]"
           />
         </picture>
       )}
 
       {dark && (
         <>
-          {/* Legibility: left-to-right for the hero text on the left. */}
+          {/* Legibility: strong dark gradient on the left for the hero headline,
+              fading out so the purple/pink dusk stays vivid center-right. */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(90deg, color-mix(in srgb, var(--pv-canvas) 78%, transparent) 0%, color-mix(in srgb, var(--pv-canvas) 45%, transparent) 38%, color-mix(in srgb, var(--pv-canvas) 15%, transparent) 65%, color-mix(in srgb, var(--pv-canvas) 5%, transparent) 100%)',
+                'linear-gradient(90deg, rgba(6,9,24,0.86) 0%, rgba(6,9,24,0.68) 26%, rgba(6,9,24,0.38) 48%, rgba(6,9,24,0.12) 68%, rgba(6,9,24,0) 85%)',
             }}
           />
           {/* Thin top shade so the transparent nav stays readable. */}
@@ -61,7 +62,7 @@ export function DuskBackdrop({ className }: { className?: string }) {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(180deg, color-mix(in srgb, var(--pv-canvas) 60%, transparent) 0%, transparent 180px)',
+                'linear-gradient(180deg, rgba(6,9,24,0.55) 0%, transparent 180px)',
             }}
           />
           {/* Bottom blend into the canvas below the hero — no seam. */}
