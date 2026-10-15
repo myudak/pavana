@@ -56,6 +56,14 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
   tertinggal sebagai fallback dalam di tumpukan wordmark, tetapi **bukan lagi font interim
   wordmark**.
 
+## Peran font
+
+- Wordmark `pavana`: Comfortaa Bold (token `--pv-font-wordmark`, utilitas `font-wordmark`).
+- Judul & angka besar: Plus Jakarta Sans semibold/bold (token `--pv-font-heading`,
+  utilitas `font-heading`) — humanis, paling dekat referensi. Outfit (`font-display`)
+  bukan untuk judul aplikasi.
+- Isi/label/navigasi: Plus Jakarta Sans regular/medium (body default).
+
 ## Ikon aplikasi (turunan huruf "p")
 
 - Format ikon persegi terlalu kecil untuk wordmark penuh, jadi dipakai satu huruf awal `p`

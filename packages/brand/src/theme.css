@@ -37,6 +37,7 @@
   --color-state-error: var(--pv-state-error);
 
   --font-display: var(--pv-font-display);
+  --font-heading: var(--pv-font-heading);
   --font-wordmark: var(--pv-font-wordmark);
   --font-sans: var(--pv-font-body);
 
