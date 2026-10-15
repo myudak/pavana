@@ -3,8 +3,8 @@ import { combineExposure, pm25ExposureLevel, upwindExposureLevel } from '../src'
 
 describe('pm25ExposureLevel', () => {
   it('follows the EPA PM2.5 band edges', () => {
-    expect(pm25ExposureLevel(12)).toBe('none');
-    expect(pm25ExposureLevel(12.1)).toBe('low');
+    expect(pm25ExposureLevel(9)).toBe('none');
+    expect(pm25ExposureLevel(9.1)).toBe('low');
     expect(pm25ExposureLevel(35.4)).toBe('low');
     expect(pm25ExposureLevel(35.5)).toBe('moderate');
     expect(pm25ExposureLevel(55.5)).toBe('high');

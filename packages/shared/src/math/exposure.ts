@@ -3,14 +3,14 @@
  *
  *   level = max(level from PM2.5 forecast, level from upwind hotspot score)
  *
- * PM2.5 bands follow the US EPA PM2.5 breakpoints (µg/m³):
- *   ≤ 12.0 none · ≤ 35.4 low · ≤ 55.4 moderate · above → high
+ * PM2.5 bands follow the US EPA PM2.5 breakpoints (2024 revision, µg/m³), same as us-aqi.ts:
+ *   ≤ 9.0 none · ≤ 35.4 low · ≤ 55.4 moderate · above → high
  * Upwind score bands are HEURISTIC and not yet calibrated against observations
  * (see docs/modeling-methodology.md). Keep UI copy honest about that.
  */
 import type { ExposureLevel } from '../schemas/exposure';
 
-export const EXPOSURE_PM25_BANDS = { none: 12.0, low: 35.4, moderate: 55.4 } as const;
+export const EXPOSURE_PM25_BANDS = { none: 9.0, low: 35.4, moderate: 55.4 } as const;
 export const EXPOSURE_UPWIND_BANDS = { low: 2, moderate: 20, high: 80 } as const;
 
 const RANK: Record<Exclude<ExposureLevel, 'unknown'>, number> = {

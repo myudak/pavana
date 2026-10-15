@@ -34,16 +34,22 @@ export async function getExposure(
   const query = { point: { lat: location.lat, lon: location.lon }, from: now, hours };
   const pad = HOTSPOT_RADIUS_KM * DEG_PER_KM;
 
-  const [aq, wx, hotspots] = await Promise.all([
+  const [aq, wx, fetchedHotspots] = await Promise.all([
     p.airQuality.getHourly(query),
     p.weather.getHourly(query),
-    p.hotspots.getHotspots({
-      bbox: [point.lon - pad, point.lat - pad, point.lon + pad, point.lat + pad],
-      from: new Date(now.getTime() - HOTSPOT_WINDOW_HOURS * 3_600_000),
-      to: now,
-      limit: 2000,
-    }),
+    p.hotspots
+      .getHotspots({
+        bbox: [point.lon - pad, point.lat - pad, point.lon + pad, point.lat + pad],
+        from: new Date(now.getTime() - HOTSPOT_WINDOW_HOURS * 3_600_000),
+        to: now,
+        limit: 2000,
+      })
+      // Hotspots unavailable (e.g. FIRMS down / no key) → upwind part is UNKNOWN,
+      // never "no fires". The PM2.5 part still answers.
+      .catch(() => null),
   ]);
+  const hotspotsAvailable = fetchedHotspots !== null;
+  const hotspots = fetchedHotspots ?? [];
 
   const wxByTime = new Map(wx.map((w) => [w.provenance.validAt, w]));
   // The exposure target is the requested point, so two places under the same
@@ -54,7 +60,7 @@ export async function getExposure(
     const windFrom = w?.windDirectionFromDeg ?? null;
     const t = Date.parse(validAt);
     const upwind =
-      windFrom === null
+      windFrom === null || !hotspotsAvailable
         ? null
         : upwindExposureScore(
             point,
@@ -112,6 +118,7 @@ export async function getExposure(
       peakAt: peak && peak.level !== 'unknown' ? peak.validAt : null,
       firstElevatedAt: firstElevated?.validAt ?? null,
       hotspotsConsidered: hotspots.length,
+      hotspotsAvailable,
       radiusKm: HOTSPOT_RADIUS_KM,
       windowHours: HOTSPOT_WINDOW_HOURS,
     },

@@ -16,8 +16,9 @@ export function ProvenanceNote({
   const t = useCopy();
   return (
     <p className={cn('text-xs text-ink-muted', className)}>
-      {t.common.source}: {provenance.provider} · {t.provenanceKind[provenance.kind]} ·{' '}
-      {t.common.validAt} {formatDateTime(provenance.validAt, timeZone)}
+      {t.common.source}: {t.providerName[provenance.provider] ?? provenance.provider} ·{' '}
+      {t.provenanceKind[provenance.kind]} · {t.common.validAt}{' '}
+      {formatDateTime(provenance.validAt, timeZone)}
     </p>
   );
 }

@@ -48,6 +48,11 @@ export function ExposureHero({
             {peakHour && t.exposure.driver[peakHour.driver]}
           </p>
         )}
+        {e?.summary.hotspotsAvailable === false && (
+          <p className="max-w-md text-xs leading-relaxed text-foreground/75 drop-shadow-sm">
+            {t.hotspotsUnavailable}
+          </p>
+        )}
       </div>
 
       <div className="glass relative overflow-hidden rounded-3xl p-4 sm:p-5">
@@ -94,6 +99,18 @@ export function ExposureHero({
           timeZone={tz}
           className="relative mt-3"
         />
+        {c.station && (
+          <div className="relative mt-3 rounded-2xl bg-foreground/5 px-3 py-2 text-xs leading-relaxed">
+            <p className="font-medium">
+              {t.station.line(
+                c.station.name,
+                formatNumber(c.station.airQuality.pm25UgM3),
+                formatNumber(c.station.distanceKm, 1),
+              )}
+            </p>
+            <ProvenanceNote provenance={c.station.airQuality.provenance} timeZone={tz} />
+          </div>
+        )}
       </div>
     </section>
   );

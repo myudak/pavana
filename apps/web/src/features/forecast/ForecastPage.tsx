@@ -11,6 +11,7 @@ import { LocationPicker } from '@/features/location/LocationPicker';
 import { useCopy } from '@/lib/i18n';
 import { useExposure, useForecast, useInsights } from '@/lib/queries';
 import { SmokeBars } from './SmokeBars';
+import { BmkgReference } from './BmkgReference';
 import { WeatherTable } from './WeatherTable';
 
 const TAB =
@@ -87,7 +88,12 @@ export default function ForecastPage() {
               query={forecast}
               skeleton={<Skeleton className="h-36 w-full rounded-2xl" />}
             >
-              {(f) => <WeatherTable hours={f.hours} timeZone={tz} />}
+              {(f) => (
+                <>
+                  <WeatherTable hours={f.hours} timeZone={tz} />
+                  {f.state !== 'demo' && <BmkgReference timeZone={tz} />}
+                </>
+              )}
             </QueryState>
           </Panel>
         </TabsContent>

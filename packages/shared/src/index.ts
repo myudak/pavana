@@ -8,6 +8,7 @@ export * from './schemas/hotspot';
 export * from './schemas/wind-field';
 export * from './schemas/insights';
 export * from './schemas/exposure';
+export * from './schemas/sources';
 export * from './schemas/api';
 
 // Pure utilities

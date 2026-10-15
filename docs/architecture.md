@@ -11,9 +11,9 @@
  ┌────────────┐   /api/*  ┌──────────────────────────────┐    ┌──────────────────────┐
  │ apps/web   │ ────────▶ │ apps/api (Fastify)           │ ─▶ │ providers/*          │
  │ React SPA  │ ◀──────── │ routes → services → providers│    │ fixture  ✅           │
- └────────────┘  JSON     │ validates query + response   │    │ open-meteo ⛔ stub    │
- ┌────────────┐           └──────────────────────────────┘    │ firms      ⛔ stub    │
- │apps/landing│ static                                         │ openaq     ⛔ stub    │
+ └────────────┘  JSON     │ validates query + response   │    │ open-meteo ✅         │
+ ┌────────────┐           └──────────────────────────────┘    │ firms      🔶 key     │
+ │apps/landing│ static                                         │ openaq     🔶 key     │
  └────────────┘                                                └──────────────────────┘
 
  ml/ (offline Python) ── shares fixtures/ + test vectors; not called by the API yet
@@ -31,10 +31,10 @@
 
 ## Modes
 
-| `PAVANA_MODE`    | Providers                                    | `now()`                 | State                                                     |
-| ---------------- | -------------------------------------------- | ----------------------- | --------------------------------------------------------- |
-| `demo` (default) | fixture (`fixtures/scenario-kubu-raya.json`) | fixture `referenceTime` | `demo`, or `insufficient` outside the 75 km demo coverage |
-| `live`           | Open-Meteo / FIRMS / OpenAQ adapters         | wall clock              | currently HTTP **501** (`not_implemented`)                |
+| `PAVANA_MODE`    | Providers                                       | `now()`                 | State                                                                                                 |
+| ---------------- | ----------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| `demo` (default) | fixture (`fixtures/scenario-kubu-raya.json`)    | fixture `referenceTime` | `demo`, or `insufficient` outside the 75 km demo coverage                                             |
+| `live`           | Open-Meteo (+CAMS) / NASA FIRMS / OpenAQ / BMKG | wall clock              | `live` / `stale` / `insufficient`; upstream failure → 502 `upstream_unavailable`; `?demo=1` → fixture |
 
 ## Web app structure
 

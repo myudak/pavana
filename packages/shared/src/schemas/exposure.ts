@@ -43,6 +43,8 @@ export const ExposureResponseSchema = z.object({
     firstElevatedAt: IsoDateTime.nullable(),
     /** Hotspot detections inside the search radius / look-back window. */
     hotspotsConsidered: z.number().int().nonnegative(),
+    /** False when hotspot data could not be loaded: upwind levels are then `unknown`. */
+    hotspotsAvailable: z.boolean().optional(),
     radiusKm: z.number().positive(),
     windowHours: z.number().positive(),
   }),

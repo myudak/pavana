@@ -1,12 +1,11 @@
 import { type BBox, type WindField, type WindFieldPoint } from '@pavana/shared';
 import { NotImplementedError } from '../domain/errors';
+import { windGridCells } from '../providers/open-meteo/grid';
 import type { ProviderBundle } from '../providers/types';
 
 /** Demo wind grid resolution (cols x rows). */
 export const WIND_FIELD_COLS = 14;
 export const WIND_FIELD_ROWS = 14;
-/** Demo margin (degrees) added around the requested bbox. */
-export const WIND_FIELD_MARGIN_DEG = 1;
 
 interface Vortex {
   lat: number;
@@ -70,26 +69,14 @@ export async function getWindField(
   cols = WIND_FIELD_COLS,
   rows = WIND_FIELD_ROWS,
 ): Promise<WindField> {
+  if (providers.windField) {
+    return providers.windField.getField(bbox, cols, rows, providers.now());
+  }
   if (!providers.isDemo) {
-    // Live gridded wind needs the Open-Meteo adapter (Track A, not implemented).
     throw new NotImplementedError('wind-field live provider');
   }
-  const [minLon, minLat, maxLon, maxLat] = bbox;
-  const m = WIND_FIELD_MARGIN_DEG;
   const validAt = providers.now().toISOString().replace('.000Z', 'Z');
-  const points: WindFieldPoint[] = [];
-  for (let j = 0; j < rows; j++) {
-    const lat = maxLat + m - ((j + 0.5) / rows) * (maxLat - minLat + 2 * m);
-    for (let i = 0; i < cols; i++) {
-      const lon = minLon - m + ((i + 0.5) / cols) * (maxLon - minLon + 2 * m);
-      points.push(demoWindVector(lat, lon, validAt));
-    }
-  }
-  return {
-    cols,
-    rows,
-    bbox: [minLon - m, minLat - m, maxLon + m, maxLat + m],
-    validAt,
-    points,
-  };
+  const grid = windGridCells(bbox, cols, rows);
+  const points: WindFieldPoint[] = grid.cells.map((c) => demoWindVector(c.lat, c.lon, validAt));
+  return { cols, rows, bbox: grid.bbox, validAt, points };
 }
