@@ -342,8 +342,7 @@ export const id = {
     aboutTitle: 'Tentang Pavana',
     aboutBody:
       'Pavana menerjemahkan data satelit, cuaca, dan prakiraan kualitas udara menjadi informasi yang mudah dipahami untuk lokasimu. Pavana bukan sumber peringatan resmi.',
-    theme: 'Tema',
-    themeOptions: { light: 'Terang', dark: 'Gelap', system: 'Sistem' },
+    // Tema kini diatur dari tombol di header aplikasi (semua halaman).
     themeToggle: {
       toDark: 'Aktifkan mode gelap',
       toLight: 'Aktifkan mode terang',
