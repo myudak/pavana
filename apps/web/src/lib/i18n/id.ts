@@ -62,8 +62,11 @@ export const id = {
         'Dua rumah sama jauhnya dari titik panas. Yang berada di arah tiupan angin berpotensi terpapar asap; yang di sampingnya jauh lebih kecil. Inilah yang dihitung Pavana — sebagai indikator potensi, bukan kepastian.',
       fire: 'Titik panas',
       wind: 'Angin',
-      houseA: 'Searah angin · Tinggi',
-      houseB: 'Di samping · Rendah',
+      houseA: 'Rumah A · searah angin',
+      houseB: 'Rumah B · di samping arah angin',
+      levelA: 'Tinggi',
+      levelB: 'Rendah',
+      sameDistance: 'Lingkaran putus-putus: jarak yang sama dari titik panas.',
     },
     features: {
       eyebrow: 'Fitur',

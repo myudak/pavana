@@ -1,5 +1,7 @@
 ---
 import { ArrowRight01Icon, PlayCircleIcon } from '@hugeicons/core-free-icons';
+import haze from '@pavana/brand/backgrounds/haze.webp';
+import haze900 from '@pavana/brand/backgrounds/haze-900.webp';
 import sunset from '@pavana/brand/backgrounds/sunset.webp';
 import sunset900 from '@pavana/brand/backgrounds/sunset-900.webp';
 import { id } from '../../../web/src/lib/i18n/id';
@@ -12,23 +14,23 @@ interface Props {
 const { appUrl } = Astro.props;
 const h = id.landing.hero;
 const demoUrl = `${appUrl.replace(/\/$/, '')}/?demo=1`;
+// Light theme = golden Haze photo, dark theme = Sunset photo (see .scene-photo in global.css).
+const photos = [
+  `--scene-light-sm: url(${haze900.src})`,
+  `--scene-light-lg: url(${haze.src})`,
+  `--scene-dark-sm: url(${sunset900.src})`,
+  `--scene-dark-lg: url(${sunset.src})`,
+].join(';');
 ---
 
-<section class="relative isolate overflow-hidden text-white">
-  <!-- Full-bleed photo; scrim keeps white text readable in both themes. -->
-  <img
-    src={sunset.src}
-    srcset={`${sunset900.src} 900w, ${sunset.src} 1672w`}
-    sizes="100vw"
-    alt=""
-    fetchpriority="high"
-    class="absolute inset-0 -z-20 size-full animate-drift object-cover object-[65%_center] motion-reduce:animate-none"
-  />
+<section class="relative isolate overflow-hidden" style="color: var(--scene-fg)">
   <div
     aria-hidden="true"
-    class="absolute inset-0 -z-10"
-    style="background: linear-gradient(180deg, rgba(14,17,32,0.65) 0%, rgba(14,17,32,0.35) 35%, rgba(14,17,32,0.55) 70%, var(--pv-canvas) 100%)"
+    class="scene-photo absolute inset-0 -z-20 animate-drift motion-reduce:animate-none"
+    style={photos}
   >
+  </div>
+  <div aria-hidden="true" class="absolute inset-0 -z-10" style="background: var(--scene-scrim)">
   </div>
 
   <div
@@ -36,38 +38,41 @@ const demoUrl = `${appUrl.replace(/\/$/, '')}/?demo=1`;
   >
     <div class="space-y-6">
       <p
-        class="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] backdrop-blur"
+        class="scene-glass inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]"
       >
         {h.category}
       </p>
       <h1
-        class="font-heading text-[2.6rem] font-bold leading-[1.02] tracking-tight drop-shadow md:text-6xl lg:text-7xl"
+        class="font-heading text-[2.6rem] font-bold leading-[1.02] tracking-tight md:text-6xl lg:text-7xl"
       >
         {h.heading[0]}<br />
         <span
-          class="bg-gradient-to-r from-[#fbcfe8] via-[#f472b6] to-[#a5b4fc] bg-clip-text text-transparent"
+          class="bg-gradient-to-r from-[#be185d] via-[#db2777] to-[#6d28d9] bg-clip-text text-transparent dark:from-[#fbcfe8] dark:via-[#f472b6] dark:to-[#a5b4fc]"
         >
           {h.heading[1]}
         </span>
       </h1>
-      <p class="max-w-xl text-base leading-relaxed text-white/85 md:text-lg">{h.introduction}</p>
+      <p class="max-w-xl text-base leading-relaxed md:text-lg" style="color: var(--scene-fg-muted)">
+        {h.introduction}
+      </p>
       <div class="flex flex-wrap gap-3">
         <a
           href={appUrl}
-          class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-[#1e1b4b] shadow-lg transition hover:bg-white/90"
+          class="inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold shadow-lg transition hover:opacity-90"
+          style="background: var(--scene-btn-bg); color: var(--scene-btn-fg)"
         >
           {h.ctaPrimary}
           <Icon icon={ArrowRight01Icon} class="size-4" />
         </a>
         <a
           href={demoUrl}
-          class="glass-dark inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold text-white transition hover:bg-white/15"
+          class="scene-glass inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold transition hover:opacity-90"
         >
           <Icon icon={PlayCircleIcon} class="size-4" />
           {h.ctaDemo}
         </a>
       </div>
-      <p class="max-w-lg text-sm text-white/70">{h.demoStatus}</p>
+      <p class="max-w-lg text-sm" style="color: var(--scene-fg-muted)">{h.demoStatus}</p>
     </div>
 
     <PhoneMock />

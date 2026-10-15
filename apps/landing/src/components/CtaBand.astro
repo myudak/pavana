@@ -2,6 +2,8 @@
 import { ArrowRight01Icon, PlayCircleIcon } from '@hugeicons/core-free-icons';
 import dusk from '@pavana/brand/backgrounds/dusk.webp';
 import dusk900 from '@pavana/brand/backgrounds/dusk-900.webp';
+import haze from '@pavana/brand/backgrounds/haze.webp';
+import haze900 from '@pavana/brand/backgrounds/haze-900.webp';
 import { id } from '../../../web/src/lib/i18n/id';
 import Icon from './Icon.astro';
 
@@ -12,36 +14,39 @@ const { appUrl } = Astro.props;
 const c = id.landing.cta;
 const h = id.landing.hero;
 const demoUrl = `${appUrl.replace(/\/$/, '')}/?demo=1`;
+// Light = Haze photo, dark = Dusk photo (theme-aware via .scene-photo).
+const photos = [
+  `--scene-light-sm: url(${haze900.src})`,
+  `--scene-light-lg: url(${haze.src})`,
+  `--scene-dark-sm: url(${dusk900.src})`,
+  `--scene-dark-lg: url(${dusk.src})`,
+].join(';');
 ---
 
 <section class="px-4 pb-16 md:px-8">
   <div
-    class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-16 text-center text-white md:py-24"
+    class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-16 text-center md:py-24"
+    style="color: var(--scene-fg)"
   >
-    <img
-      src={dusk.src}
-      srcset={`${dusk900.src} 900w, ${dusk.src} 1672w`}
-      sizes="(min-width: 1152px) 1152px, 100vw"
-      alt=""
-      loading="lazy"
-      class="absolute inset-0 -z-20 size-full object-cover"
-    />
-    <div aria-hidden="true" class="absolute inset-0 -z-10 bg-[#0e1120]/45"></div>
+    <div aria-hidden="true" class="scene-photo absolute inset-0 -z-20" style={photos}></div>
+    <div aria-hidden="true" class="absolute inset-0 -z-10" style="background: var(--cta-scrim)">
+    </div>
     <h2 class="mx-auto max-w-2xl font-heading text-3xl font-bold tracking-tight md:text-5xl">
       {c.title}
     </h2>
-    <p class="mt-3 text-white/80">{c.body}</p>
+    <p class="mt-3" style="color: var(--scene-fg-muted)">{c.body}</p>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <a
         href={appUrl}
-        class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-[#1e1b4b] shadow-lg transition hover:bg-white/90"
+        class="inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold shadow-lg transition hover:opacity-90"
+        style="background: var(--scene-btn-bg); color: var(--scene-btn-fg)"
       >
         {h.ctaPrimary}
         <Icon icon={ArrowRight01Icon} class="size-4" />
       </a>
       <a
         href={demoUrl}
-        class="glass-dark inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold text-white"
+        class="scene-glass inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold"
       >
         <Icon icon={PlayCircleIcon} class="size-4" />
         {h.ctaDemo}
