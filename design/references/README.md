@@ -19,5 +19,16 @@
 | `ember-mist-app-showcase.webp` | Light theme direction (Ember/Mist): Today, Map, Alerts                                  |
 | `dusk-haze-app-showcase.webp`  | Dark theme direction (Dusk/Haze): Home, Map, Forecast                                   |
 
+## background.jpeg — aset produksi nyata (bukan concept board)
+
+Tidak seperti file `*.webp` di atas, `background.jpeg` (1600×900) adalah foto
+lanskap senja produksi yang dipakai sebagai latar layar pertama halaman Today
+(tema gelap). Versi yang ditingkatkan (resampling Lanczos 2560×1440, bukan
+super-resolusi) ada di `background-hd.webp`. Salinan teroptimasi untuk web ada
+di `apps/web/src/assets/backdrop/` (`backdrop-2560.webp`, `backdrop-1280.webp`,
+diimpor lewat Vite sehingga dapat hash).
+
+Sumber dan lisensi foto: diisi pemilik repo.
+
 Chosen: **Ember/Mist = light**, **Dusk/Haze = dark**. Mascot (air spirit) is exploratory and not
 yet in the UI.
