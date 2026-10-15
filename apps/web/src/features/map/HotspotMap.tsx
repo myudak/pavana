@@ -3,9 +3,11 @@ import {
   bearingToUnitVector,
   EARTH_RADIUS_KM,
   windFromToFlowBearing,
+  type BBox,
+  type StreamlineField,
 } from '@pavana/shared';
 import type { FeatureCollection, LineString, Point } from 'geojson';
-import maplibregl, { type GeoJSONSource } from 'maplibre-gl';
+import maplibregl, { type GeoJSONSource, type ImageSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
 import { cssVar } from '@/lib/aq';
@@ -13,6 +15,45 @@ import { formatDateTime } from '@/lib/format';
 import { useCopy, type Copy } from '@/lib/i18n';
 
 const STYLE_URL = import.meta.env.VITE_MAP_STYLE_URL || 'https://demotiles.maplibre.org/style.json';
+
+const RASTER_ID = 'density-raster';
+
+/** Idempotent source/layer setup (load can re-fire per map instance in dev). */
+function ensureSource(map: maplibregl.Map, id: string, def: object) {
+  if (!map.getSource(id)) map.addSource(id, def as never);
+}
+function ensureLayer(
+  map: maplibregl.Map,
+  def: Parameters<maplibregl.Map['addLayer']>[0],
+  before?: string,
+) {
+  if (!map.getLayer(def.id)) map.addLayer(def, before);
+}
+
+/** 1px transparent placeholder so the image source exists before data arrives. */
+function transparentPixel(): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  return canvas.toDataURL();
+}
+
+/** Small up-pointing triangle sprite for streamline direction arrows. */
+function windArrowImage(): ImageData {
+  const canvas = document.createElement('canvas');
+  canvas.width = 24;
+  canvas.height = 24;
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#f472b6';
+  ctx.beginPath();
+  ctx.moveTo(12, 3);
+  ctx.lineTo(20, 19);
+  ctx.lineTo(12, 15);
+  ctx.lineTo(4, 19);
+  ctx.closePath();
+  ctx.fill();
+  return ctx.getImageData(0, 0, 24, 24);
+}
 
 /** Wind streamline extent (km behind/ahead of the measurement point). Schematic. */
 const WIND_BACK_KM = 15;
@@ -91,6 +132,10 @@ export function HotspotMap({
   showDensity = false,
   showWind = true,
   animatedWind = true,
+  density = null,
+  fitTo = null,
+  streamlines = null,
+  fitNonce = 0,
   timeZone,
   onError,
   styleUrl,
@@ -100,11 +145,19 @@ export function HotspotMap({
   center: LatLon;
   hotspots: Hotspot[];
   showHotspots: boolean;
-  /** Detection-density heatmap (kernel render of real detections, not PM2.5). */
+  /** Regional density raster (canvas). Null/absent hides the layer. */
   showDensity?: boolean;
   showWind?: boolean;
   /** Traveling dot along the wind streamline. Honors reduced-motion. */
   animatedWind?: boolean;
+  /** Pre-rendered density canvas + corner coordinates, or null. */
+  density?: { canvas: HTMLCanvasElement; coords: [[number, number], [number, number], [number, number], [number, number]] } | null;
+  /** Fit the viewport to this bbox instead of the data bounds. */
+  fitTo?: BBox | null;
+  /** Regional wind streamlines (flow direction). Null hides the layers. */
+  streamlines?: StreamlineField | null;
+  /** Increment to refit the viewport (fit button). */
+  fitNonce?: number;
   timeZone: string;
   onError: () => void;
   /** MapLibre style URL. Dark callers pass a dark basemap; falls back to demotiles. */
@@ -141,6 +194,25 @@ export function HotspotMap({
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    // Dusk/Haze navy grade over the CARTO dark-matter style (no style fork):
+    // background + water go navy/black, admin boundaries dim indigo.
+    // Roads, rivers, labels and other layers keep the provider's styling.
+    const gradeBasemap = () => {
+      if (map.getLayer('background')) {
+        map.setPaintProperty('background', 'background-color', '#070b1f');
+      }
+      if (map.getLayer('water')) {
+        map.setPaintProperty('water', 'fill-color', '#050818');
+      }
+      if (map.getLayer('boundary_state')) {
+        map.setPaintProperty('boundary_state', 'line-color', '#5b6ad0');
+        map.setPaintProperty('boundary_state', 'line-opacity', 0.35);
+      }
+      if (map.getLayer('boundary_county')) {
+        map.setPaintProperty('boundary_county', 'line-color', '#3a4670');
+        map.setPaintProperty('boundary_county', 'line-opacity', 0.3);
+      }
+    };
     map.on('error', (e) => {
       if (!loadedRef.current) {
         console.error('[map]', e.error);
@@ -151,7 +223,8 @@ export function HotspotMap({
     map.on('load', () => {
       loadedRef.current = true;
       fittedRef.current = '';
-      map.addSource('hotspots', {
+      gradeBasemap();
+      ensureSource(map, 'hotspots', {
         type: 'geojson',
         data: toGeoJSON([]),
         cluster: true,
@@ -160,35 +233,38 @@ export function HotspotMap({
       });
       const hotspotColor = cssVar('--pv-aq-unhealthy') || '#dc2626';
       // Soft halo beneath each detection (decorative luminance; color still semantic).
-      map.addLayer({
+      // Hidden at regional zoom — the raster carries the luminance there.
+      ensureLayer(map, {
         id: 'hotspot-glow',
         type: 'circle',
         source: 'hotspots',
+        minzoom: 9,
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-radius': 10,
+          'circle-radius': 8,
           'circle-color': hotspotColor,
-          'circle-opacity': 0.22,
+          'circle-opacity': 0.18,
         },
       });
-      map.addLayer({
+      ensureLayer(map, {
         id: 'hotspots',
         type: 'circle',
         source: 'hotspots',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-radius': 6,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 2, 10, 5],
           'circle-color': hotspotColor,
           'circle-stroke-color': '#ffffff',
           'circle-stroke-width': 1.5,
-          'circle-opacity': 0.9,
+          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0.65, 10, 0.9],
         },
       });
-      // Cluster bubbles for overlapping detections (MapLibre built-in clustering).
-      map.addLayer({
+      // Cluster bubbles for overlapping detections (hidden at regional zoom).
+      ensureLayer(map, {
         id: 'clusters',
         type: 'circle',
         source: 'hotspots',
+        minzoom: 7,
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': cssVar('--pv-primary') || '#6366f1',
@@ -197,10 +273,11 @@ export function HotspotMap({
           'circle-radius': ['step', ['get', 'point_count'], 16, 5, 20, 10, 26],
         },
       });
-      map.addLayer({
+      ensureLayer(map, {
         id: 'cluster-count',
         type: 'symbol',
         source: 'hotspots',
+        minzoom: 7,
         filter: ['has', 'point_count'],
         layout: {
           'text-field': ['get', 'point_count_abbreviated'],
@@ -208,54 +285,23 @@ export function HotspotMap({
         },
         paint: { 'text-color': '#ffffff' },
       });
-      // Separate unclustered source for the heatmap: clustering would otherwise
-      // feed cluster pseudo-points (no FRP) into the density kernel.
-      map.addSource('heatmap-src', {
-        type: 'geojson',
-        data: toGeoJSON([]),
+      // Separate unclustered source for markers is unchanged ('hotspots').
+      // The regional density raster below uses its own image source.
+      ensureSource(map, 'density-src', {
+        type: 'image',
+        url: transparentPixel(),
+        coordinates: [
+          [108.5, 4.5],
+          [119.5, 4.5],
+          [119.5, -4.5],
+          [108.5, -4.5],
+        ],
       });
-      // Detection-density heatmap (kernel render of the real hotspot points,
-      // weighted by FRP; NOT PM2.5 concentrations).
-      map.addLayer(
-        {
-          id: 'heatmap-density',
-          type: 'heatmap',
-          source: 'heatmap-src',
-          paint: {
-            'heatmap-weight': [
-              'max',
-              0.3,
-              ['interpolate', ['linear'], ['coalesce', ['get', 'frpMw'], 0], 0, 0.3, 30, 1],
-            ],
-            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 7, 1, 12, 3],
-            'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 7, 30, 12, 70],
-            'heatmap-color': [
-              'interpolate',
-              ['linear'],
-              ['heatmap-density'],
-              0,
-              'rgba(59,130,246,0)',
-              0.25,
-              '#3b82f6',
-              0.45,
-              '#6366f1',
-              0.65,
-              '#a855f7',
-              0.85,
-              '#f472b6',
-              1,
-              '#fbcfe8',
-            ],
-            'heatmap-opacity': 0.8,
-          },
-        },
-        'hotspot-glow',
-      );
-      map.addSource('wind-flow', {
+      ensureSource(map, 'wind-flow', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       });
-      map.addLayer({
+      ensureLayer(map, {
         id: 'wind-flow-line',
         type: 'line',
         source: 'wind-flow',
@@ -266,7 +312,63 @@ export function HotspotMap({
           'line-opacity': 0.8,
         },
       });
-      map.addSource('location', {
+      // Regional streamlines (below labels, above the raster).
+      ensureSource(map, 'wind-streamlines', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+      ensureSource(map, 'wind-arrows', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+      if (!map.hasImage('wind-arrow')) {
+        map.addImage('wind-arrow', windArrowImage(), { pixelRatio: 2 });
+      }
+      // Regional streamlines: below basemap labels, above the raster.
+      const firstSymbol = map
+        .getStyle()
+        ?.layers.find((l) => l.type === 'symbol')?.id;
+      ensureLayer(map, 
+        {
+          id: 'wind-streamlines-line',
+          type: 'line',
+          source: 'wind-streamlines',
+          paint: {
+            'line-width': 1,
+            'line-opacity': 0.55,
+            'line-gradient': [
+              'interpolate',
+              ['linear'],
+              ['line-progress'],
+              0,
+              'rgba(183,166,255,0)',
+              0.3,
+              '#b7a6ff',
+              1,
+              '#f08cc8',
+            ],
+          },
+        },
+        firstSymbol,
+      );
+      ensureLayer(map, 
+        {
+          id: 'wind-streamlines-arrow',
+          type: 'symbol',
+          source: 'wind-arrows',
+          layout: {
+            'icon-image': 'wind-arrow',
+            'icon-size': 0.55,
+            'icon-rotate': ['get', 'rot'],
+            'icon-rotation-alignment': 'map',
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+          },
+          paint: { 'icon-opacity': 0.85 },
+        },
+        firstSymbol,
+      );
+      ensureSource(map, 'location', {
         type: 'geojson',
         data: {
           type: 'Feature',
@@ -274,7 +376,7 @@ export function HotspotMap({
           properties: {},
         },
       });
-      map.addLayer({
+      ensureLayer(map, {
         id: 'location',
         type: 'circle',
         source: 'location',
@@ -328,56 +430,149 @@ export function HotspotMap({
   }, [center.lat, center.lon, style]);
 
   // Push data/visibility updates once the style is ready.
-  // First data batch also fits the viewport to the detections + location.
+  // First batch also fits the viewport (explicit fitTo bbox wins over data bounds).
+  const lastCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const doFit = (map: maplibregl.Map) => {
+    const fitKey = fitTo
+      ? `fit:${fitTo.join(',')},${style}`
+      : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
+    fittedRef.current = fitKey;
+    const bounds = new maplibregl.LngLatBounds(
+      [center.lon, center.lat],
+      [center.lon, center.lat],
+    );
+    if (fitTo != null) {
+      bounds.extend([fitTo[0], fitTo[1]]);
+      bounds.extend([fitTo[2], fitTo[3]]);
+    } else {
+      for (const h of hotspots) bounds.extend([h.lon, h.lat]);
+    }
+    map.resize();
+    map.fitBounds(bounds, {
+      padding: fitTo != null ? 32 : 70,
+      maxZoom: fitTo != null ? 6 : 11,
+      duration: 0,
+    });
+  };
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     const update = () => {
       const geo = toGeoJSON(hotspots);
       (map.getSource('hotspots') as GeoJSONSource | undefined)?.setData(geo);
-      (map.getSource('heatmap-src') as GeoJSONSource | undefined)?.setData(geo);
       for (const id of ['hotspots', 'hotspot-glow', 'clusters', 'cluster-count']) {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, 'visibility', showHotspots ? 'visible' : 'none');
         }
       }
-      if (map.getLayer('heatmap-density')) {
-        map.setLayoutProperty(
-          'heatmap-density',
-          'visibility',
-          showDensity ? 'visible' : 'none',
-        );
+      // Regional density raster: inserted below the style's water layer so the
+      // sea stays uncolored and coastlines/roads/labels stay on top.
+      const rasterVisible = showDensity && density != null;
+      if (rasterVisible && density) {
+        const src = map.getSource('density-src') as ImageSource | undefined;
+        if (src && lastCanvasRef.current !== density.canvas) {
+          lastCanvasRef.current = density.canvas;
+          src.updateImage({ url: density.canvas.toDataURL(), coordinates: density.coords });
+        }
+        if (!map.getLayer(RASTER_ID)) {
+          const layers = map.getStyle()?.layers ?? [];
+          const below =
+            layers.find((l) => l.id === 'water')?.id ??
+            layers.find((l) => l.type === 'symbol')?.id ??
+            (map.getLayer('hotspot-glow') ? 'hotspot-glow' : undefined);
+          ensureLayer(map, 
+            {
+              id: RASTER_ID,
+              type: 'raster',
+              source: 'density-src',
+              paint: { 'raster-opacity': 1, 'raster-fade-duration': 0 },
+            },
+            below,
+          );
+        }
+        map.setLayoutProperty(RASTER_ID, 'visibility', 'visible');
+      } else if (map.getLayer(RASTER_ID)) {
+        map.setLayoutProperty(RASTER_ID, 'visibility', 'none');
       }
       const windSource = map.getSource('wind-flow') as GeoJSONSource | undefined;
+      // Single local streamline only outside the regional fit (regional view
+      // uses the streamline field instead).
+      const showLocalLine = showWind && windFlow != null && fitTo == null;
       windSource?.setData({
         type: 'FeatureCollection',
-        features:
-          showWind && windFlow != null
-            ? [{ type: 'Feature', geometry: windLine(center, windFlow), properties: {} }]
-            : [],
+        features: showLocalLine
+          ? [{ type: 'Feature', geometry: windLine(center, windFlow!), properties: {} }]
+          : [],
       });
       if (map.getLayer('wind-flow-line')) {
-        map.setLayoutProperty(
-          'wind-flow-line',
-          'visibility',
-          showWind && windFlow != null ? 'visible' : 'none',
-        );
+        map.setLayoutProperty('wind-flow-line', 'visibility', showLocalLine ? 'visible' : 'none');
       }
-      const fitKey = `${center.lat},${center.lon},${style}`;
-      if (hotspots.length > 0 && fittedRef.current !== fitKey) {
+      const slSource = map.getSource('wind-streamlines') as GeoJSONSource | undefined;
+      slSource?.setData({
+        type: 'FeatureCollection',
+        features: (streamlines?.lines ?? []).map((l) => ({
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: l.points },
+          properties: {},
+        })),
+      });
+      const arrowsSource = map.getSource('wind-arrows') as GeoJSONSource | undefined;
+      arrowsSource?.setData({
+        type: 'FeatureCollection',
+        features: (streamlines?.arrows ?? []).map((a) => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [a.lon, a.lat] },
+          properties: { rot: a.rot },
+        })),
+      });
+      // Dimmer under the density raster, full strength in the wind tab.
+      const slOpacity = showDensity ? 0.3 : 0.7;
+      for (const id of ['wind-streamlines-line', 'wind-streamlines-arrow']) {
+        if (map.getLayer(id)) {
+          map.setLayoutProperty(id, 'visibility', showWind ? 'visible' : 'none');
+        }
+      }
+      if (map.getLayer('wind-streamlines-line')) {
+        map.setPaintProperty('wind-streamlines-line', 'line-opacity', slOpacity);
+      }
+      if (map.getLayer('wind-streamlines-arrow')) {
+        map.setPaintProperty('wind-streamlines-arrow', 'icon-opacity', slOpacity + 0.2);
+      }
+      const fitKey = fitTo
+        ? `fit:${fitTo.join(',')},${style}`
+        : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
+      if (fittedRef.current !== fitKey && (fitTo != null || hotspots.length > 0)) {
         fittedRef.current = fitKey;
-        const bounds = new maplibregl.LngLatBounds(
-          [center.lon, center.lat],
-          [center.lon, center.lat],
-        );
-        for (const h of hotspots) bounds.extend([h.lon, h.lat]);
-        map.fitBounds(bounds, { padding: 70, maxZoom: 11, duration: 0 });
+        doFit(map);
       }
     };
     if (loadedRef.current) update();
     else map.once('pavana:ready', update);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- center/style keyed via fitKey; map via ref
-  }, [hotspots, showHotspots, showDensity, showWind, windFlow]);
+  }, [hotspots, showHotspots, showDensity, showWind, windFlow, streamlines, fitTo]);
+
+  // Fit button: refit on demand (e.g. after the user pans away).
+  const prevNonceRef = useRef(fitNonce);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loadedRef.current) return;
+    if (prevNonceRef.current === fitNonce) return;
+    prevNonceRef.current = fitNonce;
+    doFit(map);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- doFit reads latest props by design
+  }, [fitNonce]);
+
+  // Keep the map sized to its final container (responsive layouts).
+  useEffect(() => {
+    const map = mapRef.current;
+    const el = ref.current;
+    if (!map || !el || typeof ResizeObserver === 'undefined') return;
+    const obs = new ResizeObserver(() => {
+      if (loadedRef.current) map.resize();
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   // Wind flow arrow at the selected location (real current wind, null-safe).
   const windMarkerRef = useRef<maplibregl.Marker | null>(null);

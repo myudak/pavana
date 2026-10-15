@@ -119,6 +119,10 @@ export const id = {
     layerDensity: 'Kepadatan hotspot',
     layerWind: 'Angin',
     legendDensity: 'Kepadatan deteksi satelit — bukan konsentrasi PM2.5',
+    noDetectionNote: 'Biru redup berarti tidak ada deteksi, bukan berarti udara bersih.',
+    fitKalimantan: 'Seluruh Kalimantan',
+    windFieldNote:
+      'Garis aliran digambar dari prakiraan angin per grid (demo: ilustrasi sintetis).',
     layerHotspots: 'Titik panas',
     legendHotspot: 'Deteksi anomali panas satelit',
     legendLocation: 'Lokasi dipilih',

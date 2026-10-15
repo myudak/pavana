@@ -11,6 +11,7 @@ import {
   InsightsResponseSchema,
   LocationSearchResponseSchema,
   OfficialLinksResponseSchema,
+  WindFieldSchema,
   type BBox,
   type LatLon,
 } from '@pavana/shared';
@@ -54,8 +55,15 @@ export const api = {
     getJson('/api/conditions', { lat: p.lat, lon: p.lon }, ConditionsResponseSchema, signal),
   forecast: (p: LatLon, hours = 24, signal?: AbortSignal) =>
     getJson('/api/forecast', { lat: p.lat, lon: p.lon, hours }, ForecastResponseSchema, signal),
-  hotspots: (bbox: BBox, signal?: AbortSignal) =>
-    getJson('/api/hotspots', { bbox: bbox.join(',') }, HotspotsResponseSchema, signal),
+  hotspots: (bbox: BBox, opts?: { limit?: number; from?: string; to?: string }, signal?: AbortSignal) =>
+    getJson(
+      '/api/hotspots',
+      { bbox: bbox.join(','), ...(opts?.limit !== undefined ? { limit: opts.limit } : {}), ...(opts?.from !== undefined ? { from: opts.from } : {}), ...(opts?.to !== undefined ? { to: opts.to } : {}) },
+      HotspotsResponseSchema,
+      signal,
+    ),
+  windField: (bbox: BBox, signal?: AbortSignal) =>
+    getJson('/api/wind-field', { bbox: bbox.join(',') }, WindFieldSchema, signal),
   insights: (p: LatLon, signal?: AbortSignal) =>
     getJson('/api/insights', { lat: p.lat, lon: p.lon }, InsightsResponseSchema, signal),
   searchLocations: (q: string, signal?: AbortSignal) =>

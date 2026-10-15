@@ -1,6 +1,30 @@
-import { bearingToCompass16, windFromToFlowBearing } from '@pavana/shared';
-import { CloudFog, Flame, Navigation, Wind, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+  bearingToCompass16,
+  BORNEO_RENDER_BBOX,
+  buildDensityField,
+  DENSITY_COLS,
+  DENSITY_FINE_WEIGHT,
+  DENSITY_GAMMA,
+  DENSITY_MID_WEIGHT,
+  DENSITY_PERCENTILE,
+  DENSITY_SIGMA_FINE_KM,
+  DENSITY_SIGMA_MID_KM,
+  DENSITY_SIGMA_WIDE_KM,
+  DENSITY_WIDE_WEIGHT,
+  hotspotWeight,
+  normalizeField,
+  STREAMLINE_MAX_LENGTH_KM,
+  STREAMLINE_MIN_LENGTH_KM,
+  STREAMLINE_MIN_SPACING_KM,
+  STREAMLINE_MIN_SPEED_MS,
+  STREAMLINE_SEED,
+  STREAMLINE_STEP_KM,
+  STREAMLINE_TARGET_COUNT,
+  traceStreamlines,
+  windFromToFlowBearing,
+} from '@pavana/shared';
+import { CloudFog, Flame, Maximize2, Navigation, Wind, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { DemoBanner } from '@/components/DemoBanner';
 import { QueryState } from '@/components/QueryState';
 import { Card } from '@/components/ui/card';
@@ -10,21 +34,75 @@ import { useConditions } from '@/lib/queries';
 import { useDarkMode } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 import { HotspotMap } from './HotspotMap';
-import { DARK_STYLE_URL, useHotspots } from './use-hotspots';
+import { densityImageCoords, renderDensityCanvas } from './density-canvas';
+import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
 export default function MapPage() {
   const t = useCopy();
   const { location, query: hotspots } = useHotspots();
+  const regional = useRegionalHotspots();
+  const windField = useWindField();
   const [showHotspots, setShowHotspots] = useState(true);
   const [showDensity, setShowDensity] = useState(true);
   const [showWind, setShowWind] = useState(true);
   const [mapFailed, setMapFailed] = useState(false);
+  const [fitNonce, setFitNonce] = useState(0);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
   const conditions = useConditions();
   const dark = useDarkMode();
 
   const tz = conditions.data?.location.timezone ?? 'Asia/Jakarta';
   const wind = conditions.data?.weather;
+
+  // Regional density field (island-wide). Local points are merged in so the
+  // density view stays a superset; the regional fixture keeps a keep-out zone
+  // around the scenario location, so nothing is double-counted.
+  const regionalPts = useMemo(
+    () => regional.query.data?.hotspots ?? [],
+    [regional.query.data],
+  );
+  const densityField = useMemo(
+    () =>
+      regionalPts.length === 0
+        ? null
+        : buildDensityField(
+            regionalPts.map((h) => ({ lat: h.lat, lon: h.lon, weight: hotspotWeight(h.frpMw) })),
+            BORNEO_RENDER_BBOX,
+            {
+              cols: DENSITY_COLS,
+              sigmaWideKm: DENSITY_SIGMA_WIDE_KM,
+              sigmaMidKm: DENSITY_SIGMA_MID_KM,
+              sigmaFineKm: DENSITY_SIGMA_FINE_KM,
+              wideWeight: DENSITY_WIDE_WEIGHT,
+              midWeight: DENSITY_MID_WEIGHT,
+              fineWeight: DENSITY_FINE_WEIGHT,
+            },
+          ),
+    [regionalPts],
+  );
+  const densityCanvas = useMemo(() => {
+    if (!densityField) return null;
+    const values = normalizeField(densityField.values, {
+      percentile: DENSITY_PERCENTILE,
+      gamma: DENSITY_GAMMA,
+    });
+    return renderDensityCanvas({ ...densityField, values });
+  }, [densityField]);
+
+  // Regional wind streamlines (flow direction, RK2). Memoized on field data.
+  const streamlines = useMemo(() => {
+    const field = windField.query.data;
+    if (!field) return null;
+    return traceStreamlines(field, BORNEO_RENDER_BBOX, {
+      targetCount: STREAMLINE_TARGET_COUNT,
+      minSpacingKm: STREAMLINE_MIN_SPACING_KM,
+      stepKm: STREAMLINE_STEP_KM,
+      minLengthKm: STREAMLINE_MIN_LENGTH_KM,
+      maxLengthKm: STREAMLINE_MAX_LENGTH_KM,
+      minSpeedMs: STREAMLINE_MIN_SPEED_MS,
+      seed: STREAMLINE_SEED,
+    });
+  }, [windField.query.data]);
 
   // Clear the selected detection when the location (and its hotspots) changes.
   useEffect(() => {
@@ -76,21 +154,41 @@ export default function MapPage() {
           <Wind className="size-4" aria-hidden />
           {t.map.layerWind}
         </button>
+        <button
+          type="button"
+          onClick={() => setFitNonce((n) => n + 1)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-ink-muted"
+        >
+          <Maximize2 className="size-4" aria-hidden />
+          {t.map.fitKalimantan}
+        </button>
       </div>
 
       <QueryState query={hotspots}>
-        {(h) => (
+        {(h) => {
+          // Same detection can arrive from both queries (overlapping bboxes):
+          // dedupe by id so counts and markers stay honest.
+          const regionalIds = new Set(regionalPts.map((r) => r.id));
+          const shown = showDensity
+            ? [...regionalPts, ...h.hotspots.filter((p) => !regionalIds.has(p.id))]
+            : h.hotspots;
+          const density = showDensity && densityCanvas ? { canvas: densityCanvas, coords: densityImageCoords(BORNEO_RENDER_BBOX) } : null;
+          return (
           <>
           <div className="grid items-start gap-4 lg:grid-cols-3 lg:gap-5">
             <div className="lg:col-span-2">
               {!mapFailed ? (
-                <div className="relative h-[62vh] min-h-80 overflow-hidden rounded-[1.5rem] border border-border bg-canvas shadow-xl dark:border-white/10 dark:[box-shadow:var(--pv-shadow-lift)]">
+                <div className="relative h-[70vh] min-h-80 overflow-hidden rounded-[1.5rem] border border-border bg-canvas shadow-xl dark:border-white/10 dark:[box-shadow:var(--pv-shadow-lift)] lg:h-[min(78vh,760px)] lg:min-h-[560px]">
                   <HotspotMap
                     center={location}
-                    hotspots={h.hotspots}
+                    hotspots={shown}
                     showHotspots={showHotspots}
                     showDensity={showDensity}
                     showWind={showWind}
+                    density={density}
+                    fitTo={showDensity ? BORNEO_RENDER_BBOX : null}
+                    streamlines={streamlines}
+                    fitNonce={fitNonce}
                     timeZone={tz}
                     onError={() => setMapFailed(true)}
                     styleUrl={dark ? DARK_STYLE_URL : undefined}
@@ -124,7 +222,7 @@ export default function MapPage() {
                   className="size-3 rounded-full border-2 border-white bg-aq-unhealthy shadow"
                   aria-hidden
                 />
-                {t.map.legendHotspot} — {t.map.count(h.hotspots.length)}
+                {t.map.legendHotspot} — {t.map.count(showDensity ? shown.length : h.hotspots.length)}
               </p>
               <p className="flex items-center gap-2">
                 <span
@@ -146,6 +244,7 @@ export default function MapPage() {
                     />
                     {t.map.legendDensity}
                   </p>
+                  <p className="pl-5 text-xs text-ink-muted">{t.map.noDetectionNote}</p>
                 </div>
               )}
               {wind?.windDirectionFromDeg != null && wind.windSpeedMs != null && (
@@ -163,6 +262,9 @@ export default function MapPage() {
                     {formatNumber(wind.windSpeedMs, 1)} m/s
                   </span>
                 </p>
+              )}
+              {showWind && windField.query.data && (
+                <p className="text-xs text-ink-muted">{t.map.windFieldNote}</p>
               )}
               {selected && (
                 <div className="space-y-1 rounded-2xl border border-accent/40 bg-accent/10 p-3">
@@ -223,7 +325,8 @@ export default function MapPage() {
               </Card>
             )}
           </>
-        )}
+          );
+        }}
       </QueryState>
     </div>
   );
