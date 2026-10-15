@@ -17,6 +17,7 @@ import { useCopy } from '@/lib/i18n';
 import { useConditions, useForecast, useInsights, useOfficialLinks } from '@/lib/queries';
 import { useTheme, type ThemePref } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
+import { NotificationSettings } from '@/features/notifications/NotificationSettings';
 import { DataModePanel, SourcesPanel } from './DataPanels';
 import { InfoCardGrid } from './InfoCards';
 import {
@@ -162,13 +163,14 @@ export function InfoPage() {
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-medium">{t.alerts.title}</h2>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground ring-1 ring-border">
+                  <span className="rounded-full bg-state-demo/15 px-2 py-0.5 text-[11px] font-semibold text-state-demo ring-1 ring-state-demo/30">
                     {t.alerts.status}
                   </span>
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{t.alerts.body}</p>
               </div>
             </div>
+            <NotificationSettings className="mt-4" />
           </Panel>
 
           <Panel title={t.info.theme}>

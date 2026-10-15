@@ -40,7 +40,7 @@ function WindDial({ toDeg, speedKmh }: { toDeg: number | null; speedKmh: number 
   const t = useCopy();
   const ticks = Array.from({ length: 48 }, (_, i) => i * 7.5);
   return (
-    <div className="relative size-32 shrink-0">
+    <div className="relative size-28 shrink-0 sm:size-32">
       <svg viewBox="0 0 100 100" className="size-full" aria-hidden>
         {ticks.map((a) => {
           const rad = ((a - 90) * Math.PI) / 180;
@@ -115,7 +115,7 @@ export function ConditionTiles({
 
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-      <div className="glass col-span-2 flex items-center justify-between gap-4 rounded-3xl p-4 lg:col-span-1">
+      <div className="glass col-span-2 flex items-center justify-between gap-4 rounded-3xl p-4">
         <div className="min-w-0">
           <p className="text-[13px] text-muted-foreground">{t.tiles.wind}</p>
           <p className="mt-0.5 font-heading text-2xl font-semibold leading-tight">

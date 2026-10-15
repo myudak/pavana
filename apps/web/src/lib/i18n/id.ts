@@ -119,8 +119,8 @@ export const id = {
         {
           key: 'alerts',
           title: 'Peringatan pintar',
-          body: 'Notifikasi saat prakiraan di lokasi tersimpanmu memburuk, beserta tautan ke peringatan resmi.',
-          status: 'planned',
+          body: 'Notifikasi peramban saat potensi dampak asap di lokasimu meningkat. Versi demo berjalan selama Pavana terbuka; push dari server menyusul.',
+          status: 'building',
         },
       ],
     },
@@ -697,10 +697,30 @@ export const id = {
       `Prakiraan 3-jam BMKG untuk ${place}. Ditampilkan apa adanya, tidak dicampur dengan angka Pavana.`,
   },
 
+  // Notifikasi — DEMO: hanya berjalan saat Pavana terbuka di peramban (lihat docs/backlog.md).
   alerts: {
     title: 'Peringatan pintar',
-    status: 'Belum tersedia',
-    body: 'Rencana: notifikasi saat prakiraan di lokasi tersimpanmu memburuk, beserta tautan ke peringatan resmi. Fitur ini belum dibangun.',
+    status: 'Demo',
+    body: 'Pavana memberi tahu saat potensi dampak asap di lokasimu meningkat, dari aturan yang sama dengan halaman Prakiraan. Versi demo: notifikasi hanya dikirim saat Pavana terbuka di peramban ini. Notifikasi push dari server belum dibangun.',
+    bellLabel: 'Notifikasi',
+    bellLabelUnread: 'Notifikasi — ada yang perlu perhatian',
+    sheetTitle: 'Notifikasi',
+    empty: 'Belum ada hal yang perlu diperhatikan dari data saat ini. Tetap pantau kanal resmi.',
+    seeForecast: 'Lihat prakiraan',
+    settingsTitle: 'Notifikasi peramban',
+    enable: 'Aktifkan notifikasi',
+    enabled: 'Notifikasi aktif',
+    demoNote: 'Demo · dikirim hanya saat Pavana terbuka.',
+    test: 'Kirim contoh notifikasi',
+    testSent: 'Contoh notifikasi dikirim.',
+    sendFailed: 'Notifikasi gagal ditampilkan di peramban ini.',
+    unsupported: 'Peramban ini tidak mendukung notifikasi.',
+    denied: 'Izin notifikasi ditolak. Ubah lewat pengaturan situs di peramban.',
+    confirmTitle: 'Notifikasi Pavana aktif',
+    confirmBody: 'Kamu akan diberi tahu saat potensi dampak asap meningkat (demo).',
+    testTitle: 'Contoh notifikasi Pavana',
+    testBody: 'Begini tampilan peringatan Pavana. Ini hanya contoh, bukan kondisi nyata.',
+    demoSuffix: 'Data demo',
   },
 
   theme: {

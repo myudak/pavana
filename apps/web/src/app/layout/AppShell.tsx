@@ -4,6 +4,8 @@ import { Icon } from '@/components/Icon';
 import { SceneBackground } from '@/components/SceneBackground';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Wordmark } from '@/components/Wordmark';
+import { AlertNotifier } from '@/features/notifications/AlertNotifier';
+import { NotificationBell } from '@/features/notifications/NotificationBell';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCopy } from '@/lib/i18n';
@@ -33,12 +35,16 @@ export function AppShell() {
         </a>
 
         {!isMap && <SceneBackground tall={isHome} />}
+        <AlertNotifier />
 
         {!isMap && (
           <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 pb-1 pt-[max(env(safe-area-inset-top),1rem)] md:px-6">
             <Wordmark className="text-foreground drop-shadow-sm" />
             <DesktopNav />
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <ThemeToggle />
+            </div>
           </header>
         )}
 
