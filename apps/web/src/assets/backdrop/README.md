@@ -24,4 +24,11 @@ Cara mengganti gambar:
    `backdrop-*.webp` di folder ini.
 5. Light mode: foto aslinya `design/references/background-light-mode.jpeg`
    (versi web: `dawn-2560.webp` untuk desktop, `dawn-1280.webp` untuk ponsel).
-6. Catat sumber dan lisensi kedua foto di `design/references/README.md`.
+6. Catat sumber dan lisensi kedua foto di bagian bawah README ini.
+
+## Sumber & lisensi
+
+| File | Sumber / lisensi |
+| ---- | ---------------- |
+| `backdrop-1280.webp`, `backdrop-2560.webp` | diisi pemilik repo |
+| `dawn-1280.webp`, `dawn-2560.webp` | diisi pemilik repo |
