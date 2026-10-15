@@ -1,3 +1,27 @@
-/* Outfit = wordmark & display headings; Plus Jakarta Sans = body copy. */
+/* Comfortaa = wordmark interim; Outfit = display headings; Plus Jakarta Sans = body. */
+@import '@fontsource-variable/comfortaa';
 @import '@fontsource-variable/outfit';
 @import '@fontsource-variable/plus-jakarta-sans';
+
+/*
+ * Wordmark utama: Vernosa Variable Regular (Qiubare Studio, via MyFonts) — PENDING.
+ * Status: file font TIDAK tersedia di repository dan belum ada lisensi. Jangan mengunduh
+ * dari sumber tidak resmi. Yang dibutuhkan: lisensi Webfont MyFonts untuk pemakaian situs,
+ * lalu simpan file variable WOFF2 di `packages/brand/assets/fonts/` dan aktifkan blok
+ * @font-face di bawah (hapus komentar). Token `--pv-font-wordmark` di tokens.css sudah
+ * mencantumkan "Vernosa" pertama, sehingga wordmark otomatis beralih tanpa ubah komponen.
+ *
+ * Keputusan terbuka untuk pemilik desain: bobot wordmark. Interim Comfortaa memakai 700
+ * (`font-bold`); bila Vernosa Regular (400) yang dipakai, turunkan ke `font-normal`
+ * pada komponen Wordmark.
+ *
+ * Sesuaikan rentang `font-weight` dengan axis aktual file variable yang dibeli.
+ *
+ * @font-face {
+ *   font-family: 'Vernosa';
+ *   src: url('../assets/fonts/vernosa-variable.woff2') format('woff2-variations');
+ *   font-weight: 100 900;
+ *   font-style: normal;
+ *   font-display: swap;
+ * }
+ */

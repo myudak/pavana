@@ -47,6 +47,10 @@
 
   --pv-radius: 1rem;
   --pv-font-display: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
+     Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
+     setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
+  --pv-font-wordmark: 'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
   --pv-font-body:
     'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
