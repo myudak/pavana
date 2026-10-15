@@ -133,6 +133,8 @@ export const id = {
     legendHotspot: 'Deteksi anomali panas satelit',
     legendLocation: 'Lokasi dipilih',
     hotspotDisclaimer: 'Deteksi satelit, bukan konfirmasi kebakaran atau batas area terbakar.',
+    creditLive: 'Sumber: titik panas NASA FIRMS (VIIRS, 48 jam terakhir) · angin Open-Meteo.',
+    creditDemo: 'Sumber: skenario demo Pavana — titik panas dan angin ilustratif.',
     acquired: 'Waktu deteksi',
     frp: 'FRP',
     confidence: 'Keyakinan',
@@ -278,6 +280,50 @@ export const id = {
     windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
     temperature: 'Suhu',
     humidity: 'Kelembapan',
+  },
+
+  /** Display names for provenance `provider` ids (unknown ids are shown as-is). */
+  providerName: {
+    'open-meteo': 'Open-Meteo',
+    'open-meteo-cams': 'Open-Meteo (CAMS)',
+    'nasa-firms': 'NASA FIRMS',
+    openaq: 'OpenAQ',
+    bmkg: 'BMKG',
+  } as Record<string, string>,
+
+  mode: {
+    title: 'Mode data',
+    live: 'Data langsung',
+    demo: 'Demo',
+    liveBody:
+      'Prakiraan dan pengamatan terbaru dari Open-Meteo (CAMS), NASA FIRMS, OpenAQ, dan BMKG.',
+    demoBody: 'Skenario sintetis Kubu Raya (September) untuk demonstrasi. Semua angka ilustratif.',
+    exitDemo: 'Lihat data langsung',
+  },
+
+  sources: {
+    title: 'Sumber data',
+    status: {
+      ok: 'Aktif',
+      error: 'Gangguan',
+      not_configured: 'Belum dikonfigurasi',
+      fixture: 'Demo',
+    },
+  },
+
+  station: {
+    line: (name: string, value: string, km: string) =>
+      `Stasiun terdekat (pengamatan): ${value} µg/m³ · ${name}, ${km} km`,
+  },
+
+  hotspotsUnavailable:
+    'Data titik panas sedang tidak tersedia — potensi dihitung dari prakiraan PM2.5 saja.',
+
+  reference: {
+    title: 'Pembanding: BMKG',
+    none: 'Belum ada titik prakiraan BMKG yang tercakup di dekat lokasi ini.',
+    note: (place: string) =>
+      `Prakiraan 3-jam BMKG untuk ${place}. Ditampilkan apa adanya, tidak dicampur dengan angka Pavana.`,
   },
 
   alerts: {

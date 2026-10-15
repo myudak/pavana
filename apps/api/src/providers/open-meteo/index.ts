@@ -87,8 +87,12 @@ export interface OpenMeteoDeps {
 export function createOpenMeteo(deps: OpenMeteoDeps = {}) {
   const cache = deps.cache ?? new TtlCache();
   const now = deps.now ?? (() => new Date());
-  const http = (source: string) => ({ fetch: deps.fetch, source });
-  const fetchedAt = () => now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  // The air-quality endpoint is occasionally slow; give Open-Meteo a little more time.
+  const http = (source: string) => ({ fetch: deps.fetch, source, timeoutMs: 12_000 });
+  const fetchedAt = () =>
+    now()
+      .toISOString()
+      .replace(/\.\d{3}Z$/, 'Z');
 
   const loadWeather = (lat: number, lon: number) =>
     cache.get(`om:wx:${lat},${lon}`, 15 * MINUTE, () =>
@@ -172,43 +176,49 @@ export function createOpenMeteo(deps: OpenMeteoDeps = {}) {
     async getField(bbox: BBox, cols: number, rows: number, at: Date): Promise<WindField> {
       const grid = windGridCells(bbox, cols, rows);
       const hourKey = Math.floor(at.getTime() / HOUR);
-      return cache.get(`om:wf:${grid.bbox.join(',')}:${cols}x${rows}:${hourKey}`, 30 * MINUTE, async () => {
-        const responses: PointResponse[] = [];
-        for (let k = 0; k < grid.cells.length; k += POINTS_PER_REQUEST) {
-          const chunk = grid.cells.slice(k, k + POINTS_PER_REQUEST);
-          const lats = chunk.map((c) => c.lat.toFixed(3)).join(',');
-          const lons = chunk.map((c) => c.lon.toFixed(3)).join(',');
-          const res = await fetchJson<PointResponse | PointResponse[]>(
-            `${WEATHER_URL}?latitude=${lats}&longitude=${lons}` +
-              '&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timeformat=unixtime&timezone=GMT',
-            http('open-meteo'),
+      return cache.get(
+        `om:wf:${grid.bbox.join(',')}:${cols}x${rows}:${hourKey}`,
+        30 * MINUTE,
+        async () => {
+          const responses: PointResponse[] = [];
+          for (let k = 0; k < grid.cells.length; k += POINTS_PER_REQUEST) {
+            const chunk = grid.cells.slice(k, k + POINTS_PER_REQUEST);
+            const lats = chunk.map((c) => c.lat.toFixed(3)).join(',');
+            const lons = chunk.map((c) => c.lon.toFixed(3)).join(',');
+            const res = await fetchJson<PointResponse | PointResponse[]>(
+              `${WEATHER_URL}?latitude=${lats}&longitude=${lons}` +
+                '&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timeformat=unixtime&timezone=GMT',
+              http('open-meteo'),
+            );
+            responses.push(...(Array.isArray(res) ? res : [res]));
+          }
+          const fetched = fetchedAt();
+          const validAt = iso(
+            responses.find((r) => r.current)?.current?.time ?? Math.floor(at.getTime() / 1000),
           );
-          responses.push(...(Array.isArray(res) ? res : [res]));
-        }
-        const fetched = fetchedAt();
-        const validAt = iso(responses.find((r) => r.current)?.current?.time ?? Math.floor(at.getTime() / 1000));
-        const points = grid.cells.map((c, i): WindFieldPoint => {
-          const cur = responses[i]?.current;
-          const speed = num(cur?.wind_speed_10m);
-          const dir = num(cur?.wind_direction_10m);
-          return {
-            lat: c.lat,
-            lon: c.lon,
-            speedMs: speed === null ? null : Math.max(0, speed),
-            fromDeg: dir === null ? null : ((dir % 360) + 360) % 360,
-            validAt: cur ? iso(cur.time) : validAt,
-            provenance: {
-              provider: 'open-meteo',
-              kind: 'forecast',
-              fetchedAt: fetched,
+          const points = grid.cells.map((c, i): WindFieldPoint => {
+            const cur = responses[i]?.current;
+            const speed = num(cur?.wind_speed_10m);
+            const dir = num(cur?.wind_direction_10m);
+            return {
+              lat: c.lat,
+              lon: c.lon,
+              speedMs: speed === null ? null : Math.max(0, speed),
+              fromDeg: dir === null ? null : ((dir % 360) + 360) % 360,
               validAt: cur ? iso(cur.time) : validAt,
-              isDemo: false,
-              spatialResolutionKm: WEATHER_RES_KM,
-            },
-          };
-        });
-        return { cols, rows, bbox: grid.bbox, validAt, points };
-      });
+              provenance: {
+                provider: 'open-meteo',
+                kind: 'forecast',
+                fetchedAt: fetched,
+                validAt: cur ? iso(cur.time) : validAt,
+                isDemo: false,
+                spatialResolutionKm: WEATHER_RES_KM,
+              },
+            };
+          });
+          return { cols, rows, bbox: grid.bbox, validAt, points };
+        },
+      );
     },
   };
 

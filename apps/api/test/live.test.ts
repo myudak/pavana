@@ -142,7 +142,9 @@ describe('live mode (recorded upstream)', () => {
     const { get } = await liveApp();
     const body = ForecastResponseSchema.parse((await get(`/api/forecast?${KR}&hours=24`)).json());
     expect(body.hours).toHaveLength(25);
-    expect(body.hours[0]!.validAt).toBe(new Date(wxTimes[1]! * 1000).toISOString().replace('.000Z', 'Z'));
+    expect(body.hours[0]!.validAt).toBe(
+      new Date(wxTimes[1]! * 1000).toISOString().replace('.000Z', 'Z'),
+    );
     for (const h of body.hours) expect(h.validAt.endsWith('Z')).toBe(true);
   });
 
@@ -232,7 +234,10 @@ describe('live mode (recorded upstream)', () => {
     const body = LocationSearchResponseSchema.parse(
       (await get('/api/locations/search?q=kubu%20raya')).json(),
     );
-    expect(body.results[0]).toMatchObject({ name: 'Kabupaten Kubu Raya', timezone: 'Asia/Pontianak' });
+    expect(body.results[0]).toMatchObject({
+      name: 'Kabupaten Kubu Raya',
+      timezone: 'Asia/Pontianak',
+    });
   });
 
   it('?demo=1 serves the fixture scenario from a live app', async () => {
@@ -261,22 +266,34 @@ describe('parsers and helpers', () => {
   it('parseFirmsCsv maps time, confidence and missing FRP', () => {
     const rows = parseFirmsCsv(FIRMS, 'VIIRS_NOAA20_NRT', '2026-10-15T12:00:00Z');
     expect(rows).toHaveLength(4);
-    expect(rows[0]).toMatchObject({ acquiredAt: '2026-10-15T05:42:00Z', confidence: 'nominal', frpMw: 3.3, satellite: 'NOAA-20' });
+    expect(rows[0]).toMatchObject({
+      acquiredAt: '2026-10-15T05:42:00Z',
+      confidence: 'nominal',
+      frpMw: 3.3,
+      satellite: 'NOAA-20',
+    });
     expect(rows[1]!.confidence).toBe('high');
     // Unpadded "542" → 05:42; empty FRP → null (never 0).
-    expect(rows[2]).toMatchObject({ acquiredAt: '2026-10-14T05:42:00Z', frpMw: null, confidence: 'low' });
+    expect(rows[2]).toMatchObject({
+      acquiredAt: '2026-10-14T05:42:00Z',
+      frpMw: null,
+      confidence: 'low',
+    });
   });
 
   it('parseFirmsCsv rejects non-CSV answers', () => {
-    expect(() => parseFirmsCsv('Invalid MAP_KEY.', 'VIIRS_SNPP_NRT', '2026-10-15T12:00:00Z')).toThrow();
+    expect(() =>
+      parseFirmsCsv('Invalid MAP_KEY.', 'VIIRS_SNPP_NRT', '2026-10-15T12:00:00Z'),
+    ).toThrow();
   });
 
   it('parseBmkg converts km/h to m/s and keeps FROM degrees', () => {
     const { hours, issuedAt } = parseBmkg(JSON.parse(BMKG));
     expect(hours.length).toBeGreaterThan(0);
     expect(issuedAt).toMatch(/Z$/);
-    const raw = (JSON.parse(BMKG) as { data: { cuaca: { ws: number; wd_deg: number }[][] }[] })
-      .data[0]!.cuaca.flat()[0]!;
+    const raw = (
+      JSON.parse(BMKG) as { data: { cuaca: { ws: number; wd_deg: number }[][] }[] }
+    ).data[0]!.cuaca.flat()[0]!;
     expect(hours[0]!.windSpeedMs).toBeCloseTo(raw.ws / 3.6, 5);
     expect(hours[0]!.windDirectionFromDeg).toBe(raw.wd_deg);
   });
@@ -289,13 +306,27 @@ describe('parsers and helpers', () => {
     expect(timezoneForProvince('Jawa Barat')).toBe('Asia/Jakarta');
   });
 
+  it('TtlCache serves the last good value when a refresh fails (stale-on-error)', async () => {
+    let t = 0;
+    const cache = new TtlCache(10, () => t, 60_000);
+    expect(await cache.get('k', 1000, async () => 'fresh')).toBe('fresh');
+    t = 5_000; // expired, upstream down
+    expect(await cache.get('k', 1000, async () => Promise.reject(new Error('down')))).toBe('fresh');
+    t = 120_000; // beyond max staleness → the error surfaces
+    await expect(
+      cache.get('k', 1000, async () => Promise.reject(new Error('down'))),
+    ).rejects.toThrow();
+  });
+
   it('TtlCache shares one in-flight load and does not cache failures', async () => {
     const cache = new TtlCache();
     let n = 0;
     const load = async () => ++n;
     const [a, b] = await Promise.all([cache.get('k', 1000, load), cache.get('k', 1000, load)]);
     expect([a, b, n]).toEqual([1, 1, 1]);
-    await expect(cache.get('bad', 1000, async () => Promise.reject(new Error('x')))).rejects.toThrow();
+    await expect(
+      cache.get('bad', 1000, async () => Promise.reject(new Error('x'))),
+    ).rejects.toThrow();
     expect(await cache.get('bad', 1000, async () => 'ok')).toBe('ok');
   });
 });

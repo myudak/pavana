@@ -56,7 +56,10 @@ export function createOpenAq(apiKey: string | undefined, deps: OpenAqDeps = {}) 
         .map((l) => ({
           loc: l,
           sensor: l.sensors?.find((s) => s.parameter?.id === PM25_PARAMETER_ID),
-          distanceKm: haversineKm(point, { lat: l.coordinates.latitude, lon: l.coordinates.longitude }),
+          distanceKm: haversineKm(point, {
+            lat: l.coordinates.latitude,
+            lon: l.coordinates.longitude,
+          }),
         }))
         .filter((c) => c.sensor && c.distanceKm <= STATION_MAX_DISTANCE_KM)
         .sort((a, b) => a.distanceKm - b.distanceKm);

@@ -344,6 +344,9 @@ export default function MapPage() {
             <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
               {t.map.plumesNote}
             </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              {isDemo ? t.map.creditDemo : t.map.creditLive}
+            </p>
           </div>
         )}
       </div>

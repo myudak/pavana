@@ -47,11 +47,7 @@ const toNum = (v: string | undefined) => {
 };
 
 /** Minimal CSV parser for FIRMS output (no quoted fields in these files). */
-export function parseFirmsCsv(
-  csv: string,
-  source: FirmsSource,
-  fetchedAt: string,
-): Hotspot[] {
+export function parseFirmsCsv(csv: string, source: FirmsSource, fetchedAt: string): Hotspot[] {
   const lines = csv.trim().split(/\r?\n/);
   const header = lines[0]?.split(',').map((h) => h.trim());
   if (!header || !header.includes('latitude') || !header.includes('acq_date')) {
@@ -117,7 +113,9 @@ export function createFirms(mapKey: string | undefined, deps: FirmsDeps = {}) {
   const loadAll = () =>
     cache.get('firms:indonesia', 15 * MINUTE, async () => {
       if (!mapKey) throw new UpstreamError('nasa-firms', 'FIRMS_MAP_KEY not configured');
-      const fetchedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const fetchedAt = now()
+        .toISOString()
+        .replace(/\.\d{3}Z$/, 'Z');
       const sets = await Promise.all(
         (Object.keys(FIRMS_SOURCES) as FirmsSource[]).map(async (s) =>
           parseFirmsCsv(

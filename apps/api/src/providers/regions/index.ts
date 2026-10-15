@@ -115,11 +115,12 @@ export function createRegionLocations(
     },
     async resolve(point) {
       const { region, distanceKm } = nearestRegion(point);
+      // Nearest centroid ≠ administrative membership (no boundary polygons here), so the
+      // name says "Sekitar …" and no kabupaten/kota (admin2) is claimed.
       return {
         id: `pt:${point.lat.toFixed(3)},${point.lon.toFixed(3)}`,
-        name: distanceKm <= NAME_RADIUS_KM ? region.name : 'Lokasi dipilih',
+        name: distanceKm <= NAME_RADIUS_KM ? `Sekitar ${region.name}` : 'Lokasi dipilih',
         admin1: region.province,
-        admin2: distanceKm <= NAME_RADIUS_KM ? region.name : undefined,
         country: 'ID',
         lat: point.lat,
         lon: point.lon,

@@ -35,7 +35,7 @@ or an arrival-time prediction.
 level = max(level from PM2.5 forecast, level from upwind score S at that hour)
 ```
 
-- PM2.5 bands (µg/m³, US EPA breakpoints): ≤ 12.0 none · ≤ 35.4 low · ≤ 55.4 moderate · above high.
+- PM2.5 bands (µg/m³, US EPA 2024 breakpoints, same as the AQI pill): ≤ 9.0 none · ≤ 35.4 low · ≤ 55.4 moderate · above high.
 - Upwind bands on `S`: ≥ 2 low · ≥ 20 moderate · ≥ 80 high. **Heuristic, not calibrated against
   observations yet.** Tuned only so the demo day is not flat; revisit with real FIRMS + OpenAQ data.
 - For future hours, detections from the last 48 h are assumed to persist and decay by age (τ);

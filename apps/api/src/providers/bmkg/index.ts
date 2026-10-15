@@ -34,7 +34,10 @@ interface BmkgResponse {
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
-export function parseBmkg(res: BmkgResponse): { hours: WeatherReferenceHour[]; issuedAt: string | null } {
+export function parseBmkg(res: BmkgResponse): {
+  hours: WeatherReferenceHour[];
+  issuedAt: string | null;
+} {
   const entries = (res.data?.[0]?.cuaca ?? []).flat();
   let issuedAt: string | null = null;
   const hours: WeatherReferenceHour[] = [];
@@ -96,7 +99,9 @@ export function createBmkg(deps: BmkgDeps = {}) {
       // Keep the 3-hour slot containing `at` and everything after it.
       const from = at.getTime() - 3 * HOUR;
       const upcoming = hours.filter((h) => Date.parse(h.validAt) > from);
-      const fetchedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const fetchedAt = now()
+        .toISOString()
+        .replace(/\.\d{3}Z$/, 'Z');
       return {
         place: `${best.desa}, ${best.city}`,
         distanceKm: Math.round(bestD * 10) / 10,

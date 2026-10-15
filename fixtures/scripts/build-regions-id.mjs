@@ -25,15 +25,12 @@ SELECT ?item ?itemLabel ?type ?provLabel ?coord WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "id,en". }
 }`;
 
-const res = await fetch(
-  `https://query.wikidata.org/sparql?query=${encodeURIComponent(QUERY)}`,
-  {
-    headers: {
-      accept: 'application/sparql-results+json',
-      'user-agent': 'pavana-build/0.1 (https://pavana.myudak.com)',
-    },
+const res = await fetch(`https://query.wikidata.org/sparql?query=${encodeURIComponent(QUERY)}`, {
+  headers: {
+    accept: 'application/sparql-results+json',
+    'user-agent': 'pavana-build/0.1 (https://pavana.myudak.com)',
   },
-);
+});
 if (!res.ok) throw new Error(`Wikidata HTTP ${res.status}`);
 const rows = (await res.json()).results.bindings;
 

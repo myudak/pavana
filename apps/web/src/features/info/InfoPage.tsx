@@ -13,6 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { api } from '@/lib/api';
 import { useCopy } from '@/lib/i18n';
 import { useTheme, type ThemePref } from '@/lib/theme-context';
+import { DataModePanel, SourcesPanel } from './DataPanels';
 
 const THEME_ICON = { light: Sun03Icon, dark: Moon02Icon, system: ComputerIcon } as const;
 
@@ -35,7 +36,7 @@ export function InfoPage() {
       </h1>
 
       <div className="grid items-start gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        <Panel title={t.info.linksTitle}>
+        <Panel title={t.info.linksTitle} className="order-2 lg:order-1">
           <QueryState query={links} inline>
             {(d) => (
               <ul className="divide-y divide-foreground/10">
@@ -66,7 +67,9 @@ export function InfoPage() {
           </QueryState>
         </Panel>
 
-        <div className="space-y-4">
+        <div className="order-1 space-y-4 lg:order-2">
+          <DataModePanel />
+          <SourcesPanel />
           <Panel>
             <div className="flex items-start gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-foreground/5">
