@@ -40,6 +40,13 @@
   --pv-aq-hazardous: #7f1d1d;
   --pv-aq-unknown: #9ca3af;
 
+  /* Smoke-exposure potential levels (none → high). Always pair with a text label. */
+  --pv-exp-none: #2563eb;
+  --pv-exp-low: #7c3aed;
+  --pv-exp-moderate: #ea580c;
+  --pv-exp-high: #db2777;
+  --pv-exp-unknown: #9ca3af;
+
   /* Data-state colors */
   --pv-state-demo: #7c3aed;
   --pv-state-stale: #b45309;
@@ -54,7 +61,9 @@
   /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
      Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
      setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
-  --pv-font-wordmark: 'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --pv-font-wordmark:
+    'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif,
+    system-ui, sans-serif;
   --pv-font-body:
     'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
@@ -83,6 +92,11 @@
   --pv-aq-very-unhealthy: #c084fc;
   --pv-aq-hazardous: #fb7185;
   --pv-aq-unknown: #9ca3af;
+  --pv-exp-none: #60a5fa;
+  --pv-exp-low: #a78bfa;
+  --pv-exp-moderate: #fb923c;
+  --pv-exp-high: #f472b6;
+  --pv-exp-unknown: #9ca3af;
 
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
@@ -124,6 +138,11 @@
     --pv-aq-very-unhealthy: #c084fc;
     --pv-aq-hazardous: #fb7185;
     --pv-aq-unknown: #9ca3af;
+    --pv-exp-none: #60a5fa;
+    --pv-exp-low: #a78bfa;
+    --pv-exp-moderate: #fb923c;
+    --pv-exp-high: #f472b6;
+    --pv-exp-unknown: #9ca3af;
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;

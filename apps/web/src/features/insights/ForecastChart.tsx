@@ -67,7 +67,7 @@ export function ForecastChart({
             dataKey="pm25"
             stroke="url(#pm25Stroke)"
             strokeWidth={2.5}
-            strokeDasharray="1 6"
+            strokeDasharray="2 5"
             strokeLinecap="round"
             dot={{ r: 2.5, fill: 'var(--pv-primary)', strokeWidth: 0 }}
             activeDot={{ r: 4, fill: 'var(--pv-accent)', strokeWidth: 0 }}

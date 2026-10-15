@@ -85,8 +85,13 @@ export async function getExposure(
     };
   });
 
+  // Worst hour: highest level, then highest PM2.5, then highest upwind score.
+  const worse = (a: ExposureHour, b: ExposureHour) =>
+    exposureRank(a.level) - exposureRank(b.level) ||
+    (a.pm25UgM3 ?? -1) - (b.pm25UgM3 ?? -1) ||
+    (a.upwind?.score ?? -1) - (b.upwind?.score ?? -1);
   const peak = result.reduce<ExposureHour | null>(
-    (best, h) => (best === null || exposureRank(h.level) > exposureRank(best.level) ? h : best),
+    (best, h) => (best === null || worse(h, best) > 0 ? h : best),
     null,
   );
   const firstElevated = result.find((h) => exposureRank(h.level) >= 2) ?? null;

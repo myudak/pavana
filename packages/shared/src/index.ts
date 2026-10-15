@@ -18,6 +18,7 @@ export * from './math/upwind';
 export * from './math/exposure';
 export * from './math/density';
 export * from './math/windlines';
+export * from './math/plumes';
 export * from './regions';
 export * from './aq/us-aqi';
 export * from './aq/ispu';

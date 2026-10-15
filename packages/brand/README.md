@@ -87,3 +87,10 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
 - Setelah Vernosa aktif, turunan huruf `p` dapat ditinjau ulang agar mengikuti bentuk `p`
   Vernosa — tanpa membuat simbol terpisah dari identitas tipografi.
 - Wordmark memakai token `--pv-font-wordmark` (bukan `--pv-font-display`).
+
+## Latar (backgrounds)
+
+`assets/backgrounds/` — foto lanskap kabut yang disediakan tim untuk latar aplikasi:
+`dusk` (tema gelap), `haze` (tema terang), `sunset` (cadangan untuk landing/splash).
+Masing-masing ada versi penuh (1672 px) dan `-900` untuk layar ponsel. Dekoratif saja,
+tidak membawa data. Impor via `@pavana/brand/backgrounds/<nama>.webp`.

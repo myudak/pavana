@@ -1,90 +1,95 @@
 import { Suspense } from 'react';
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, useLocation } from 'react-router';
+import { Icon } from '@/components/Icon';
+import { SceneBackground } from '@/components/SceneBackground';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Wordmark } from '@/components/Wordmark';
-import { LocationPicker } from '@/features/location/LocationPicker';
+import { Skeleton } from '@/components/ui/skeleton';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '../nav';
+import { DesktopNav } from './DesktopNav';
 
-/** Mobile: sticky header + bottom tab bar. Desktop (lg+): side navigation. */
+/**
+ * Mobile-first shell: landscape background, transparent top bar, frosted bottom
+ * tab bar. On large screens the tabs move into the top bar. The map route is
+ * full-bleed and draws its own chrome.
+ */
 export function AppShell() {
   const t = useCopy();
+  const { pathname } = useLocation();
+  const isMap = pathname.startsWith('/peta');
+  const isHome = pathname === '/';
+
   return (
-    <div className="min-h-dvh bg-canvas text-ink lg:flex">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2"
-      >
-        Lewati ke konten
-      </a>
+    <TooltipProvider delayDuration={300}>
+      <div className="relative isolate min-h-dvh text-foreground">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-card focus:px-4 focus:py-2"
+        >
+          Lewati ke konten
+        </a>
 
-      {/* Desktop side nav */}
-      <aside className="hidden w-64 shrink-0 border-r border-border px-4 py-6 lg:block">
-        <Wordmark className="px-2" />
-        <nav className="mt-8 space-y-1" aria-label="Navigasi utama">
-          {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-full px-3 py-2 text-sm',
-                  isActive
-                    ? 'bg-primary-soft font-medium text-primary-strong dark:text-accent'
-                    : 'text-ink-muted hover:bg-surface-muted',
-                )
-              }
-            >
-              <Icon className="size-4" aria-hidden /> {t.nav[labelKey]}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
+        {!isMap && <SceneBackground tall={isHome} />}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border/60 bg-canvas/90 px-4 py-3 backdrop-blur lg:justify-end lg:px-8">
-          <Wordmark className="lg:hidden" />
-          <LocationPicker />
-        </header>
+        {!isMap && (
+          <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 pb-1 pt-[max(env(safe-area-inset-top),1rem)] md:px-6">
+            <Wordmark className="text-foreground drop-shadow-sm" />
+            <DesktopNav />
+            <ThemeToggle />
+          </header>
+        )}
 
         <main
           id="main"
-          className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12"
+          className={cn(
+            isMap
+              ? 'h-dvh'
+              : 'mx-auto w-full max-w-5xl px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:px-6 lg:pb-16',
+          )}
         >
-          <Suspense fallback={<p className="py-8 text-sm text-ink-muted">{t.common.loading}</p>}>
+          <Suspense
+            fallback={
+              <div className="space-y-3 pt-6" aria-busy aria-label={t.common.loading}>
+                <Skeleton className="h-8 w-2/3 rounded-xl" />
+                <Skeleton className="h-40 w-full rounded-3xl" />
+              </div>
+            }
+          >
             <Outlet />
           </Suspense>
         </main>
-      </div>
 
-      {/* Mobile bottom nav */}
-      <nav
-        aria-label="Navigasi utama"
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-      >
-        <ul className="mx-auto grid max-w-md grid-cols-4">
-          {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
-            <li key={to}>
-              <NavLink
-                to={to}
-                end={to === '/'}
-                className={({ isActive }) =>
-                  cn(
-                    'flex flex-col items-center gap-1 py-2.5 text-xs',
-                    isActive
-                      ? 'font-medium text-primary-strong dark:text-accent dark:[filter:drop-shadow(0_0_8px_rgba(244,114,182,0.55))]'
-                      : 'text-ink-muted',
-                  )
-                }
-              >
-                <Icon className="size-5" aria-hidden />
-                {t.nav[labelKey]}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+        {/* Mobile tab bar */}
+        <nav
+          aria-label="Navigasi utama"
+          className="fixed inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)] z-30 lg:hidden"
+        >
+          <ul className="glass mx-auto grid max-w-md grid-cols-4 rounded-[1.75rem] p-1.5 shadow-[0_12px_40px_rgba(2,6,23,0.35)]">
+            {NAV_ITEMS.map(({ to, labelKey, icon }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={to === '/'}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex flex-col items-center gap-0.5 rounded-[1.4rem] py-2 text-[11px] font-medium transition-colors',
+                      isActive
+                        ? 'bg-haze/15 text-haze [&_svg]:drop-shadow-[0_0_8px_var(--pv-accent)]'
+                        : 'text-muted-foreground',
+                    )
+                  }
+                >
+                  <Icon icon={icon} className="size-[22px]" />
+                  {t.nav[labelKey]}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </TooltipProvider>
   );
 }

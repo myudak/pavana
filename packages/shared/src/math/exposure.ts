@@ -11,7 +11,7 @@
 import type { ExposureLevel } from '../schemas/exposure';
 
 export const EXPOSURE_PM25_BANDS = { none: 12.0, low: 35.4, moderate: 55.4 } as const;
-export const EXPOSURE_UPWIND_BANDS = { low: 0.5, moderate: 5, high: 25 } as const;
+export const EXPOSURE_UPWIND_BANDS = { low: 2, moderate: 20, high: 80 } as const;
 
 const RANK: Record<Exclude<ExposureLevel, 'unknown'>, number> = {
   none: 0,

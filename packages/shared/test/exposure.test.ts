@@ -19,9 +19,10 @@ describe('pm25ExposureLevel', () => {
 describe('upwindExposureLevel', () => {
   it('bands the upwind score', () => {
     expect(upwindExposureLevel(0)).toBe('none');
-    expect(upwindExposureLevel(0.5)).toBe('low');
-    expect(upwindExposureLevel(5)).toBe('moderate');
-    expect(upwindExposureLevel(25)).toBe('high');
+    expect(upwindExposureLevel(1.9)).toBe('none');
+    expect(upwindExposureLevel(2)).toBe('low');
+    expect(upwindExposureLevel(20)).toBe('moderate');
+    expect(upwindExposureLevel(80)).toBe('high');
     expect(upwindExposureLevel(null)).toBe('unknown');
   });
 });
