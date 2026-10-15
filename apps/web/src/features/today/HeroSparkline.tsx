@@ -17,7 +17,7 @@ export function HeroSparkline({ hours, className }: { hours: ForecastHour[]; cla
     }
   }
   return (
-    <div className={cn('h-[44px] w-[236px] shrink-0', className)} aria-hidden>
+    <div className={cn('h-[2.75rem] w-[14.75rem] shrink-0', className)} aria-hidden>
       <ResponsiveContainer>
         <LineChart data={data} margin={{ top: 8, right: 10, bottom: 4, left: 4 }}>
           <defs>
@@ -33,12 +33,7 @@ export function HeroSparkline({ hours, className }: { hours: ForecastHour[]; cla
             strokeWidth={2.5}
             connectNulls={false}
             isAnimationActive={false}
-            dot={(props: {
-              index?: number;
-              cx?: number;
-              cy?: number;
-              value?: number | null;
-            }) =>
+            dot={(props: { index?: number; cx?: number; cy?: number; value?: number | null }) =>
               props.index === lastIdx &&
               props.cx !== undefined &&
               props.cy !== undefined &&

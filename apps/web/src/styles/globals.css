@@ -10,6 +10,20 @@
 }
 
 /*
+ * Desktop (lg+) renders at 90% — equivalent to 14.4px root instead of 16px —
+ * so the 100%-zoom layout reads like 90% zoom. Every fixed px in an arbitrary
+ * value is therefore written in rem (px/16): unchanged on mobile (16px root),
+ * scaled on desktop. Named utilities (p-3, text-xs, size-10, …) are already
+ * rem-based and scale automatically. Never use CSS zoom/transform for this
+ * (it breaks the map).
+ */
+@media (min-width: 1024px) {
+  html {
+    font-size: 90%;
+  }
+}
+
+/*
  * Section motion (Insight). Kept global so Tailwind arbitrary animations can use
  * them; the base layer above disables them under prefers-reduced-motion.
  */
