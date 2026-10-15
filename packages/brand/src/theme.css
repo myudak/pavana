@@ -36,6 +36,11 @@
   --color-state-stale: var(--pv-state-stale);
   --color-state-error: var(--pv-state-error);
 
+  --color-warning: var(--pv-warning);
+  --color-warning-strong: var(--pv-warning-strong);
+  --color-warning-soft: var(--pv-warning-soft);
+  --color-warning-ink: var(--pv-warning-ink);
+
   --font-display: var(--pv-font-display);
   --font-heading: var(--pv-font-heading);
   --font-wordmark: var(--pv-font-wordmark);
