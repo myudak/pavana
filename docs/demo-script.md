@@ -15,15 +15,15 @@
 
 ## Alur demo (langkah demi langkah, dapat diulang)
 
-| #   | Layar   | Aksi presenter                                            | Poin yang ditekankan                                    |
-| --- | ------- | --------------------------------------------------------- | ------------------------------------------------------- |
-| 1   | Hari Ini | Buka aplikasi (default: Sungai Raya, Kubu Raya). Tunjuk banner demo. | Lokasi, nilai PM2.5 + satuan µg/m³, sumber & waktu berlaku. |
-| 2   | Hari Ini | Baca headline tren + timeline 24 jam ke depan.            | Arah perubahan, bukan angka pasti.                       |
-| 3   | Hari Ini | Ketuk "Lihat penjelasan" (faktor: tren PM2.5, angin, titik panas searah angin). | "Kenapa bisa berubah" — indikator deterministik, bukan ML. |
-| 4   | Peta    | Buka Peta, tunjuk lokasi + deteksi titik panas, klik satu titik. | Waktu deteksi & sumber; deteksi ≠ konfirmasi kebakaran. |
-| 5   | Peta    | Tunjuk arah angin + legenda + atribusi peta.              | Angin dalam m/s, arah FROM meteorologis.                 |
-| 6   | Insight | Buka Insight: grafik prakiraan PM2.5 + faktor + "Bagaimana ini dihitung?". | Metodologi transparan; belum ada model terlatih. |
-| 7   | Info    | Buka Info: tautan resmi (BMKG, SiPongi, BNPB, BPBD Kalbar). | Pavana bukan sumber peringatan resmi; ikuti arahan otoritas. |
+| #   | Layar    | Aksi presenter                                                                  | Poin yang ditekankan                                         |
+| --- | -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 1   | Hari Ini | Buka aplikasi (default: Sungai Raya, Kubu Raya). Tunjuk banner demo.            | Lokasi, nilai PM2.5 + satuan µg/m³, sumber & waktu berlaku.  |
+| 2   | Hari Ini | Baca headline tren + timeline 24 jam ke depan.                                  | Arah perubahan, bukan angka pasti.                           |
+| 3   | Hari Ini | Ketuk "Lihat penjelasan" (faktor: tren PM2.5, angin, titik panas searah angin). | "Kenapa bisa berubah" — indikator deterministik, bukan ML.   |
+| 4   | Peta     | Buka Peta, tunjuk lokasi + deteksi titik panas, klik satu titik.                | Waktu deteksi & sumber; deteksi ≠ konfirmasi kebakaran.      |
+| 5   | Peta     | Tunjuk arah angin + legenda + atribusi peta.                                    | Angin dalam m/s, arah FROM meteorologis.                     |
+| 6   | Insight  | Buka Insight: grafik prakiraan PM2.5 + faktor + "Bagaimana ini dihitung?".      | Metodologi transparan; belum ada model terlatih.             |
+| 7   | Info     | Buka Info: tautan resmi (BMKG, SiPongi, BNPB, BPBD Kalbar).                     | Pavana bukan sumber peringatan resmi; ikuti arahan otoritas. |
 
 ## Naskah video (±2,5 menit, Bahasa Indonesia)
 
@@ -33,13 +33,13 @@
 > dan apa yang perlu diperhatikan."
 >
 > **0:20–1:00 — Hari Ini.** "Ini layar Hari Ini untuk Sungai Raya, Kubu Raya. Yang tampil
-> sekarang adalah *skenario demo berlabel* — bukan data nyata. Terlihat nilai PM2.5, kategorinya,
+> sekarang adalah _skenario demo berlabel_ — bukan data nyata. Terlihat nilai PM2.5, kategorinya,
 > sumber, dan waktu berlakunya. Di bawahnya ada prakiraan 24 jam dan alasannya: tren PM2.5,
 > angin, dan titik panas searah angin. Ini indikator deterministik yang dijelaskan terbuka —
 > bukan model machine learning."
 >
 > **1:00–1:40 — Peta.** "Di Peta, terlihat lokasi, deteksi titik panas satelit, dan arah angin.
-> Setiap titik bisa diklik untuk melihat *waktu deteksinya*. Penting: deteksi satelit bukan
+> Setiap titik bisa diklik untuk melihat _waktu deteksinya_. Penting: deteksi satelit bukan
 > konfirmasi kebakaran, dan tidak ada deteksi bukan berarti tidak ada api."
 >
 > **1:40–2:20 — Insight & Info.** "Layar Insight menunjukkan grafik prakiraan dan cara

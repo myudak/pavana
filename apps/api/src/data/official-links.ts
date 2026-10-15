@@ -50,7 +50,6 @@ export const OFFICIAL_LINKS: OfficialLink[] = [
     title: 'BPBD Provinsi Kalimantan Barat',
     publisher: 'BPBD Kalbar',
     url: 'https://bpbd.kalbarprov.go.id/',
-    description:
-      'Informasi penanggulangan bencana daerah, termasuk laporan harian posko karhutla.',
+    description: 'Informasi penanggulangan bencana daerah, termasuk laporan harian posko karhutla.',
   },
 ];

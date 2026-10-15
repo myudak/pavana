@@ -5,13 +5,20 @@
  * Wording rules: no certainty we don't have ("asap akan tiba pukul 16.00"), no "aman",
  * no evacuation instructions. Hotspot ≠ confirmed fire. PM2.5 ≠ "asap kebakaran".
  */
-import type { DataState, FactorId, FactorSignal, Trend, UsAqiCategory } from '@pavana/shared';
+import type {
+  DataState,
+  ExposureLevel,
+  FactorId,
+  FactorSignal,
+  Trend,
+  UsAqiCategory,
+} from '@pavana/shared';
 
 export const id = {
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
-  nav: { today: 'Hari Ini', map: 'Peta', insights: 'Insight', info: 'Info' },
+  nav: { today: 'Beranda', map: 'Peta', forecast: 'Prakiraan', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',
   demoBannerDetail:
@@ -80,8 +87,7 @@ export const id = {
       hazardous:
         'Tetap di dalam ruangan dan hindari aktivitas luar ruangan. Ikuti arahan otoritas setempat.',
     } satisfies Record<UsAqiCategory, string>,
-    healthAdviceSource:
-      'Sumber saran: informasi umum dari lembaga resmi — selengkapnya di',
+    healthAdviceSource: 'Sumber saran: informasi umum dari lembaga resmi — selengkapnya di',
     noData: 'Tidak ada data kualitas udara untuk lokasi ini.',
   },
 
@@ -103,7 +109,7 @@ export const id = {
           ? `Saat ini ${current} µg/m³; puncak prakiraan ${peak} µg/m³ sekitar pukul ${peakAt}.`
           : `Saat ini ${current} µg/m³.`,
       wind: (from: string, deg: string, speed: string, to: string) =>
-        `Dari ${from} (${deg}°), ${speed} m/s — bertiup ke arah ${to}.`,
+        `Dari ${from} (${deg}°), ${speed} km/j — bertiup ke arah ${to}.`,
       upwindNone: (radiusKm: string, windowH: string) =>
         `Tidak ada deteksi titik panas dalam radius ${radiusKm} km selama ${windowH} jam terakhir. Ini tidak berarti tidak ada api.`,
       upwind: (contributing: string, considered: string, radiusKm: string, score: string) =>
@@ -135,6 +141,16 @@ export const id = {
     windFrom: 'dari',
     windTo: 'bertiup ke',
     mapError: 'Peta tidak dapat dimuat. Menampilkan daftar titik panas.',
+    layersLabel: 'Lapisan peta',
+    layerPlumes: 'Arah asap',
+    plumesTitle: 'Arah sebaran asap',
+    plumesHours: (h: number) => (h === 0 ? 'Kini' : `+${h} jam`),
+    plumesFrom: 'Titik panas',
+    plumesNote:
+      'Garis mengikuti prakiraan angin dari tiap titik panas — indikatif, bukan model sebaran asap dan bukan konsentrasi.',
+    viewLocal: 'Sekitarku',
+    viewRegion: 'Kalimantan',
+    detailTitle: 'Detail deteksi',
     count: (n: number) => `${n} deteksi dalam area`,
   },
 
@@ -171,6 +187,107 @@ export const id = {
     myLocation: 'Lokasi saya',
     geoDenied: 'Izin lokasi ditolak.',
     noResults: 'Tidak ada hasil.',
+  },
+
+  // "Will the smoke reach me?" — a POTENTIAL level, never a probability or a certainty.
+  exposure: {
+    eyebrow: 'Apakah asap akan sampai ke sini?',
+    level: {
+      none: 'Minim',
+      low: 'Rendah',
+      moderate: 'Sedang',
+      high: 'Tinggi',
+      unknown: 'Tidak diketahui',
+    } satisfies Record<ExposureLevel, string>,
+    headline: {
+      none: 'Potensi paparan asap minim',
+      low: 'Potensi paparan asap rendah',
+      moderate: 'Potensi paparan asap sedang',
+      high: 'Potensi paparan asap tinggi',
+      unknown: 'Belum cukup data untuk menilai asap',
+    } satisfies Record<ExposureLevel, string>,
+    peakAt: (time: string) => `Paling tinggi sekitar pukul ${time}`,
+    firstElevatedAt: (time: string) => `mulai meningkat sekitar ${time}`,
+    driver: {
+      pm25: 'Berdasarkan prakiraan PM2.5.',
+      upwind: 'Angin datang dari arah titik panas di sekitarmu.',
+      both: 'Prakiraan PM2.5 tinggi dan angin datang dari arah titik panas.',
+      none: 'Tidak ada sinyal kuat dari PM2.5 maupun arah angin.',
+    },
+    potentialLabel: 'Potensi paparan',
+    disclaimer:
+      'Indikator potensi dari prakiraan PM2.5 dan arah angin terhadap titik panas — bukan peluang, bukan kepastian. Ambang belum dikalibrasi terhadap pengamatan.',
+    timelineTitle: 'Garis waktu asap',
+    timelineHint: 'Geser untuk melihat jam lain',
+    stepNow: 'Kini',
+    stepHours: (h: number) => `+${h} jam`,
+    upwindCount: (n: number, total: number) =>
+      total === 0 ? 'Tidak ada deteksi di sekitar' : `${n} dari ${total} titik panas searah angin`,
+  },
+
+  home: {
+    hourlyTitle: 'Prakiraan 24 jam',
+    detailsTitle: 'Kondisi sekarang',
+    mapTitle: 'Titik panas & angin',
+    mapCta: 'Buka peta',
+    whyTitle: 'Kenapa begini?',
+    whyCta: 'Lihat prakiraan',
+    pm25Label: 'PM2.5',
+  },
+
+  tiles: {
+    wind: 'Angin',
+    windFrom: (dir: string) => `Dari ${dir}`,
+    windTo: (dir: string) => `bertiup ke ${dir}`,
+    humidity: 'Kelembapan',
+    temperature: 'Suhu',
+    rain: 'Hujan',
+    rainNone: 'Tidak ada',
+    hotspots: 'Titik panas',
+    hotspotsNote: 'searah angin, radius 300 km',
+    aqi: 'US AQI',
+    aqiNote: 'indikatif, dari PM2.5 per jam',
+    missing: 'Tidak ada data',
+  },
+
+  // 8-point compass in Indonesian (meteorological FROM / flow TO handled by callers).
+  compass: [
+    'Utara',
+    'Timur Laut',
+    'Timur',
+    'Tenggara',
+    'Selatan',
+    'Barat Daya',
+    'Barat',
+    'Barat Laut',
+  ],
+  compassShort: { n: 'U', e: 'T', s: 'S', w: 'B' },
+
+  forecast: {
+    title: 'Prakiraan',
+    tabs: { air: 'Kualitas udara', smoke: 'Asap', weather: 'Cuaca' },
+    airTitle: 'PM2.5 per jam',
+    smokeTitle: 'Potensi paparan asap per jam',
+    weatherTitle: 'Angin per jam',
+    factorsTitle: 'Faktor yang berpengaruh',
+    modelTitle: 'Model AI prakiraan PM2.5',
+    modelStatus: 'Dalam pengembangan',
+    modelBody:
+      'Model LightGBM dengan fitur titik panas berbasis arah angin sedang dikembangkan dan belum dievaluasi. Angka di sini berasal dari prakiraan PM2.5 dan indikator deterministik, bukan dari model tersebut.',
+    windSpeed: 'Kecepatan',
+    windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
+    temperature: 'Suhu',
+    humidity: 'Kelembapan',
+  },
+
+  alerts: {
+    title: 'Peringatan pintar',
+    status: 'Belum tersedia',
+    body: 'Rencana: notifikasi saat prakiraan di lokasi tersimpanmu memburuk, beserta tautan ke peringatan resmi. Fitur ini belum dibangun.',
+  },
+
+  theme: {
+    toggle: 'Ganti tema',
   },
 
   common: {

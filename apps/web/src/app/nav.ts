@@ -1,16 +1,22 @@
-import { BarChart3, House, Info, Map, type LucideIcon } from 'lucide-react';
+import {
+  ChartLineData02Icon,
+  Home09Icon,
+  InformationCircleIcon,
+  MapsIcon,
+} from '@hugeicons/core-free-icons';
+import type { IconSvgElement } from '@hugeicons/react';
 import type { Copy } from '@/lib/i18n';
 
 export interface NavItem {
   to: string;
   labelKey: keyof Copy['nav'];
-  icon: LucideIcon;
+  icon: IconSvgElement;
 }
 
-/** Single source for bottom nav (mobile) and side nav (desktop). */
+/** Single source for the bottom tab bar (mobile) and the header nav (desktop). */
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', labelKey: 'today', icon: House },
-  { to: '/peta', labelKey: 'map', icon: Map },
-  { to: '/insight', labelKey: 'insights', icon: BarChart3 },
-  { to: '/info', labelKey: 'info', icon: Info },
+  { to: '/', labelKey: 'today', icon: Home09Icon },
+  { to: '/peta', labelKey: 'map', icon: MapsIcon },
+  { to: '/prakiraan', labelKey: 'forecast', icon: ChartLineData02Icon },
+  { to: '/info', labelKey: 'info', icon: InformationCircleIcon },
 ];

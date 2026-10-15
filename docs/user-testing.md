@@ -41,12 +41,12 @@ setelah membuka layar Hari Ini?"
 
 ## Hasil (diisi setelah pengujian — KOSONG)
 
-| Responden | Konteks | Q1 | Q2 | Q3 | Q4 | Q5 | Catatan |
-| --------- | ------- | -- | -- | -- | -- | -- | ------- |
-| R1 | — | — | — | — | — | — | — |
-| R2 | — | — | — | — | — | — | — |
-| R3 | — | — | — | — | — | — | — |
-| R4 | — | — | — | — | — | — | — |
-| R5 | — | — | — | — | — | — | — |
+| Responden | Konteks | Q1  | Q2  | Q3  | Q4  | Q5  | Catatan |
+| --------- | ------- | --- | --- | --- | --- | --- | ------- |
+| R1        | —       | —   | —   | —   | —   | —   | —       |
+| R2        | —       | —   | —   | —   | —   | —   | —       |
+| R3        | —       | —   | —   | —   | —   | —   | —       |
+| R4        | —       | —   | —   | —   | —   | —   | —       |
+| R5        | —       | —   | —   | —   | —   | —   | —       |
 
 Tanggal pengujian: — · Fasilitator: — · Perbaikan yang dicatat: —

@@ -44,10 +44,46 @@ const DAY = 86_400_000;
 // Belts: [name, waypoints [lat, lon][], total count, sigmaKm].
 // Sub-clusters are spaced < 1.5 sigma apart so the ridge stays connected.
 const BELTS = [
-  ['sabuk tengah-selatan', [[-3.2, 114.6], [-2.4, 113.2], [-1.6, 112.2]], 300, 45],
-  ['jalur timur', [[-2.5, 116.8], [-0.5, 117.2], [1.5, 116.8]], 280, 45],
-  ['sabuk barat', [[-1.8, 109.8], [-0.8, 110.8], [0.5, 111.5]], 260, 45],
-  ['lengkungan utara-timur', [[0.5, 114.5], [2.0, 115.5], [3.2, 117.0]], 220, 45],
+  [
+    'sabuk tengah-selatan',
+    [
+      [-3.2, 114.6],
+      [-2.4, 113.2],
+      [-1.6, 112.2],
+    ],
+    300,
+    45,
+  ],
+  [
+    'jalur timur',
+    [
+      [-2.5, 116.8],
+      [-0.5, 117.2],
+      [1.5, 116.8],
+    ],
+    280,
+    45,
+  ],
+  [
+    'sabuk barat',
+    [
+      [-1.8, 109.8],
+      [-0.8, 110.8],
+      [0.5, 111.5],
+    ],
+    260,
+    45,
+  ],
+  [
+    'lengkungan utara-timur',
+    [
+      [0.5, 114.5],
+      [2.0, 115.5],
+      [3.2, 117.0],
+    ],
+    220,
+    45,
+  ],
 ];
 // Small centers: [name, lat, lon, count].
 const SMALL = [
@@ -66,10 +102,29 @@ const BACKGROUND_COUNT = 300;
 
 // Approximate Kalimantan coastline (lon/lat) for synthetic placement only.
 const LAND_POLY = [
-  [109.6, 1.8], [110.5, 2.9], [111.8, 3.3], [113.2, 4.2], [114.5, 4.6], [115.8, 4.5],
-  [117.2, 5.2], [118.2, 4.0], [118.6, 2.5], [118.0, 1.0], [117.3, -0.5], [117.6, -1.8],
-  [117.0, -2.8], [116.2, -3.6], [115.0, -3.9], [114.0, -3.5], [113.0, -3.2], [112.0, -3.4],
-  [110.8, -2.9], [110.0, -1.8], [109.3, -1.0], [109.0, 0.0], [109.3, 1.0],
+  [109.6, 1.8],
+  [110.5, 2.9],
+  [111.8, 3.3],
+  [113.2, 4.2],
+  [114.5, 4.6],
+  [115.8, 4.5],
+  [117.2, 5.2],
+  [118.2, 4.0],
+  [118.6, 2.5],
+  [118.0, 1.0],
+  [117.3, -0.5],
+  [117.6, -1.8],
+  [117.0, -2.8],
+  [116.2, -3.6],
+  [115.0, -3.9],
+  [114.0, -3.5],
+  [113.0, -3.2],
+  [112.0, -3.4],
+  [110.8, -2.9],
+  [110.0, -1.8],
+  [109.3, -1.0],
+  [109.0, 0.0],
+  [109.3, 1.0],
 ];
 const KALIMANTAN = { minLon: 108.5, minLat: -4.5, maxLon: 119.5, maxLat: 4.5 };
 
@@ -82,9 +137,7 @@ const haversineKm = (aLat, aLon, bLat, bLon) => {
   const dLon = ((bLon - aLon) * Math.PI) / 180;
   const h =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos((aLat * Math.PI) / 180) *
-      Math.cos((bLat * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
   return 2 * 6371.0088 * Math.asin(Math.min(1, Math.sqrt(h)));
 };
 
@@ -139,7 +192,10 @@ const push = (lat, lon) => {
   });
 };
 
-const toKm = (dLat, dLon, atLat) => [dLon * KM_PER_DEG * Math.cos((atLat * Math.PI) / 180), dLat * KM_PER_DEG];
+const toKm = (dLat, dLon, atLat) => [
+  dLon * KM_PER_DEG * Math.cos((atLat * Math.PI) / 180),
+  dLat * KM_PER_DEG,
+];
 
 // Belt sub-clusters spaced < 1.5 sigma apart along each polyline.
 for (const [, waypoints, total, sigmaKm] of BELTS) {
@@ -168,10 +224,7 @@ for (const [, waypoints, total, sigmaKm] of BELTS) {
       const gy = randn() * sigmaKm * 0.7;
       const ex = gx * Math.cos(rot) - gy * Math.sin(rot);
       const ey = gx * Math.sin(rot) + gy * Math.cos(rot);
-      push(
-        cLat + ey / KM_PER_DEG,
-        cLon + ex / (KM_PER_DEG * Math.cos((cLat * Math.PI) / 180)),
-      );
+      push(cLat + ey / KM_PER_DEG, cLon + ex / (KM_PER_DEG * Math.cos((cLat * Math.PI) / 180)));
     }
   }
 }

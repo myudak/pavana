@@ -1,15 +1,24 @@
+import {
+  ArrowUpRight01Icon,
+  ComputerIcon,
+  Moon02Icon,
+  Notification03Icon,
+  Sun03Icon,
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
-import { ExternalLink } from 'lucide-react';
+import { Icon } from '@/components/Icon';
+import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { api } from '@/lib/api';
 import { useCopy } from '@/lib/i18n';
 import { useTheme, type ThemePref } from '@/lib/theme-context';
-import { cn } from '@/lib/utils';
+
+const THEME_ICON = { light: Sun03Icon, dark: Moon02Icon, system: ComputerIcon } as const;
 
 /**
- * Info = official links + about. Alerts (opt-in, informational only) are phase 1.5 —
- * see docs/architecture.md. Never show fake official warnings here.
+ * Info = official links, planned alerts, theme, about. Never show fake official
+ * warnings here; alerts are marked as not built yet.
  */
 export function InfoPage() {
   const t = useCopy();
@@ -20,70 +29,87 @@ export function InfoPage() {
   const { pref, setPref } = useTheme();
 
   return (
-    <div className="space-y-4">
-      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.info.title}</h1>
+    <div className="space-y-4 pt-4 sm:pt-8">
+      <h1 className="font-heading text-4xl font-bold tracking-tight drop-shadow-sm">
+        {t.info.title}
+      </h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.info.linksTitle}</CardTitle>
-        </CardHeader>
-        <QueryState query={links}>
-          {(d) => (
-            <ul className="divide-y divide-border">
-              {d.links.map((l) => (
-                <li key={l.id}>
-                  <a
-                    href={l.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-start justify-between gap-3 py-3 hover:opacity-80"
-                  >
-                    <span>
-                      <span className="font-medium">{l.title}</span>
-                      <span className="text-ink-muted"> · {l.publisher}</span>
-                      <span className="block text-sm text-ink-muted">{l.description}</span>
-                    </span>
-                    <ExternalLink className="mt-1 size-4 shrink-0 text-ink-muted" aria-hidden />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </QueryState>
-      </Card>
+      <div className="grid items-start gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+        <Panel title={t.info.linksTitle}>
+          <QueryState query={links} inline>
+            {(d) => (
+              <ul className="divide-y divide-foreground/10">
+                {d.links.map((l) => (
+                  <li key={l.id}>
+                    <a
+                      href={l.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex items-start justify-between gap-3 py-3 first:pt-0"
+                    >
+                      <span className="min-w-0">
+                        <span className="font-medium group-hover:underline">{l.title}</span>
+                        <span className="text-muted-foreground"> · {l.publisher}</span>
+                        <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
+                          {l.description}
+                        </span>
+                      </span>
+                      <Icon
+                        icon={ArrowUpRight01Icon}
+                        className="mt-0.5 size-4 text-muted-foreground"
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </QueryState>
+        </Panel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.info.theme}</CardTitle>
-        </CardHeader>
-        <div
-          role="radiogroup"
-          aria-label={t.info.theme}
-          className="inline-flex rounded-full bg-surface-muted p-1"
-        >
-          {(['light', 'dark', 'system'] as ThemePref[]).map((p) => (
-            <button
-              key={p}
-              role="radio"
-              aria-checked={pref === p}
-              onClick={() => setPref(p)}
-              className={cn(
-                'rounded-full px-4 py-1.5 text-sm',
-                pref === p ? 'bg-surface font-medium text-ink shadow-sm' : 'text-ink-muted',
-              )}
+        <div className="space-y-4">
+          <Panel>
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-foreground/5">
+                <Icon icon={Notification03Icon} className="text-muted-foreground" />
+              </span>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-medium">{t.alerts.title}</h2>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground ring-1 ring-border">
+                    {t.alerts.status}
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{t.alerts.body}</p>
+              </div>
+            </div>
+          </Panel>
+
+          <Panel title={t.info.theme}>
+            <ToggleGroup
+              type="single"
+              value={pref}
+              onValueChange={(v) => v && setPref(v as ThemePref)}
+              className="w-full rounded-full bg-foreground/5 p-1"
+              aria-label={t.info.theme}
             >
-              {t.info.themeOptions[p]}
-            </button>
-          ))}
-        </div>
-      </Card>
+              {(['light', 'dark', 'system'] as ThemePref[]).map((p) => (
+                <ToggleGroupItem
+                  key={p}
+                  value={p}
+                  className="h-9 flex-1 gap-1.5 rounded-full data-[state=on]:bg-card data-[state=on]:shadow-sm"
+                >
+                  <Icon icon={THEME_ICON[p]} className="size-4" />
+                  {t.info.themeOptions[p]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Panel>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.info.aboutTitle}</CardTitle>
-        </CardHeader>
-        <p className="text-sm text-ink-muted">{t.info.aboutBody}</p>
-      </Card>
+          <Panel title={t.info.aboutTitle}>
+            <p className="text-sm leading-relaxed text-muted-foreground">{t.info.aboutBody}</p>
+          </Panel>
+        </div>
+      </div>
     </div>
   );
 }
