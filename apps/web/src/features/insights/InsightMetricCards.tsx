@@ -18,6 +18,7 @@ import { categoryOf } from '@/lib/aq';
 import { formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { windDirectionLabel } from '@/lib/wind-label';
 import { bearingToCompass8, factorNumber } from './insight-derive';
 
 /** Trend as a coloured glyph (text lives in the tooltip + screen-reader label). */
@@ -94,8 +95,9 @@ function WindCard({ factor, timeZone }: { factor: Factor | undefined; timeZone: 
         <>
           <p className="font-heading text-2xl font-semibold">
             {(() => {
-              const compass = bearingToCompass8(fromDeg);
-              return t.insights.cards.windFrom(t.insights.compass8[compass], compass);
+              const name =
+                windDirectionLabel(fromDeg) ?? t.insights.compass8[bearingToCompass8(fromDeg)];
+              return t.insights.cards.windFrom(name);
             })()}
           </p>
           {speedMs !== null && (
@@ -105,10 +107,7 @@ function WindCard({ factor, timeZone }: { factor: Factor | undefined; timeZone: 
           )}
         </>
       )}
-      <InfoChip
-        label={t.insights.cards.windScope}
-        detail={t.insights.cards.windRelevance}
-      />
+      <InfoChip label={t.insights.cards.windScope} detail={t.insights.cards.windRelevance} />
       {provenance && <ProvenanceChip provenance={provenance} timeZone={timeZone} />}
       <Link
         to="/peta"

@@ -1,5 +1,4 @@
 import {
-  bearingToCompass16,
   BORNEO_RENDER_BBOX,
   buildDensityField,
   DENSITY_COLS,
@@ -33,6 +32,7 @@ import { useCopy } from '@/lib/i18n';
 import { useConditions } from '@/lib/queries';
 import { useDarkMode } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
+import { windDirectionLabel } from '@/lib/wind-label';
 import { HotspotMap } from './HotspotMap';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
 import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
@@ -57,10 +57,7 @@ export default function MapPage() {
   // Regional density field (island-wide). Local points are merged in so the
   // density view stays a superset; the regional fixture keeps a keep-out zone
   // around the scenario location, so nothing is double-counted.
-  const regionalPts = useMemo(
-    () => regional.query.data?.hotspots ?? [],
-    [regional.query.data],
-  );
+  const regionalPts = useMemo(() => regional.query.data?.hotspots ?? [], [regional.query.data]);
   const densityField = useMemo(
     () =>
       regionalPts.length === 0
@@ -110,7 +107,7 @@ export default function MapPage() {
   }, [location.lat, location.lon]);
 
   return (
-    <div className="mx-auto w-full max-w-[1344px] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
+    <div className="mx-auto w-full max-w-[84rem] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
       <h1 className="pt-2 font-heading text-3xl font-bold tracking-tight">{t.map.title}</h1>
       {hotspots.data?.state === 'demo' && <DemoBanner />}
 
@@ -172,159 +169,162 @@ export default function MapPage() {
           const shown = showDensity
             ? [...regionalPts, ...h.hotspots.filter((p) => !regionalIds.has(p.id))]
             : h.hotspots;
-          const density = showDensity && densityCanvas ? { canvas: densityCanvas, coords: densityImageCoords(BORNEO_RENDER_BBOX) } : null;
+          const density =
+            showDensity && densityCanvas
+              ? { canvas: densityCanvas, coords: densityImageCoords(BORNEO_RENDER_BBOX) }
+              : null;
           return (
-          <>
-          <div className="grid items-start gap-4 lg:grid-cols-3 lg:gap-5">
-            <div className="lg:col-span-2">
-              {!mapFailed ? (
-                <div className="relative h-[70vh] min-h-80 overflow-hidden rounded-[1.5rem] border border-border bg-canvas shadow-xl dark:border-white/10 dark:[box-shadow:var(--pv-shadow-lift)] lg:h-[min(78vh,760px)] lg:min-h-[560px]">
-                  <HotspotMap
-                    center={location}
-                    hotspots={shown}
-                    showHotspots={showHotspots}
-                    showDensity={showDensity}
-                    showWind={showWind}
-                    density={density}
-                    fitTo={showDensity ? BORNEO_RENDER_BBOX : null}
-                    streamlines={streamlines}
-                    fitNonce={fitNonce}
-                    timeZone={tz}
-                    onError={() => setMapFailed(true)}
-                    styleUrl={dark ? DARK_STYLE_URL : undefined}
-                    onSelectHotspot={(props) => setSelected(props)}
-                    wind={
-                      wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
-                        ? {
-                            fromDeg: wind.windDirectionFromDeg,
-                            speedMs: wind.windSpeedMs,
-                          }
-                        : null
-                    }
-                  />
-                  {/* Wind summary lives in the side panel (single source, no duplicate). */}
+            <>
+              <div className="grid items-start gap-4 lg:grid-cols-3 lg:gap-5">
+                <div className="lg:col-span-2">
+                  {!mapFailed ? (
+                    <div className="relative h-[70vh] min-h-80 overflow-hidden rounded-[1.5rem] border border-border bg-canvas shadow-xl dark:border-white/10 dark:[box-shadow:var(--pv-shadow-lift)] lg:h-[min(78vh,47.5rem)] lg:min-h-[35rem]">
+                      <HotspotMap
+                        center={location}
+                        hotspots={shown}
+                        showHotspots={showHotspots}
+                        showDensity={showDensity}
+                        showWind={showWind}
+                        density={density}
+                        fitTo={showDensity ? BORNEO_RENDER_BBOX : null}
+                        streamlines={streamlines}
+                        fitNonce={fitNonce}
+                        timeZone={tz}
+                        onError={() => setMapFailed(true)}
+                        styleUrl={dark ? DARK_STYLE_URL : undefined}
+                        onSelectHotspot={(props) => setSelected(props)}
+                        wind={
+                          wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
+                            ? {
+                                fromDeg: wind.windDirectionFromDeg,
+                                speedMs: wind.windSpeedMs,
+                              }
+                            : null
+                        }
+                      />
+                      {/* Wind summary lives in the side panel (single source, no duplicate). */}
+                    </div>
+                  ) : (
+                    <Card role="status" className="text-sm text-ink-muted">
+                      {t.map.mapError}
+                    </Card>
+                  )}
                 </div>
-              ) : (
-                <Card role="status" className="text-sm text-ink-muted">
-                  {t.map.mapError}
-                </Card>
-              )}
-            </div>
 
-            <Card
-              className={cn(
-                'relative z-10 mx-1 space-y-3 text-sm dark:border-white/10 dark:bg-[var(--pv-glass)] dark:backdrop-blur',
-                !mapFailed && '-mt-14 lg:mx-0 lg:mt-0',
-              )}
-            >
-              <p className="flex items-center gap-2">
-                <span
-                  className="size-3 rounded-full border-2 border-white bg-aq-unhealthy shadow"
-                  aria-hidden
-                />
-                {t.map.legendHotspot} — {t.map.count(showDensity ? shown.length : h.hotspots.length)}
-              </p>
-              <p className="flex items-center gap-2">
-                <span
-                  className="size-3 rounded-full border-2 border-white bg-primary shadow"
-                  aria-hidden
-                />
-                {t.map.legendLocation}: {location.label}
-              </p>
-              {showDensity && (
-                <div className="space-y-1">
+                <Card
+                  className={cn(
+                    'relative z-10 mx-1 space-y-3 text-sm dark:border-white/10 dark:bg-[var(--pv-glass)] dark:backdrop-blur',
+                    !mapFailed && '-mt-14 lg:mx-0 lg:mt-0',
+                  )}
+                >
                   <p className="flex items-center gap-2">
                     <span
+                      className="size-3 rounded-full border-2 border-white bg-aq-unhealthy shadow"
                       aria-hidden
-                      className="h-2.5 w-16 shrink-0 rounded-full"
-                      style={{
-                        background:
-                          'linear-gradient(90deg, #3b82f6, #6366f1, #a855f7, #f472b6)',
-                      }}
                     />
-                    {t.map.legendDensity}
+                    {t.map.count(showDensity ? shown.length : h.hotspots.length)}
                   </p>
-                  <p className="pl-5 text-xs text-ink-muted">{t.map.noDetectionNote}</p>
-                </div>
-              )}
-              {wind?.windDirectionFromDeg != null && wind.windSpeedMs != null && (
-                <p className="flex items-center gap-2">
-                  <Navigation
-                    className="size-4 shrink-0 text-primary-strong dark:text-accent"
-                    style={{
-                      transform: `rotate(${windFromToFlowBearing(wind.windDirectionFromDeg) - 45}deg)`,
-                    }}
-                    aria-hidden
-                  />
-                  <span>
-                    {t.map.windNow}: {t.map.windFrom}{' '}
-                    {bearingToCompass16(wind.windDirectionFromDeg)},{' '}
-                    {formatNumber(wind.windSpeedMs, 1)} m/s
-                  </span>
-                </p>
-              )}
-              {showWind && windField.query.data && (
-                <p className="text-xs text-ink-muted">{t.map.windFieldNote}</p>
-              )}
-              {selected && (
-                <div className="space-y-1 rounded-2xl border border-accent/40 bg-accent/10 p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-semibold tabular-nums">
-                      {typeof selected['lat'] === 'number' &&
-                      typeof selected['lon'] === 'number'
-                        ? `${(selected['lat'] as number).toFixed(3)}, ${(selected['lon'] as number).toFixed(3)}`
-                        : String(selected['id'] ?? '')}
+                  <p className="flex items-center gap-2">
+                    <span
+                      className="size-3 rounded-full border-2 border-white bg-primary shadow"
+                      aria-hidden
+                    />
+                    {t.map.legendLocation}: {location.label}
+                  </p>
+                  {showDensity && (
+                    <div className="space-y-1">
+                      <p className="flex items-center gap-2">
+                        <span
+                          aria-hidden
+                          className="h-2.5 w-16 shrink-0 rounded-full"
+                          style={{
+                            background:
+                              'linear-gradient(90deg, #3b82f6, #6366f1, #a855f7, #f472b6)',
+                          }}
+                        />
+                        {t.map.legendDensity}
+                      </p>
+                      <p className="pl-5 text-xs text-ink-muted">{t.map.noDetectionNote}</p>
+                    </div>
+                  )}
+                  {wind?.windDirectionFromDeg != null && wind.windSpeedMs != null && (
+                    <p className="flex items-center gap-2">
+                      <Navigation
+                        className="size-4 shrink-0 text-primary-strong dark:text-accent"
+                        style={{
+                          transform: `rotate(${windFromToFlowBearing(wind.windDirectionFromDeg) - 45}deg)`,
+                        }}
+                        aria-hidden
+                      />
+                      <span>
+                        {t.map.windNow}: {t.map.windFrom}{' '}
+                        {windDirectionLabel(wind.windDirectionFromDeg)},{' '}
+                        {formatNumber(wind.windSpeedMs, 1)} m/s
+                      </span>
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setSelected(null)}
-                      className="rounded-full p-1 text-ink-muted hover:bg-surface-muted"
-                      aria-label={t.map.closeDetail}
-                    >
-                      <X className="size-4" aria-hidden />
-                    </button>
-                  </div>
-                  <dl className="space-y-1 text-sm">
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-ink-muted">{t.map.acquired}</dt>
-                      <dd>{formatDateTime(String(selected['acquiredAt']), tz)}</dd>
+                  )}
+                  {showWind && windField.query.data && (
+                    <p className="text-xs text-ink-muted">{t.map.windFieldNote}</p>
+                  )}
+                  {selected && (
+                    <div className="space-y-1 rounded-2xl border border-accent/40 bg-accent/10 p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-semibold tabular-nums">
+                          {typeof selected['lat'] === 'number' &&
+                          typeof selected['lon'] === 'number'
+                            ? `${(selected['lat'] as number).toFixed(3)}, ${(selected['lon'] as number).toFixed(3)}`
+                            : String(selected['id'] ?? '')}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setSelected(null)}
+                          className="rounded-full p-1 text-ink-muted hover:bg-surface-muted"
+                          aria-label={t.map.closeDetail}
+                        >
+                          <X className="size-4" aria-hidden />
+                        </button>
+                      </div>
+                      <dl className="space-y-1 text-sm">
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-ink-muted">{t.map.acquired}</dt>
+                          <dd>{formatDateTime(String(selected['acquiredAt']), tz)}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-ink-muted">{t.map.frp}</dt>
+                          <dd>
+                            {selected['frpMw'] == null || selected['frpMw'] === 'null'
+                              ? '—'
+                              : `${selected['frpMw']} MW`}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-ink-muted">{t.map.confidence}</dt>
+                          <dd>{String(selected['confidence'] ?? '—')}</dd>
+                        </div>
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-ink-muted">{t.map.satellite}</dt>
+                          <dd>{String(selected['satellite'] ?? '—')}</dd>
+                        </div>
+                      </dl>
                     </div>
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-ink-muted">{t.map.frp}</dt>
-                      <dd>
-                        {selected['frpMw'] == null || selected['frpMw'] === 'null'
-                          ? '—'
-                          : `${selected['frpMw']} MW`}
-                      </dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-ink-muted">{t.map.confidence}</dt>
-                      <dd>{String(selected['confidence'] ?? '—')}</dd>
-                    </div>
-                    <div className="flex justify-between gap-3">
-                      <dt className="text-ink-muted">{t.map.satellite}</dt>
-                      <dd>{String(selected['satellite'] ?? '—')}</dd>
-                    </div>
-                  </dl>
-                </div>
-              )}
-              <p className="text-xs text-ink-muted">{t.map.hotspotDisclaimer}</p>
-            </Card>
-          </div>
+                  )}
+                  <p className="text-xs text-ink-muted">{t.map.hotspotDisclaimer}</p>
+                </Card>
+              </div>
 
-            {mapFailed && (
-              <Card>
-                <ul className="divide-y divide-border text-sm">
-                  {h.hotspots.map((s) => (
-                    <li key={s.id} className="py-2">
-                      {s.lat.toFixed(3)}, {s.lon.toFixed(3)} · {formatDateTime(s.acquiredAt, tz)} ·{' '}
-                      {s.satellite}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            )}
-          </>
+              {mapFailed && (
+                <Card>
+                  <ul className="divide-y divide-border text-sm">
+                    {h.hotspots.map((s) => (
+                      <li key={s.id} className="py-2">
+                        {s.lat.toFixed(3)}, {s.lon.toFixed(3)} · {formatDateTime(s.acquiredAt, tz)}{' '}
+                        · {s.satellite}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+            </>
           );
         }}
       </QueryState>

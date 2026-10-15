@@ -24,8 +24,8 @@ import { PRIORITY_TIER } from '@/components/priority-tier';
 import { formatDateTime, formatNumber, formatTime, tzAbbr } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { windDirectionLabel } from '@/lib/wind-label';
 import {
-  bearingToCompass8,
   deriveNotifications,
   factorNumber,
   peakOf,
@@ -102,11 +102,7 @@ export function InsightNotifications({
     Boolean(hotspotFactor?.provenance[0]?.isDemo) ||
     Boolean(windFactor?.provenance[0]?.isDemo);
 
-  const windFrom = (() => {
-    if (windFromDeg === null) return '';
-    const code = bearingToCompass8(windFromDeg);
-    return `${t.insights.compass8[code]} (${code})`;
-  })();
+  const windFrom = windDirectionLabel(windFromDeg) ?? '';
 
   const vars: RecommendationVars = {
     peakUgM3: peak ? formatNumber(peak.pm25UgM3, 1) : '',
