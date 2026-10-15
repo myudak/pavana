@@ -4,11 +4,11 @@ import { SourcePill } from '../components/QuoteCard';
 import { QUOTES } from '../data/quotes';
 import { color, font, s } from '../theme';
 
-export const COLD_OPEN_DURATION = s(11);
+export const COLD_OPEN_DURATION = s(8);
 
 const quote = QUOTES.A;
-const TYPE_FROM = s(0.6);
-const CHARS_PER_FRAME = 0.78; // ~23 chars/s: close to reading pace
+const TYPE_FROM = s(0.4);
+const CHARS_PER_FRAME = 1.35; // ~40 chars/s: done in under 4 s, then held to read
 const typedAt = TYPE_FROM + quote.text.length / CHARS_PER_FRAME;
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 

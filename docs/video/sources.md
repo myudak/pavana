@@ -1,7 +1,8 @@
 # Competition video: sources and storyboard
 
-**Status: planning.** Length must be 2:00 or less. On-screen text only for now. Voice-over and
-music come later. Build with Remotion (`apps/video`, not created yet).
+**Status: first full cut built with Remotion in `apps/video`** (scene timings are in its
+README). Length must be 2:00 or less. On-screen text only for now. Voice-over and music come
+later.
 
 Quotes were checked against the source pages on 16 Oct 2026. They are copied verbatim. Use them
 exactly as written, and only shorten them with an ellipsis ("…").

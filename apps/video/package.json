@@ -8,6 +8,7 @@
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Pavana out/pavana.mp4",
     "still": "remotion still src/index.ts Pavana",
+    "capture": "node scripts/capture-demo.mjs",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json"
   },
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@pavana/tsconfig": "workspace:*",
-    "@types/react": "^19.3.0"
+    "@types/react": "^19.3.0",
+    "puppeteer-core": "25.12.0"
   }
 }
