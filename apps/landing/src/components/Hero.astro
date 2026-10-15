@@ -1,78 +1,75 @@
 ---
+import { ArrowRight01Icon, PlayCircleIcon } from '@hugeicons/core-free-icons';
+import sunset from '@pavana/brand/backgrounds/sunset.webp';
+import sunset900 from '@pavana/brand/backgrounds/sunset-900.webp';
 import { id } from '../../../web/src/lib/i18n/id';
+import Icon from './Icon.astro';
+import PhoneMock from './PhoneMock.astro';
 
 interface Props {
   appUrl: string;
 }
 const { appUrl } = Astro.props;
+const h = id.landing.hero;
+const demoUrl = `${appUrl.replace(/\/$/, '')}/?demo=1`;
 ---
 
-<section
-  class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-10 md:grid-cols-2 md:px-8 md:pt-20"
->
-  <div class="space-y-6">
-    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-ink-muted">
-      {id.landing.hero.category}
-    </p>
-    <h1 class="font-display text-4xl font-medium leading-[1.05] tracking-tight md:text-6xl">
-      {id.landing.hero.heading[0]}<br />{id.landing.hero.heading[1]}
-    </h1>
-    <p class="max-w-lg text-lg text-ink-muted">
-      {id.landing.hero.introduction}
-    </p>
-    <div class="flex flex-wrap gap-3">
-      <a
-        href={appUrl}
-        class="inline-flex h-11 items-center rounded-full bg-primary-strong px-6 font-medium text-on-primary hover:opacity-90"
-      >
-        Buka Pavana
-      </a>
-      <a
-        href="#cara-kerja"
-        class="inline-flex h-11 items-center rounded-full border border-border bg-surface px-6 font-medium hover:bg-surface-muted"
-      >
-        Cara kerjanya
-      </a>
-    </div>
-    <p class="max-w-lg text-sm text-ink-muted">{id.landing.hero.demoStatus}</p>
+<section class="relative isolate overflow-hidden text-white">
+  <!-- Full-bleed photo; scrim keeps white text readable in both themes. -->
+  <img
+    src={sunset.src}
+    srcset={`${sunset900.src} 900w, ${sunset.src} 1672w`}
+    sizes="100vw"
+    alt=""
+    fetchpriority="high"
+    class="absolute inset-0 -z-20 size-full animate-drift object-cover object-[65%_center] motion-reduce:animate-none"
+  />
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 -z-10"
+    style="background: linear-gradient(180deg, rgba(14,17,32,0.65) 0%, rgba(14,17,32,0.35) 35%, rgba(14,17,32,0.55) 70%, var(--pv-canvas) 100%)"
+  >
   </div>
 
-  <!-- Illustrative preview card. Numbers are explicitly labelled as an example. -->
-  <figure class="relative" data-nosnippet>
-    <div
-      aria-hidden="true"
-      class="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-primary/25 via-accent/20 to-transparent blur-2xl"
-    >
-    </div>
-    <div class="space-y-4 rounded-[2rem] border border-border bg-surface p-6 shadow-xl">
-      <div class="flex items-center justify-between text-sm">
-        <span class="text-ink-muted">Sungai Raya, Kubu Raya</span>
+  <div
+    class="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-28 md:grid-cols-[1.1fr_0.9fr] md:px-8 md:pb-32 md:pt-36"
+  >
+    <div class="space-y-6">
+      <p
+        class="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] backdrop-blur"
+      >
+        {h.category}
+      </p>
+      <h1
+        class="font-heading text-[2.6rem] font-bold leading-[1.02] tracking-tight drop-shadow md:text-6xl lg:text-7xl"
+      >
+        {h.heading[0]}<br />
         <span
-          class="rounded-full bg-state-demo/15 px-2.5 py-0.5 text-xs font-medium text-state-demo"
+          class="bg-gradient-to-r from-[#fbcfe8] via-[#f472b6] to-[#a5b4fc] bg-clip-text text-transparent"
         >
-          Contoh · data ilustratif
+          {h.heading[1]}
         </span>
+      </h1>
+      <p class="max-w-xl text-base leading-relaxed text-white/85 md:text-lg">{h.introduction}</p>
+      <div class="flex flex-wrap gap-3">
+        <a
+          href={appUrl}
+          class="inline-flex h-12 items-center gap-2 rounded-full bg-white px-6 font-semibold text-[#1e1b4b] shadow-lg transition hover:bg-white/90"
+        >
+          {h.ctaPrimary}
+          <Icon icon={ArrowRight01Icon} class="size-4" />
+        </a>
+        <a
+          href={demoUrl}
+          class="glass-dark inline-flex h-12 items-center gap-2 rounded-full px-6 font-semibold text-white transition hover:bg-white/15"
+        >
+          <Icon icon={PlayCircleIcon} class="size-4" />
+          {h.ctaDemo}
+        </a>
       </div>
-      <p class="font-display text-2xl font-medium leading-tight">
-        Kualitas udara diperkirakan memburuk sore ini
-      </p>
-      <div class="rounded-2xl bg-aq-unhealthy/15 p-5">
-        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
-          PM2.5 saat ini
-        </p>
-        <p class="mt-1 flex items-baseline gap-2">
-          <span class="font-display text-6xl font-medium tracking-tight">68</span>
-          <span class="text-ink-muted">µg/m³</span>
-        </p>
-        <p class="mt-2 inline-flex items-center gap-2 text-sm font-medium">
-          <span class="size-2.5 rounded-full bg-aq-unhealthy"></span> Tidak sehat
-        </p>
-      </div>
-      <p class="text-xs text-ink-muted">
-        Sumber, jenis data, dan waktu berlaku selalu ditampilkan. Ilustrasi antarmuka — tangkapan
-        layar aplikasi asli akan ditambahkan setelah tersedia.
-      </p>
+      <p class="max-w-lg text-sm text-white/70">{h.demoStatus}</p>
     </div>
-    <figcaption class="sr-only">Contoh tampilan layar Hari Ini dengan data ilustratif.</figcaption>
-  </figure>
+
+    <PhoneMock />
+  </div>
 </section>

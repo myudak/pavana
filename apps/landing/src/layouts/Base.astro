@@ -11,7 +11,7 @@ const { title = id.landing.title, description = id.landing.description } = Astro
 
 const site = Astro.site ?? new URL('https://pavana.myudak.com');
 const canonical = new URL(Astro.url.pathname, site).href;
-const ogImage = new URL('/og.png', site).href;
+const ogImage = new URL('/og.jpg', site).href;
 
 // Describes only what the product is — no ratings, offers or coverage claims.
 const jsonLd = {

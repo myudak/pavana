@@ -81,6 +81,9 @@ importers:
       '@astrojs/sitemap':
         specifier: ^3.7.4
         version: 3.7.4
+      '@hugeicons/core-free-icons':
+        specifier: ^4.3.5
+        version: 4.3.5
       '@pavana/brand':
         specifier: workspace:*
         version: link:../../packages/brand

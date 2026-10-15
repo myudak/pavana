@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import scenario from '../../../../fixtures/scenario-kubu-raya.json';
 import { AppProviders, createQueryClient } from './providers';
 import { routes } from './routes';
@@ -97,9 +97,14 @@ describe('Home page', () => {
 });
 
 describe('Forecast page', () => {
+  // The route is lazy-loaded. Warm the module first so a cold transform (slow when
+  // every package's tests run in parallel) can't eat the findBy timeout.
+  beforeAll(async () => {
+    await import('@/features/forecast/ForecastPage');
+  }, 60_000);
+
   it('marks the AI model as unfinished', async () => {
     renderAt('/prakiraan');
-    // Lazy route: allow for a cold module transform in CI.
     expect(
       await screen.findByRole('heading', { name: 'Prakiraan', level: 1 }, { timeout: 10_000 }),
     ).toBeInTheDocument();
