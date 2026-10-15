@@ -33,15 +33,29 @@ identity are retained. Version code is incremented for installing over v0.1.0.
 The first APK (v0.1.0) is historical: build `65aea725-78c3-4e42-83e2-3abd049816ff`.
 Its visual design does not represent v0.2.0.
 
-Validation during the redesign: Expo SDK dependency check, mobile lint/typecheck,
-11 mobile integration tests, 59 shared tests, 35 API tests and 39 web tests passed. Android and
+Final validation: `pnpm check` passed (lint, typecheck and 144 tests: 11 mobile,
+59 shared, 35 API and 39 web). The Expo SDK dependency check also passed. Android and
 web Metro exports completed. Browser checks at phone size exercised timeline
 selection, forecast/weather tabs, the regional map, Info filtering and both themes.
 No Android device/emulator was connected, so these are preview checks, not device QA.
-The full `pnpm check` was run; its default parallel run hit a 5-second deadline in
-an existing recorded-upstream API test. The API suite subsequently passed alone.
-The web suites subsequently passed when run separately (including all three app UI tests).
+Earlier parallel runs hit existing 5-second test deadlines on the busy Windows host;
+the final full run passed without changing those deadlines or weakening assertions.
+The deployed backend's conditions/exposure/forecast/sources responses were also
+validated through the native client; it was serving demo data at verification time.
 A final browser chart-selection check found an incomplete web pointer event could
 turn the selected hour into NaN. Pointer coordinates now support web/native events
 and ignore invalid input; a regression test covers missing coordinates and bounds.
 The superseded EAS build `f9b22355-b8b0-4492-b058-afe5633c49a8` was canceled before release.
+
+The replacement EAS build finished successfully on 16 October 2026:
+
+- Build: `f31d6f01-6683-4b68-997d-f4b5821f4c3b`
+- Source: `57f3095f6204e4e3542139dce7ee187028238569`
+- Version: `0.2.0`, Android version code `3`
+- [Build details](https://expo.dev/accounts/myudak/projects/pavana/builds/f31d6f01-6683-4b68-997d-f4b5821f4c3b)
+- [Signed APK](https://expo.dev/artifacts/eas/2YQyblT1SPMHr2uk6BcFWX_JyOqtkBdNEDbXcmgx8Ho.apk)
+- Downloaded as `pavana-0.2.0-f31d6f01.apk` in Downloads; 106,179,912 bytes.
+- SHA-256: `F0CB0B15D89867314E518AE71F3EF268C3A357135078CF30B3D4C3D47D6B6F33`
+
+The downloaded archive contains the Android manifest and DEX bytecode. Physical
+device testing and store submission remain outstanding.
