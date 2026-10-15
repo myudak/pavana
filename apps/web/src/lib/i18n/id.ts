@@ -87,6 +87,11 @@ export const id = {
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
   landing: {
+    androidBeta: {
+      download: 'Unduh APK beta',
+      details: 'Android · v0.2.0 beta · 106 MB · Demo dengan data ilustratif.',
+      releaseNotes: 'Catatan rilis',
+    },
     title: 'Pavana — Weather, Wildfire & Kualitas Udara Indonesia',
     description:
       'Kenali Pavana: cuaca (weather), kualitas udara PM2.5, dan konteks asap kebakaran hutan (wildfire) di Indonesia. Coba demo Kubu Raya dengan data ilustratif.',
@@ -181,6 +186,12 @@ export const id = {
           body: 'Notifikasi peramban saat potensi dampak asap di lokasimu meningkat. Versi demo berjalan selama Pavana terbuka; push dari server menyusul.',
           status: 'building',
         },
+        {
+          key: 'chat',
+          title: 'Tanya Pavi',
+          body: 'Maskot Pavi menjawab pertanyaan soal asap, titik panas, dan kualitas udara, lengkap dengan kartu data yang mudah dibaca. Versi demo memakai percakapan contoh; asisten AI sungguhan menyusul.',
+          status: 'building',
+        },
       ],
     },
     sources: {
@@ -236,7 +247,91 @@ export const id = {
     },
   },
 
-  nav: { today: 'Beranda', map: 'Peta', forecast: 'Prakiraan', info: 'Info' },
+  nav: { today: 'Beranda', map: 'Peta', chat: 'Tanya', forecast: 'Prakiraan', info: 'Info' },
+
+  // Tanya Pavi — asisten chat. DEMO: jawaban berskrip dari skenario demo Kubu Raya,
+  // belum ada LLM (lihat docs/backlog.md).
+  chat: {
+    name: 'Pavi',
+    role: 'Asisten asap & udara',
+    navLabel: 'Tanya Pavi',
+    mascotAlt: 'Pavi, maskot Pavana',
+    status: 'Demo',
+    reset: 'Mulai ulang',
+    greeting: 'Hai, aku Pavi!',
+    intro:
+      'Tanya soal asap, titik panas, dan kualitas udara. Aku cek datanya dulu, lalu jelaskan dengan bahasa sederhana.',
+    demoBadge: 'Contoh percakapan · data demo Sungai Raya',
+    suggestions: [
+      'Apakah asap akan sampai ke sini?',
+      'Kualitas udara sekarang?',
+      'Ada titik panas di dekat sini?',
+      'Perlu pakai masker?',
+      'Kenapa udaranya begini?',
+    ],
+    placeholder: 'Tanya Pavi…',
+    send: 'Kirim',
+    stop: 'Berhenti',
+    thinking: 'Pavi sedang mengecek…',
+    footer:
+      'Pavi masih versi demo: jawaban contoh dari skenario demo, bukan saran medis atau peringatan resmi.',
+    tools: {
+      running: 'Mengecek…',
+      done: 'Selesai',
+      details: 'Lihat detail',
+      source: 'Sumber: pavana-fixture · data demo',
+      names: {
+        cek_kualitas_udara: 'Cek kualitas udara',
+        cek_titik_panas: 'Cek titik panas',
+        apakah_asap_sampai: 'Apakah asap sampai?',
+        cek_angin: 'Cek angin',
+        saran_kesehatan: 'Saran kesehatan',
+      },
+      radius: (km: number, h: number) => `Dalam radius ${km} km · ${h} jam terakhir`,
+      detections: 'deteksi',
+      upwind: (n: number) => `${n} di arah datangnya angin`,
+      hotspotNote: 'Deteksi satelit — indikasi titik panas, bukan kebakaran yang terkonfirmasi.',
+      peak: (v: string, at: string) => `Puncak ${v} µg/m³ sekitar ${at}`,
+      exposureNote:
+        'Indikatif — dari arah angin, titik panas, dan prakiraan PM2.5. Bukan pengukuran asap.',
+      windTo: (dir: string) => `Bertiup ke ${dir}`,
+      adviceNote: 'Saran umum, bukan saran medis. Ikuti arahan resmi setempat.',
+      axis: ['Kini', '+12 jam', '+24 jam'],
+    },
+    replies: {
+      greeting:
+        'Hai! Aku Pavi 🍃 Aku bisa bantu cek kualitas udara, titik panas, arah angin, dan apakah asap berpotensi sampai ke lokasimu. Coba tanya salah satu pertanyaan di bawah, ya.',
+      air: [
+        'Aku cek PM2.5 di Sungai Raya dulu, ya.',
+        'Sekarang PM2.5 sekitar 33,9 µg/m³ — kategori **Sedang**. Tapi prakiraannya naik: puncaknya sekitar 159,9 µg/m³ pukul 19.00 WIB. Kalau kamu sensitif, rencanakan aktivitas luar ruangan lebih pagi.',
+      ],
+      reach: [
+        'Pertanyaan utama! Aku lihat arah angin dan titik panas di sekitarmu dulu.',
+        'Angin datang dari tenggara, dan 101 dari 103 deteksi titik panas berada di arah datangnya angin.',
+        'Jadi potensi paparan asap di Sungai Raya **tinggi** hari ini, terutama sekitar pukul 13.00–01.00 WIB, dengan puncak sekitar pukul 19.00. Ini indikator, bukan kepastian — pantau juga kanal resmi.',
+      ],
+      hotspots: [
+        'Aku cek deteksi satelit di sekitar Sungai Raya.',
+        'Ada 103 deteksi titik panas dalam radius 300 km selama 48 jam terakhir, 101 di antaranya searah datangnya angin. Ingat, ini deteksi panas dari satelit — belum tentu kebakaran.',
+      ],
+      mask: [
+        'Aku cek kondisi udara dulu sebelum kasih saran.',
+        'PM2.5 sekarang Sedang, tapi diperkirakan naik ke kategori tidak sehat menjelang sore. Ini beberapa langkah yang bisa kamu lakukan:',
+      ],
+      why: [
+        'Biar jelas, aku cek dua faktor utamanya: angin dan titik panas.',
+        'Udara memburuk karena angin bertiup dari tenggara — arah tempat sebagian besar titik panas terdeteksi — sehingga asap berpotensi terbawa ke sini. Prakiraan PM2.5 juga naik sampai sore.',
+      ],
+      fallback:
+        'Maaf, di versi demo aku baru bisa menjawab beberapa pertanyaan: kualitas udara, titik panas, arah angin, apakah asap akan sampai, dan saran masker. Coba salah satu saran di bawah, ya!',
+    },
+    advice: [
+      'Pakai masker N95/KN95 saat di luar ruangan, terutama sore hari.',
+      'Kurangi aktivitas berat di luar ruangan, apalagi untuk anak, lansia, dan penderita asma.',
+      'Tutup jendela saat udara memburuk; gunakan penjernih udara bila ada.',
+      'Pantau prakiraan Pavana dan kanal resmi (SiPongi, BMKG).',
+    ],
+  },
 
   demoBanner: 'Mode Demo · Data ilustratif',
   demoBannerDetail:

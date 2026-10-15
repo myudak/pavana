@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router';
 import { Icon } from '@/components/Icon';
+import { Mascot } from '@/components/Mascot';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '../nav';
@@ -12,7 +13,7 @@ export function DesktopNav({ className }: { className?: string }) {
       aria-label="Navigasi utama"
       className={cn('glass hidden rounded-full p-1 lg:flex', className)}
     >
-      {NAV_ITEMS.map(({ to, labelKey, icon }) => (
+      {NAV_ITEMS.map(({ to, labelKey, icon, center }) => (
         <NavLink
           key={to}
           to={to}
@@ -26,7 +27,12 @@ export function DesktopNav({ className }: { className?: string }) {
             )
           }
         >
-          <Icon icon={icon} className="size-4" /> {t.nav[labelKey]}
+          {center ? (
+            <Mascot pose="idle" size={22} decorative className="-my-1" />
+          ) : (
+            <Icon icon={icon} className="size-4" />
+          )}{' '}
+          {t.nav[labelKey]}
         </NavLink>
       ))}
     </nav>

@@ -41,6 +41,12 @@ density, never PM2.5 concentration. Trails are indicators, never fire spread.
 
 ## Cloud APK
 
+Download the signed Android beta from the
+[GitHub release](https://github.com/myudak/pavana/releases/tag/v0.2.0-beta.1).
+The release includes the APK and its SHA-256 checksum; the landing page links to
+this versioned asset. This beta defaults to illustrative demo data and has not yet
+been tested on a physical Android device.
+
 Linked project: `@myudak/pavana`, id `bf01d9ff-d23c-40bf-b523-e3af661cbea4`.
 
 ```powershell

@@ -52,6 +52,8 @@ The replacement EAS build finished successfully on 16 October 2026:
 - Build: `f31d6f01-6683-4b68-997d-f4b5821f4c3b`
 - Source: `57f3095f6204e4e3542139dce7ee187028238569`
 - Version: `0.2.0`, Android version code `3`
+- [Published GitHub beta](https://github.com/myudak/pavana/releases/tag/v0.2.0-beta.1)
+- [Download beta APK](https://github.com/myudak/pavana/releases/download/v0.2.0-beta.1/pavana-0.2.0-beta.1.apk)
 - [Build details](https://expo.dev/accounts/myudak/projects/pavana/builds/f31d6f01-6683-4b68-997d-f4b5821f4c3b)
 - [Signed APK](https://expo.dev/artifacts/eas/2YQyblT1SPMHr2uk6BcFWX_JyOqtkBdNEDbXcmgx8Ho.apk)
 - Downloaded as `pavana-0.2.0-f31d6f01.apk` in Downloads; 106,179,912 bytes.
@@ -59,3 +61,10 @@ The replacement EAS build finished successfully on 16 October 2026:
 
 The downloaded archive contains the Android manifest and DEX bytecode. Physical
 device testing and store submission remain outstanding.
+
+The landing hero and closing CTA link directly to the versioned GitHub APK, with
+Android/beta/demo labels and release notes. `apps/landing/src/lib/releases.ts`
+holds the download and release URLs; update them only after publishing and
+verifying a replacement asset. The beta tag points to the exact EAS source commit;
+subsequent documentation, landing and main-branch integration changes are separate
+from that APK.

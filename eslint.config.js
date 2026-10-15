@@ -49,6 +49,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['apps/video/src/**/*.{ts,tsx}'],
+    languageOptions: { globals: globals.browser },
+    plugins: { 'react-hooks': reactHooks },
+    rules: reactHooks.configs.recommended.rules,
+  },
+  {
     // shadcn/ui primitives export variants next to components; context modules export
     // their Provider together with the hook by design.
     files: [

@@ -51,6 +51,60 @@ Limits of the demo:
 7. **Tests**
    - Rule tests already exist (`insight-derive.test.ts`). Add tests for dedupe and hysteresis, a mocked `web-push` send, and subscription schema validation.
 
+## Tanya Pavi: real LLM backend
+
+**Status: demo UI.** The chat at `/tanya` uses a scripted conversation. No LLM is called
+and nothing is sent to a server.
+
+### What exists (demo)
+
+| Piece        | File                                                                                                   | What it does                                                                                                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mascot poses | `apps/web/src/assets/mascot/pavi-*.webp`, `apps/web/scripts/build-mascot.mjs`, `components/Mascot.tsx` | Twelve poses sliced from `source-sheet.webp`. To regenerate, run `node apps/web/scripts/build-mascot.mjs`.                                                                                    |
+| Mood → pose  | `features/chat/mascot-mood.ts`                                                                         | Examples: `concerned` → surprised, `advice` → hug-leaves, `thinking` → calm.                                                                                                                  |
+| Chat UI      | `features/chat/ChatPage.tsx`                                                                           | Built on assistant-ui primitives (`@assistant-ui/react`, pinned): thread, composer, suggestion chips, a typing state, and Pavi's avatar whose pose follows the reply's mood.                  |
+| Tool cards   | `features/chat/ToolCards.tsx`                                                                          | `cek_kualitas_udara`, `cek_titik_panas`, `cek_angin`, `apakah_asap_sampai`, `saran_kesehatan`. Each card shows running → done, a "Lihat detail" toggle with the args and source, and caveats. |
+| Script       | `features/chat/demo-script.ts`                                                                         | Keyword intents. Every number comes from the demo fixture, and `demo-script.test.ts` checks the key ones (PM2.5, wind, peak).                                                                 |
+| Runtime      | `features/chat/demo-adapter.ts`                                                                        | `ChatModelAdapter` for `useLocalRuntime`. It streams text and plays the tool calls. **This is the swap point.**                                                                               |
+
+### To build
+
+1. **`POST /api/chat`** in `apps/api`
+   - Streams in the AI SDK UI-message format.
+   - The LLM provider key stays server-side (`.env`, never `VITE_*`).
+   - Pick a model with tool calling; default to the latest Claude.
+2. **Server-side tools** with the **same names** as the demo tool cards, so the UI needs no
+   changes.
+   - Each tool calls the existing services (`conditions`, `exposure`, `insights`, `hotspots`)
+     for the user's selected location.
+   - Results are validated with zod schemas in `packages/shared` and carry provenance
+     (`kind`, `isDemo`, `validAt`).
+   - In demo mode, tools read the fixture bundle (`?demo=1`).
+3. **System prompt enforcing the AGENTS.md hard rules**
+   - Never invent numbers; only state what tools returned.
+   - `null` means unknown, never safe.
+   - Hotspots are detections, not fires.
+   - No official warnings or evacuation advice; link SiPongi / BMKG instead.
+   - Answer in Indonesian.
+   - The reply mood (`metadata.custom.mood`) comes from tool results, not from the model's
+     wording.
+4. **Client swap**
+   - Replace `useLocalRuntime(createDemoAdapter(...))` with
+     `useChatRuntime({ api: '/api/chat' })` from `@assistant-ui/react-ai-sdk`.
+   - Send the selected location and the demo flag in the request body.
+   - Keep `TOOL_UIS` as they are.
+5. **Safety and cost**
+   - Per-IP rate limit, a maximum message length, and conversation history capped to the last
+     N turns.
+   - No storage of conversations by default, and a clear privacy note in the UI.
+6. **Evaluation**
+   - Build a small set of questions with expected tool calls and forbidden claims (e.g.
+     "aman" on missing data, fire confirmation).
+   - Run it in CI against a recorded model, or manually before releases.
+7. **Copy**
+   - When this ships, change `chat.status` / `chat.footer` and the landing status for `chat`.
+   - Keep "bukan saran medis atau peringatan resmi".
+
 ## Other open items
 
 - **AI forecast (LightGBM):** offline in `ml/`, not evaluated and not wired into the API. The UI says "Dalam pengembangan". See `docs/modeling-methodology.md`.
