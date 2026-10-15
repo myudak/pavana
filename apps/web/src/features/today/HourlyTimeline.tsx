@@ -24,10 +24,15 @@ export function HourlyTimeline({
         return (
           <li
             key={h.validAt}
-            className="flex min-w-16 snap-start flex-col items-center gap-2 rounded-xl px-2 py-2 text-sm"
+            className={cn(
+              'flex min-w-16 snap-start flex-col items-center gap-2 rounded-2xl border px-2 py-2 text-sm',
+              i === 0
+                ? 'border-accent/50 bg-surface dark:[box-shadow:var(--pv-glow-accent)]'
+                : 'border-transparent bg-surface/60',
+            )}
           >
             <span className="text-xs text-ink-muted">
-              {i === 0 ? 'Kini' : formatTime(h.validAt, timeZone)}
+              {i === 0 ? t.today.now : formatTime(h.validAt, timeZone)}
             </span>
             <span className={cn('size-3 rounded-full', AQ_STYLE[cat].dot)} aria-hidden />
             <span className="font-semibold tabular-nums">{formatNumber(pm)}</span>
