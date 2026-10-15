@@ -18,17 +18,102 @@
   }
 }
 
-/* The light-theme blush is too pale for text; use a deeper pink there. */
+/*
+ * Photo sections (hero, header over it, final CTA) follow the theme:
+ *   light = golden Haze photo, light scrim, dark text
+ *   dark  = Sunset / Dusk photo, dark scrim, white text
+ * The light-theme blush is too pale for text, so --pv-haze is a deeper pink there.
+ */
 :root {
   --pv-haze: #db2777;
+  --scene-fg: #1f2937;
+  --scene-fg-muted: rgba(31, 41, 55, 0.78);
+  --scene-chip: rgba(255, 255, 255, 0.55);
+  --scene-chip-border: rgba(31, 41, 55, 0.12);
+  --scene-btn-bg: #1f2937;
+  --scene-btn-fg: #ffffff;
+  --scene-scrim: linear-gradient(
+    180deg,
+    rgba(245, 241, 235, 0.55) 0%,
+    rgba(245, 241, 235, 0.2) 38%,
+    rgba(245, 241, 235, 0.55) 72%,
+    var(--pv-canvas) 100%
+  );
+  --cta-scrim: rgba(245, 241, 235, 0.35);
 }
 :root[data-theme='dark'] {
   --pv-haze: var(--pv-accent);
+  --scene-fg: #ffffff;
+  --scene-fg-muted: rgba(255, 255, 255, 0.85);
+  --scene-chip: rgba(14, 17, 32, 0.45);
+  --scene-chip-border: rgba(255, 255, 255, 0.14);
+  --scene-btn-bg: #ffffff;
+  --scene-btn-fg: #1e1b4b;
+  --scene-scrim: linear-gradient(
+    180deg,
+    rgba(14, 17, 32, 0.65) 0%,
+    rgba(14, 17, 32, 0.35) 35%,
+    rgba(14, 17, 32, 0.55) 70%,
+    var(--pv-canvas) 100%
+  );
+  --cta-scrim: rgba(14, 17, 32, 0.45);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --pv-haze: var(--pv-accent);
+    --scene-fg: #ffffff;
+    --scene-fg-muted: rgba(255, 255, 255, 0.85);
+    --scene-chip: rgba(14, 17, 32, 0.45);
+    --scene-chip-border: rgba(255, 255, 255, 0.14);
+    --scene-btn-bg: #ffffff;
+    --scene-btn-fg: #1e1b4b;
+    --scene-scrim: linear-gradient(
+      180deg,
+      rgba(14, 17, 32, 0.65) 0%,
+      rgba(14, 17, 32, 0.35) 35%,
+      rgba(14, 17, 32, 0.55) 70%,
+      var(--pv-canvas) 100%
+    );
+    --cta-scrim: rgba(14, 17, 32, 0.45);
   }
+}
+
+/* Theme-aware photo: only the active theme's image is fetched (CSS backgrounds load lazily). */
+.scene-photo {
+  background-image: var(--scene-light-sm);
+  background-size: cover;
+  background-position: 65% center;
+}
+@media (min-width: 768px) {
+  .scene-photo {
+    background-image: var(--scene-light-lg);
+  }
+}
+:root[data-theme='dark'] .scene-photo {
+  background-image: var(--scene-dark-sm);
+}
+@media (min-width: 768px) {
+  :root[data-theme='dark'] .scene-photo {
+    background-image: var(--scene-dark-lg);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .scene-photo {
+    background-image: var(--scene-dark-sm);
+  }
+}
+@media (prefers-color-scheme: dark) and (min-width: 768px) {
+  :root:not([data-theme]) .scene-photo {
+    background-image: var(--scene-dark-lg);
+  }
+}
+
+@utility scene-glass {
+  background-color: var(--scene-chip);
+  border: 1px solid var(--scene-chip-border);
+  color: var(--scene-fg);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 @layer base {
