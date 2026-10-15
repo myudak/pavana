@@ -1,9 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { ExternalLink } from 'lucide-react';
 import { QueryState } from '@/components/QueryState';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { api } from '@/lib/api';
 import { useCopy } from '@/lib/i18n';
+import { useOfficialLinks } from '@/lib/queries';
 import { useTheme, type ThemePref } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 
@@ -13,10 +12,7 @@ import { cn } from '@/lib/utils';
  */
 export function InfoPage() {
   const t = useCopy();
-  const links = useQuery({
-    queryKey: ['official-links'],
-    queryFn: ({ signal }) => api.officialLinks(signal),
-  });
+  const links = useOfficialLinks();
   const { pref, setPref } = useTheme();
 
   return (

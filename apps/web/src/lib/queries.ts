@@ -26,3 +26,11 @@ export function useInsights() {
     queryFn: ({ signal }) => api.insights(location, signal),
   });
 }
+
+/** Curated official links (BMKG, SiPongi, BPBD…) — location-independent. */
+export function useOfficialLinks() {
+  return useQuery({
+    queryKey: ['official-links'],
+    queryFn: ({ signal }) => api.officialLinks(signal),
+  });
+}
