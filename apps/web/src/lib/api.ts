@@ -6,6 +6,7 @@
 import {
   ApiErrorSchema,
   ConditionsResponseSchema,
+  DailyForecastResponseSchema,
   ForecastResponseSchema,
   HotspotsResponseSchema,
   InsightsResponseSchema,
@@ -55,10 +56,26 @@ export const api = {
     getJson('/api/conditions', { lat: p.lat, lon: p.lon }, ConditionsResponseSchema, signal),
   forecast: (p: LatLon, hours = 24, signal?: AbortSignal) =>
     getJson('/api/forecast', { lat: p.lat, lon: p.lon, hours }, ForecastResponseSchema, signal),
-  hotspots: (bbox: BBox, opts?: { limit?: number; from?: string; to?: string }, signal?: AbortSignal) =>
+  dailyForecast: (p: LatLon, days = 10, signal?: AbortSignal) =>
+    getJson(
+      '/api/forecast/daily',
+      { lat: p.lat, lon: p.lon, days },
+      DailyForecastResponseSchema,
+      signal,
+    ),
+  hotspots: (
+    bbox: BBox,
+    opts?: { limit?: number; from?: string; to?: string },
+    signal?: AbortSignal,
+  ) =>
     getJson(
       '/api/hotspots',
-      { bbox: bbox.join(','), ...(opts?.limit !== undefined ? { limit: opts.limit } : {}), ...(opts?.from !== undefined ? { from: opts.from } : {}), ...(opts?.to !== undefined ? { to: opts.to } : {}) },
+      {
+        bbox: bbox.join(','),
+        ...(opts?.limit !== undefined ? { limit: opts.limit } : {}),
+        ...(opts?.from !== undefined ? { from: opts.from } : {}),
+        ...(opts?.to !== undefined ? { to: opts.to } : {}),
+      },
       HotspotsResponseSchema,
       signal,
     ),
