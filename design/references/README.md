@@ -30,5 +30,16 @@ diimpor lewat Vite sehingga dapat hash).
 
 Sumber dan lisensi foto: diisi pemilik repo.
 
+### background-light-mode.jpeg — aset produksi tema terang
+
+Foto lanskap pagi berkabut (1600×900) yang dipakai sebagai latar layar pertama
+halaman Today pada **tema terang**. Salinan teroptimasi untuk web ada di
+`apps/web/src/assets/backdrop/`: `dawn-2560.webp` (2560×1440, resampling Lanczos)
+dan `dawn-1280.webp` (1280×720). Lapisan scrim di `DuskBackdrop.tsx` menjaga
+kontras teks hero (terukur: 6,53:1 untuk lead dan 4,78:1 untuk sub di desktop,
+6,56:1 / 4,81:1 di mobile).
+
+Sumber dan lisensi foto: diisi pemilik repo.
+
 Chosen: **Ember/Mist = light**, **Dusk/Haze = dark**. Mascot (air spirit) is exploratory and not
 yet in the UI.
