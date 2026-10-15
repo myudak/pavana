@@ -18,6 +18,40 @@ export const id = {
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 
+  landing: {
+    title: 'Pavana — Weather, Wildfire & Kualitas Udara Indonesia',
+    description:
+      'Kenali Pavana: cuaca (weather), kualitas udara PM2.5, dan konteks asap kebakaran hutan (wildfire) di Indonesia. Coba demo Kubu Raya dengan data ilustratif.',
+    hero: {
+      category: 'Weather · Air quality · Wildfire',
+      heading: ['Pavana: cuaca, udara,', 'dan asap kebakaran.'],
+      introduction:
+        'Pavana dirancang untuk membantu memahami cuaca, kualitas udara PM2.5, dan potensi dampak asap kebakaran hutan dan lahan gambut di Indonesia. Jelajahi hubungan angin, titik panas satelit, dan tren kualitas udara dalam tampilan sesederhana aplikasi cuaca.',
+      demoStatus:
+        'Saat ini tersedia sebagai demo Kubu Raya, Kalimantan Barat. Semua angka adalah data ilustratif; sumber data langsung belum terhubung.',
+    },
+    questions: {
+      title: 'Tentang cuaca, wildfire, dan Pavana',
+      items: [
+        {
+          question: 'Apakah Pavana merupakan aplikasi weather atau prakiraan cuaca?',
+          answer:
+            'Pavana mengusung pengalaman seperti aplikasi cuaca (weather), dengan fokus pada hubungan angin, kualitas udara PM2.5, dan potensi dampak asap. Versi saat ini menampilkan skenario demo, bukan prakiraan cuaca langsung.',
+        },
+        {
+          question: 'Apa hubungan Pavana dengan forest fire dan wildfire?',
+          answer:
+            'Forest fire berarti kebakaran hutan, sedangkan wildfire mencakup kebakaran vegetasi yang lebih luas. Pavana dirancang untuk menyajikan konteks titik panas satelit, angin, dan kualitas udara di wilayah rawan kebakaran hutan dan lahan gambut. Titik panas adalah deteksi anomali panas, bukan konfirmasi kebakaran. Pavana tidak memprediksi waktu kedatangan api atau memberi perintah evakuasi.',
+        },
+        {
+          question: 'Apakah data cuaca dan kualitas udara Pavana sudah live?',
+          answer:
+            'Belum. Demo Pavana menggunakan data sintetis untuk Kubu Raya, Kalimantan Barat. Integrasi sumber data langsung masih direncanakan dan belum ada model machine learning yang terlatih. Untuk informasi terkini dan arahan resmi, periksa BMKG dan BPBD setempat.',
+        },
+      ],
+    },
+  },
+
   nav: { today: 'Beranda', map: 'Peta', forecast: 'Prakiraan', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',
