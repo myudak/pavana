@@ -20,8 +20,8 @@ export function InfoPage() {
   const { pref, setPref } = useTheme();
 
   return (
-    <div className="space-y-4">
-      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.info.title}</h1>
+    <div className="mx-auto w-full max-w-[1344px] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
+      <h1 className="pt-2 font-heading text-3xl font-bold tracking-tight">{t.info.title}</h1>
 
       <Card>
         <CardHeader>

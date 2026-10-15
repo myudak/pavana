@@ -14,8 +14,8 @@ export default function InsightsPage() {
   const forecast = useForecast(24);
 
   return (
-    <div className="space-y-4">
-      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.insights.title}</h1>
+    <div className="mx-auto w-full max-w-[1344px] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
+      <h1 className="pt-2 font-heading text-3xl font-bold tracking-tight">{t.insights.title}</h1>
 
       <QueryState query={insights}>
         {(i) => (
