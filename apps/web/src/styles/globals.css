@@ -127,3 +127,43 @@
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
+
+/*
+ * Scrollbars: thin, rounded, no arrow buttons, transparent track — everywhere.
+ * Inner scroll areas marked .pv-scroll (chat thread, sheets) only show the thumb on
+ * hover/focus so long threads don't carry a heavy bar.
+ */
+:root {
+  --pv-scrollbar: color-mix(in oklab, var(--pv-ink-muted) 45%, transparent);
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pv-scrollbar) transparent;
+}
+.pv-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.pv-scroll:hover,
+.pv-scroll:focus-within {
+  scrollbar-color: var(--pv-scrollbar) transparent;
+}
+/* Safari fallback (Chromium/Firefox use the standard properties above). */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background: var(--pv-scrollbar) padding-box;
+}
+.pv-scroll:not(:hover)::-webkit-scrollbar-thumb {
+  background: transparent;
+}

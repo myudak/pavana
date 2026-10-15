@@ -34,7 +34,7 @@ export default function ChatPage() {
       <div className="flex h-[calc(100dvh-7.5rem-env(safe-area-inset-bottom))] flex-col pt-[max(env(safe-area-inset-top),0.75rem)] lg:h-[calc(100dvh-5rem)] lg:pt-2">
         <ChatHeader />
         <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
-          <ThreadPrimitive.Viewport className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3">
+          <ThreadPrimitive.Viewport className="pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3">
             <AuiIf condition={(s) => s.thread.isEmpty}>
               <Welcome />
             </AuiIf>
