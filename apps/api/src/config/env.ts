@@ -16,6 +16,8 @@ const EnvSchema = z.object({
         .filter(Boolean),
     ),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(120),
+  // Trust X-Forwarded-For (set on Vercel) so rate limiting keys on the client IP, not the proxy.
+  TRUST_PROXY: z.stringbool().default(false),
   // Provider secrets — server-side only, never sent to the browser.
   FIRMS_MAP_KEY: z.string().optional(),
   OPENAQ_API_KEY: z.string().optional(),

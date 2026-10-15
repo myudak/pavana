@@ -1,11 +1,13 @@
 // @ts-check
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // Set to the deployed landing URL (used for canonical/OG URLs).
-  site: 'https://pavana.example',
+  // Deployed landing URL (used for canonical/OG URLs and the sitemap).
+  site: 'https://pavana.myudak.com',
   server: { port: 4321 },
+  integrations: [sitemap()],
   vite: {
     // Share the repo-root .env (PUBLIC_APP_URL).
     envDir: '../..',

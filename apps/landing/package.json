@@ -13,6 +13,7 @@
     "test": "echo \"landing: no tests yet\""
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "@pavana/brand": "workspace:*",
     "astro": "^5.18.2"
   },

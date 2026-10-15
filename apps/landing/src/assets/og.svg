@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Source for public/og.png (1200×630 social share card). No data values on purpose. -->
+  <defs>
+    <linearGradient id="haze" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F97316" stop-opacity=".22" />
+      <stop offset=".6" stop-color="#F472B6" stop-opacity=".12" />
+      <stop offset="1" stop-color="#F5F1EB" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#F5F1EB" />
+  <rect width="1200" height="630" fill="url(#haze)" />
+  <g transform="translate(96 96) scale(1.5)" fill="none" stroke="#F97316" stroke-width="5" stroke-linecap="round">
+    <path d="M8 22c8-6 16-6 24 0s16 6 24 0" />
+    <path d="M8 34c8-6 16-6 24 0s16 6 24 0" opacity=".7" />
+    <path d="M8 46c8-6 16-6 24 0s12 5 18 2" opacity=".45" />
+  </g>
+  <text x="200" y="160" font-family="Outfit, 'Segoe UI', Arial, sans-serif" font-size="56" font-weight="600" letter-spacing="-2" fill="#1F2937">pavana</text>
+  <text x="96" y="330" font-family="Outfit, 'Segoe UI', Arial, sans-serif" font-size="76" font-weight="600" letter-spacing="-2" fill="#1F2937">Prakiraan kualitas udara</text>
+  <text x="96" y="420" font-family="Outfit, 'Segoe UI', Arial, sans-serif" font-size="76" font-weight="600" letter-spacing="-2" fill="#1F2937">&amp; asap kebakaran</text>
+  <text x="96" y="520" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="32" fill="#6B7280">Titik panas satelit, angin, dan PM2.5 — dalam satu jawaban sederhana.</text>
+  <text x="96" y="574" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="28" font-weight="600" fill="#C2410C">pavana.myudak.com</text>
+</svg>
