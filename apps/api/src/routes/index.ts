@@ -4,6 +4,8 @@
  */
 import {
   ConditionsResponseSchema,
+  ExposureQuerySchema,
+  ExposureResponseSchema,
   ForecastQuerySchema,
   ForecastResponseSchema,
   HealthResponseSchema,
@@ -21,6 +23,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { OFFICIAL_LINKS } from '../data/official-links';
 import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
+import { getExposure } from '../services/exposure';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
 import { getWindField } from '../services/wind-field';
@@ -70,6 +73,11 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (app, { providers
   app.get('/api/insights', async (req) => {
     const point = parseInput(LatLonQuerySchema, req.query);
     return InsightsResponseSchema.parse(await getInsights(providers, point));
+  });
+
+  app.get('/api/exposure', async (req) => {
+    const { lat, lon, hours } = parseInput(ExposureQuerySchema, req.query);
+    return ExposureResponseSchema.parse(await getExposure(providers, { lat, lon }, hours));
   });
 
   app.get('/api/wind-field', async (req) => {

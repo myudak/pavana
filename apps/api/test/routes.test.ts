@@ -1,5 +1,6 @@
 import {
   ConditionsResponseSchema,
+  ExposureResponseSchema,
   ForecastResponseSchema,
   HotspotsResponseSchema,
   InsightsResponseSchema,
@@ -137,6 +138,36 @@ describe('demo mode API', () => {
     const res = await get('/nope');
     expect(res.statusCode).toBe(404);
     expect(res.json()).toHaveProperty('error.code', 'not_found');
+  });
+
+  it('GET /api/exposure answers "will the smoke reach me" per hour', async () => {
+    const res = await get(`/api/exposure?${KR}&hours=24`);
+    expect(res.statusCode).toBe(200);
+    const body = ExposureResponseSchema.parse(res.json());
+    expect(body.state).toBe('demo');
+    expect(body.method).toBe('deterministic_indicators');
+    expect(body.hours.length).toBeGreaterThan(1);
+    expect(body.summary.peakLevel).toBe('high');
+    expect(body.summary.hotspotsConsidered).toBeGreaterThan(0);
+  });
+
+  it('GET /api/exposure differs by position relative to the wind', async () => {
+    // Same fixture wind: Sungai Raya sits downwind of the detections,
+    // the eastern point sits to the side of the flow.
+    const downwind = ExposureResponseSchema.parse((await get(`/api/exposure?${KR}`)).json());
+    const side = ExposureResponseSchema.parse(
+      (await get('/api/exposure?lat=-0.35&lon=110.15')).json(),
+    );
+    const score = (b: typeof downwind) => b.hours[0]?.upwind?.score ?? 0;
+    expect(score(downwind)).toBeGreaterThan(score(side) * 5);
+  });
+
+  it('GET /api/exposure outside demo coverage is unknown, never none', async () => {
+    const body = ExposureResponseSchema.parse(
+      (await get('/api/exposure?lat=-6.2&lon=106.8')).json(),
+    );
+    expect(body.state).toBe('insufficient');
+    expect(body.summary.peakLevel).toBe('unknown');
   });
 });
 
