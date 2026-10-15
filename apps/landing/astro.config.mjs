@@ -3,7 +3,9 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  // Set to the deployed landing URL (used for canonical/OG URLs).
+  // C5: PLACEHOLDER — bukan domain terverifikasi. Ketersediaan merek/domain "pavana" belum
+  // difinalisasi (lihat docs/PAVANA_HANDOFF.md §0). Ganti dengan URL deploy final saat tim
+  // memutuskan domain; dipakai untuk canonical/OG absolut di layouts/Base.astro.
   site: 'https://pavana.example',
   server: { port: 4321 },
   vite: {
