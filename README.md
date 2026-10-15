@@ -15,18 +15,18 @@ Product brief: [`docs/PAVANA_HANDOFF.md`](docs/PAVANA_HANDOFF.md).
 
 ## Monorepo
 
-| Path                                     | What                                                                  | Stack                                                                                    |
-| ---------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [`apps/web`](apps/web)                   | The app — Hari Ini, Peta, Insight, Info                               | React 19, Vite, Tailwind v4, shadcn/ui, TanStack Query, React Router, MapLibre, Recharts |
-| [`apps/landing`](apps/landing)           | Marketing / landing page                                              | Astro 5, Tailwind v4                                                                     |
-| [`apps/api`](apps/api)                   | HTTP API, provider adapters, deterministic insights                   | Fastify 5, Zod 4                                                                         |
-| [`packages/shared`](packages/shared)     | Schemas/types + pure geo, wind, AQI math (single source of truth)     | TypeScript, Zod                                                                          |
-| [`packages/brand`](packages/brand)       | Design tokens (Ember/Mist light, Dusk/Haze dark), fonts, logo mark    | CSS                                                                                      |
-| [`packages/tsconfig`](packages/tsconfig) | Shared TS presets                                                     | —                                                                                        |
-| [`ml`](ml)                               | Research workspace: notebooks, features, baselines, LightGBM skeleton | Python, uv, Jupyter                                                                      |
-| [`fixtures`](fixtures)                   | Synthetic demo scenario + shared math test vectors                    | JSON                                                                                     |
-| [`docs`](docs)                           | Architecture, data sources, modeling methodology                      | Markdown                                                                                 |
-| [`design/references`](design/references) | AI concept boards (not data, not final assets)                        | —                                                                                        |
+| Path                                     | What                                                                                       | Stack                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| [`apps/web`](apps/web)                   | The app — Hari Ini, Peta, Insight, Info                                                    | React 19, Vite, Tailwind v4, shadcn/ui, TanStack Query, React Router, MapLibre, Recharts |
+| [`apps/landing`](apps/landing)           | Marketing / landing page                                                                   | Astro 5, Tailwind v4                                                                     |
+| [`apps/api`](apps/api)                   | HTTP API, provider adapters, deterministic insights                                        | Fastify 5, Zod 4                                                                         |
+| [`packages/shared`](packages/shared)     | Schemas/types + pure geo, wind, AQI math (single source of truth)                          | TypeScript, Zod                                                                          |
+| [`packages/brand`](packages/brand)       | Design tokens (Ember/Mist light, Dusk/Haze dark), fonts, logo mark                         | CSS                                                                                      |
+| [`packages/tsconfig`](packages/tsconfig) | Shared TS presets                                                                          | —                                                                                        |
+| [`ml`](ml)                               | Research workspace: notebooks, features, baselines, CAMS-targeted ablation (research-only) | Python, uv, Jupyter                                                                      |
+| [`fixtures`](fixtures)                   | Synthetic demo scenario + shared math test vectors                                         | JSON                                                                                     |
+| [`docs`](docs)                           | Architecture, data sources, modeling methodology                                           | Markdown                                                                                 |
+| [`design/references`](design/references) | AI concept boards (not data, not final assets)                                             | —                                                                                        |
 
 ## Quick start
 
@@ -77,4 +77,5 @@ More in [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`AGENTS.md`](AGENTS.md).
 
 1. Open-Meteo weather + air-quality adapter (live baseline) behind the provider interface.
 2. NASA FIRMS adapter with server-side key, caching and bbox limits.
-3. Find PM2.5 ground truth for Kalbar (OpenAQ / BMKG) and build the first real model table in `ml/`.
+3. Find PM2.5 ground truth for Kalbar (OpenAQ / BMKG). The `ml/` table built so far targets the CAMS
+   model field instead and is labelled research-only — no observed archive exists yet.
