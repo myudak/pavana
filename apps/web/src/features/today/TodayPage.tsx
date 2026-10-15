@@ -104,9 +104,11 @@ export function TodayPage() {
                   {t.today.actions.map((a) => (
                     <li key={a}>{a}</li>
                   ))}
+                  {cat !== 'unknown' && <li key="health-advice">{t.today.healthAdvice[cat]}</li>}
                 </ul>
                 <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-muted">
                   <Info className="size-3.5" aria-hidden /> {t.today.actionsNote}{' '}
+                  {t.today.healthAdviceSource}{' '}
                   <Link to="/info" className="underline">
                     {t.info.linksTitle}
                   </Link>

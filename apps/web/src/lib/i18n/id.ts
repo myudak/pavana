@@ -63,6 +63,23 @@ export const id = {
       'Kurangi aktivitas luar ruangan jika kondisi memburuk, terutama kelompok sensitif.',
     ],
     actionsNote: 'Saran umum, bukan nasihat medis atau perintah evakuasi.',
+    // E4: saran per kategori US AQI + rujukan. Umum, tanpa diagnosis dan tanpa perintah
+    // evakuasi. Kategori `unknown` (data kosong) sengaja tidak punya saran.
+    healthAdvice: {
+      good: 'Aktivitas luar ruangan dapat berjalan normal. Tetap pantau pembaruan resmi bila kondisi berubah.',
+      moderate:
+        'Kelompok sensitif (anak, lansia, penderita asma atau penyakit jantung) disarankan mengurangi aktivitas luar ruangan yang berat.',
+      unhealthy_sensitive:
+        'Kelompok sensitif disarankan membatasi aktivitas luar ruangan. Gunakan masker bila harus beraktivitas di luar.',
+      unhealthy:
+        'Batasi aktivitas luar ruangan. Tutup ventilasi bila bau asap tercium dan pantau informasi resmi.',
+      very_unhealthy:
+        'Hindari aktivitas luar ruangan. Bila harus keluar, gunakan masker dan pantau informasi resmi.',
+      hazardous:
+        'Tetap di dalam ruangan dan hindari aktivitas luar ruangan. Ikuti arahan otoritas setempat.',
+    } satisfies Record<UsAqiCategory, string>,
+    healthAdviceSource:
+      'Sumber saran: informasi umum dari lembaga resmi — selengkapnya di',
     noData: 'Tidak ada data kualitas udara untuk lokasi ini.',
   },
 
