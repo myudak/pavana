@@ -163,6 +163,10 @@ export const id = {
       'Pavana menerjemahkan data satelit, cuaca, dan prakiraan kualitas udara menjadi informasi yang mudah dipahami untuk lokasimu. Pavana bukan sumber peringatan resmi.',
     theme: 'Tema',
     themeOptions: { light: 'Terang', dark: 'Gelap', system: 'Sistem' },
+    themeToggle: {
+      toDark: 'Aktifkan mode gelap',
+      toLight: 'Aktifkan mode terang',
+    },
   },
 
   location: {

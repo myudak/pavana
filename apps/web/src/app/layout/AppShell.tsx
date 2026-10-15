@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Wordmark } from '@/components/Wordmark';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { useCopy } from '@/lib/i18n';
@@ -45,7 +46,10 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border/60 bg-canvas/90 px-4 py-3 backdrop-blur lg:justify-end lg:px-8">
           <Wordmark className="lg:hidden" />
-          <LocationPicker />
+          <div className="flex min-w-0 items-center gap-2">
+            <LocationPicker />
+            <ThemeToggle />
+          </div>
         </header>
 
         <main
