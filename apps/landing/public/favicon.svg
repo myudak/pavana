@@ -1,14 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F97316" />
-      <stop offset="1" stop-color="#F472B6" />
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="pavana">
+  <!-- Pavana app icon v1: turunan tipografis huruf "p" — konstruksi geometris
+    (batang + mangkuk lingkaran, ujung membulat) yang menggema wordmark.
+    Wordmark penuh tidak terbaca pada ukuran ikon persegi, jadi dipakai satu
+    huruf awal — bukan simbol terpisah. Bukan glif font Outfit, melainkan
+    konstruksi vektor yang disengaja agar deterministik di semua perender. -->
+  <title>pavana</title>
   <rect width="64" height="64" rx="16" fill="#1F2937" />
-  <g stroke="url(#g)" stroke-width="5" stroke-linecap="round">
-    <path d="M12 24c7-5 13-5 20 0s13 5 20 0" />
-    <path d="M12 34c7-5 13-5 20 0s13 5 20 0" opacity=".75" />
-    <path d="M12 44c7-5 13-5 20 0s10 4 15 2" opacity=".5" />
+  <g stroke="#F5F1EB" stroke-width="9" fill="none" stroke-linecap="round">
+    <path d="M24 13v38" />
+    <circle cx="37" cy="27" r="10.5" />
   </g>
 </svg>
