@@ -13,6 +13,7 @@ import { nativeFonts, type Palette } from '@pavana/brand/native';
 import { t } from '../lib/copy';
 import { formatNumber, formatTime } from '../lib/format';
 import { useSettings } from '../lib/settings';
+import { chartIndexAt } from '../lib/chart';
 import { Copy, Card, SectionTitle } from './ui';
 import { Icon } from './Icon';
 
@@ -92,8 +93,10 @@ export function SmokeTimeline({ exposure }: { exposure: ExposureResponse }) {
   const safeIndex = Math.min(index, hours.length - 1);
   const hour = hours[safeIndex];
   if (!hour) return <Copy muted>{t.mobile.noForecast}</Copy>;
-  const pick = (x: number) =>
-    setIndex(Math.min(hours.length - 1, Math.max(0, Math.round((x / width) * (hours.length - 1)))));
+  const pick = (x: number) => {
+    const next = chartIndexAt(x, width, hours.length);
+    if (next !== null) setIndex(next);
+  };
   const color = exposureColor(hour.level, colors);
   return (
     <Card>

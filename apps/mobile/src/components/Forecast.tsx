@@ -7,7 +7,7 @@ import { availableRanges, sliceRange } from '../../../web/src/features/insights/
 import { useSettings } from '../lib/settings';
 import { formatNumber, formatTime } from '../lib/format';
 import { t } from '../lib/copy';
-import { lineSegments } from '../lib/chart';
+import { chartIndexAt, lineSegments } from '../lib/chart';
 import { Copy, Source } from './ui';
 
 export function ForecastChart({ forecast }: { forecast: ForecastResponse }) {
@@ -105,14 +105,12 @@ export function ForecastChart({ forecast }: { forecast: ForecastResponse }) {
             )
           }
           onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-          onPress={(e) =>
-            setSelected(
-              Math.min(
-                hours.length - 1,
-                Math.max(0, Math.round((e.nativeEvent.locationX / width) * (hours.length - 1))),
-              ),
-            )
-          }
+          onPress={(e) => {
+            const position =
+              e.nativeEvent.locationX ?? (e.nativeEvent as unknown as { offsetX?: number }).offsetX;
+            const next = chartIndexAt(position, width, hours.length);
+            if (next !== null) setSelected(next);
+          }}
         >
           <Svg width="100%" height={175} viewBox="-4 -8 288 164" aria-hidden={true}>
             <Defs>

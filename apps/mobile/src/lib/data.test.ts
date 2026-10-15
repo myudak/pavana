@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import raw from '../../../../fixtures/scenario-kubu-raya.json';
 import { demoClient, DEMO_LOCATION } from './demo';
 import { createApiClient } from './api';
-import { lineSegments } from './chart';
+import { chartIndexAt, lineSegments } from './chart';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -98,6 +98,15 @@ describe('native data contract', () => {
   });
 });
 describe('forecast drawing', () => {
+  it('ignores missing pointer coordinates and preserves valid chart selections', () => {
+    expect(chartIndexAt(undefined, 100, 25)).toBeNull();
+    expect(chartIndexAt(Number.NaN, 100, 25)).toBeNull();
+    expect(chartIndexAt(50, 0, 25)).toBeNull();
+    expect(chartIndexAt(50, 100, 0)).toBeNull();
+    expect(chartIndexAt(0, 100, 25)).toBe(0);
+    expect(chartIndexAt(50, 100, 25)).toBe(12);
+    expect(chartIndexAt(200, 100, 25)).toBe(24);
+  });
   it('breaks lines at missing values and preserves measured zeros', () => {
     const result = lineSegments([10, null, 0, 20, null], 100, 100);
     expect(result.segments.map((segment) => segment.length)).toEqual([1, 2]);

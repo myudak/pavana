@@ -34,10 +34,14 @@ The first APK (v0.1.0) is historical: build `65aea725-78c3-4e42-83e2-3abd049816f
 Its visual design does not represent v0.2.0.
 
 Validation during the redesign: Expo SDK dependency check, mobile lint/typecheck,
-10 mobile integration tests, 59 shared tests and 35 API tests passed. Android and
+11 mobile integration tests, 59 shared tests, 35 API tests and 39 web tests passed. Android and
 web Metro exports completed. Browser checks at phone size exercised timeline
 selection, forecast/weather tabs, the regional map, Info filtering and both themes.
 No Android device/emulator was connected, so these are preview checks, not device QA.
 The full `pnpm check` was run; its default parallel run hit a 5-second deadline in
 an existing recorded-upstream API test. The API suite subsequently passed alone.
-The full web UI suite did not finish during the wider run; do not report it as passed.
+The web suites subsequently passed when run separately (including all three app UI tests).
+A final browser chart-selection check found an incomplete web pointer event could
+turn the selected hour into NaN. Pointer coordinates now support web/native events
+and ignore invalid input; a regression test covers missing coordinates and bounds.
+The superseded EAS build `f9b22355-b8b0-4492-b058-afe5633c49a8` was canceled before release.

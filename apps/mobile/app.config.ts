@@ -17,7 +17,6 @@ const config: ExpoConfig = {
   ios: { supportsTablet: true, bundleIdentifier: 'com.myudak.pavana' },
   android: {
     package: 'com.myudak.pavana',
-    versionCode: 2,
     adaptiveIcon: { foregroundImage: './assets/foreground.png', backgroundColor: light.canvas },
   },
   web: { bundler: 'metro', output: 'single', favicon: './assets/favicon.png' },
