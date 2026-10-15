@@ -36,17 +36,17 @@ export function AtmosphereSection({
         className="pointer-events-none absolute inset-0 -z-10 transition-transform duration-[1200ms] ease-out group-hover/section:scale-[1.03]"
       >
         <DuskHero className="absolute inset-0 hidden h-full w-full animate-[pv-drift_28s_ease-in-out_infinite_alternate] opacity-45 dark:block" />
-        <DawnHero className="absolute inset-0 h-full w-full animate-[pv-drift_34s_ease-in-out_infinite_alternate] opacity-80 dark:hidden" />
+        <DawnHero className="absolute inset-0 h-full w-full animate-[pv-drift_40s_ease-in-out_infinite_alternate] opacity-95 dark:hidden" />
       </div>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 hidden dark:block"
         style={{ background: 'var(--pv-hero-scrim)' }}
       />
-      {/* Light-mode veil: artwork shows at the top, content sits on near-solid surface. */}
+      {/* Light-mode veil: artwork reads clearly at the top, content sits on near-solid surface. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-surface/45 via-surface/70 to-surface dark:hidden"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-surface/15 via-surface/45 to-surface dark:hidden"
       />
       {children}
     </section>
