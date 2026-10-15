@@ -208,13 +208,19 @@ export function HotspotMap({
         },
         paint: { 'text-color': '#ffffff' },
       });
+      // Separate unclustered source for the heatmap: clustering would otherwise
+      // feed cluster pseudo-points (no FRP) into the density kernel.
+      map.addSource('heatmap-src', {
+        type: 'geojson',
+        data: toGeoJSON([]),
+      });
       // Detection-density heatmap (kernel render of the real hotspot points,
       // weighted by FRP; NOT PM2.5 concentrations).
       map.addLayer(
         {
           id: 'heatmap-density',
           type: 'heatmap',
-          source: 'hotspots',
+          source: 'heatmap-src',
           paint: {
             'heatmap-weight': [
               'max',
@@ -327,7 +333,9 @@ export function HotspotMap({
     const map = mapRef.current;
     if (!map) return;
     const update = () => {
-      (map.getSource('hotspots') as GeoJSONSource | undefined)?.setData(toGeoJSON(hotspots));
+      const geo = toGeoJSON(hotspots);
+      (map.getSource('hotspots') as GeoJSONSource | undefined)?.setData(geo);
+      (map.getSource('heatmap-src') as GeoJSONSource | undefined)?.setData(geo);
       for (const id of ['hotspots', 'hotspot-glow', 'clusters', 'cluster-count']) {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, 'visibility', showHotspots ? 'visible' : 'none');

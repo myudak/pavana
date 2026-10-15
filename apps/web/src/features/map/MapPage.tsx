@@ -104,22 +104,7 @@ export default function MapPage() {
                         : null
                     }
                   />
-                  {wind?.windDirectionFromDeg != null && (
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-border bg-surface/95 px-3 py-1.5 text-xs shadow dark:border-white/10 dark:bg-[var(--pv-glass)] dark:backdrop-blur">
-                      <Navigation
-                        className="size-4 text-primary-strong dark:text-accent"
-                        style={{
-                          transform: `rotate(${windFromToFlowBearing(wind.windDirectionFromDeg) - 45}deg)`,
-                        }}
-                        aria-hidden
-                      />
-                      <span>
-                        {t.map.windNow}: {t.map.windFrom}{' '}
-                        {bearingToCompass16(wind.windDirectionFromDeg)},{' '}
-                        {formatNumber(wind.windSpeedMs, 1)} m/s
-                      </span>
-                    </div>
-                  )}
+                  {/* Wind summary lives in the side panel (single source, no duplicate). */}
                 </div>
               ) : (
                 <Card role="status" className="text-sm text-ink-muted">
