@@ -13,6 +13,7 @@ export const badgeVariants = cva(
         demo: 'bg-state-demo/15 text-state-demo',
         stale: 'bg-state-stale/15 text-state-stale',
         error: 'bg-state-error/15 text-state-error',
+        warning: 'bg-warning-soft text-warning-ink',
       },
     },
     defaultVariants: { variant: 'default' },

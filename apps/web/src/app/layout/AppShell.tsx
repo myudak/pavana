@@ -1,6 +1,7 @@
 import { Bell } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Wordmark } from '@/components/Wordmark';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { useCopy } from '@/lib/i18n';
@@ -59,7 +60,7 @@ export function AppShell() {
               </div>
             </div>
 
-            {/* Right: nav + location + bell */}
+            {/* Right: nav + location + theme + bell */}
             <div className="flex min-w-0 items-center gap-4 lg:gap-8">
               <nav aria-label="Navigasi utama" className="hidden shrink-0 lg:block">
                 <ul className="flex items-center gap-10 border-b border-white/15">
@@ -89,6 +90,7 @@ export function AppShell() {
               </nav>
               <div className="flex shrink-0 items-center gap-3 lg:gap-4">
                 <LocationPicker />
+                <ThemeToggle />
                 {/* No notification feature yet: honestly disabled, no dot without real state. */}
                 <button
                   type="button"

@@ -59,6 +59,12 @@
   --pv-state-stale: #b45309;
   --pv-state-error: #b91c1c;
 
+  /* Warning (amber) — banners & cautions. AA: strong on soft/white. */
+  --pv-warning: #d97706; /* amber-600 — borders/fills */
+  --pv-warning-strong: #b45309; /* amber-700 — text on light */
+  --pv-warning-soft: #fef3c7; /* amber-100 — tinted surfaces */
+  --pv-warning-ink: #78350f; /* amber-800 — text on soft tint */
+
   --pv-radius: 1rem;
   /* Peran font antarmuka: Inter untuk judul, isi, label, dan angka (lihat README
      `Peran font`). Wordmark tetap memakai identitas sendiri di bawah. */
@@ -101,6 +107,12 @@
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
   --pv-state-error: #f87171;
+
+  /* Warning (amber) on dark — AA: strong on #171b2e. */
+  --pv-warning: #f59e0b;
+  --pv-warning-strong: #fbbf24;
+  --pv-warning-soft: #2e2411;
+  --pv-warning-ink: #fef3c7;
 
   /* Dusk / Haze decorative effects (dark only). */
   --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
@@ -152,6 +164,12 @@
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;
+
+    /* Warning (amber) on dark — AA: strong on #171b2e. */
+    --pv-warning: #f59e0b;
+    --pv-warning-strong: #fbbf24;
+    --pv-warning-soft: #2e2411;
+    --pv-warning-ink: #fef3c7;
 
     /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
     --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
