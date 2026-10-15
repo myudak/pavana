@@ -27,13 +27,26 @@ regenerate the lockfile with pnpm rather than replacing the other branch's lockf
 Keep native React at Expo's supported version; do not apply a workspace-wide React
 override to make the web and mobile package versions match.
 
-## Deferred
+## Build validation
 
 Source-level validation passed: `pnpm check` (lint, typecheck, 55 tests including
 9 mobile data/chart tests) and `expo install --check` (SDK-compatible dependencies).
-No Metro export, native binary compilation, or emulator/device runtime test was run.
+Android Metro/Hermes export also passed. The first signed Android preview APK
+finished successfully on EAS Cloud:
 
-Native APK/IPA compilation, signing, physical-device testing, and store submission.
+- Project: `@myudak/pavana`
+- Build: `65aea725-78c3-4e42-83e2-3abd049816ff`
+- Source commit: `f4102c8`
+- Version: `0.1.0`, Android version code `1`
+- [Build details and artifact](https://expo.dev/accounts/myudak/projects/pavana/builds/65aea725-78c3-4e42-83e2-3abd049816ff)
+
+The Android preview shows a labelled coordinate-only fallback when no restricted
+Google Maps key is configured. This avoids mounting a native Google Map without
+the required API-key metadata. iOS continues to use Apple Maps.
+
+## Deferred
+
+Physical-device testing, iOS binary compilation/signing, and store submission.
 Android standalone map rendering requires the restricted platform key described
 in the app README. No push/background location services were added.
 Live provider support and model evaluation remain dependent on the existing API work.

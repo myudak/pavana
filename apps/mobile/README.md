@@ -1,8 +1,11 @@
 # Pavana Mobile
 
 Native Android/iOS client built with Expo SDK 57, React Native, and Expo Router.
-This is a first port, isolated from the ongoing web work. No APK/IPA has been built,
-signed, or tested on a physical device yet.
+This is a first port, isolated from the ongoing web work. The first signed Android
+preview APK was built successfully with EAS Cloud. Physical-device testing and iOS
+binary builds are still outstanding.
+
+First build: [EAS build 65aea725](https://expo.dev/accounts/myudak/projects/pavana/builds/65aea725-78c3-4e42-83e2-3abd049816ff).
 
 ## Run
 
@@ -18,7 +21,9 @@ build. `pnpm --filter @pavana/mobile android` opens an Android emulator.
 An iOS simulator requires macOS; a physical iPhone can connect to Metro.
 
 Optional browser preview: `pnpm --filter @pavana/mobile web`. The preview uses a
-clearly labelled coordinate plot. Android/iOS use a real native map.
+clearly labelled coordinate plot. iOS uses a native map. Android uses a native map
+when its Maps SDK key is configured; otherwise it shows the coordinate plot and
+detection details with an explicit configuration notice.
 
 ## Included
 
@@ -58,26 +63,31 @@ are in `packages/brand/src/native.ts`, matching the web's Ember/Mist and Dusk/Ha
 The mobile app has its own React version pinned to Expo; pnpm keeps it separate
 from the web app's React. Do not force the web's React version into the native app.
 
-## Build later
+## Cloud builds
 
-`eas.json` contains development, preview APK, and production profiles. After
-configuring an Expo/EAS project and installing the development client if needed:
+`eas.json` contains development, preview APK, and production profiles. The project
+is linked to `@myudak/pavana` (ID `bf01d9ff-d23c-40bf-b523-e3af661cbea4`).
+The preview profile bundles demo data, includes the public Pavana backend origin,
+and produces a signed APK that runs without Metro.
 
 ```powershell
-pnpm --filter @pavana/mobile exec expo install expo-dev-client
 cd apps/mobile
-pnpm dlx eas-cli@latest build --profile preview --platform android
+pnpm dlx eas-cli@24.14.0 login --browser
+pnpm dlx eas-cli@24.14.0 build --profile preview --platform android
 ```
 
-Android standalone builds need a restricted Google Maps SDK for Android key in
+To enable the Android native basemap, configure a restricted Maps SDK for Android key in
 `GOOGLE_MAPS_ANDROID_API_KEY` (set in the EAS build environment). This platform
 key is embedded in the binary and must be restricted by package name and signing
 certificate. NASA/OpenAQ and other provider keys stay on the API server.
 iOS uses Apple Maps by default.
 
+For the development-client profile only, install `expo-dev-client` with
+`pnpm --filter @pavana/mobile exec expo install expo-dev-client` before building.
+
 Bundle IDs are `com.myudak.pavana`; confirm ownership/availability before store
-submission. Signing, store accounts, notification setup, release builds, and
-device QA are intentionally deferred.
+submission. Android signing credentials are managed by EAS. Store submission,
+iOS signing, notification setup, and device QA remain deferred.
 
 ## Checks
 
