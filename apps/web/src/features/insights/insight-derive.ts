@@ -4,6 +4,7 @@
  * is unit-tested in `insight-derive.test.ts`.
  */
 import type { DataState, Factor, ForecastHour, ProvenanceKind, Trend } from '@pavana/shared';
+import { PRIORITY_RANK, type Priority } from '@/lib/priorities';
 
 /** Numeric metric from a factor, or null when absent/not a number. */
 export function factorNumber(factor: Factor | undefined, key: string): number | null {
@@ -142,7 +143,7 @@ export function bannerTone(trend: Trend, state: DataState): BannerTone {
 }
 
 /** Notification priority tiers rendered as badges on the panel. */
-export type NotificationPriority = 'attention' | 'watch' | 'info';
+export type NotificationPriority = Priority;
 
 export type NotificationId =
   | 'combined'
@@ -166,7 +167,7 @@ const PRIORITY: Record<NotificationId, NotificationPriority> = {
   official: 'info',
 };
 
-const RANK: Record<NotificationPriority, number> = { attention: 0, watch: 1, info: 2 };
+const RANK = PRIORITY_RANK;
 
 /** Values interpolated into recommendation copy (already formatted for display). */
 export interface RecommendationVars {
