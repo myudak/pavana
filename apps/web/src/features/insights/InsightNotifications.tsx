@@ -19,7 +19,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { AtmosphereSection } from '@/components/AtmosphereSection';
-import { Badge } from '@/components/ui/badge';
+import { PriorityBadge, PriorityIcon } from '@/components/PriorityMarker';
+import { PRIORITY_TIER } from '@/components/priority-tier';
 import { formatDateTime, formatNumber, formatTime, tzAbbr } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -29,26 +30,12 @@ import {
   factorNumber,
   peakOf,
   type NotificationId,
-  type NotificationPriority,
   type RecommendationVars,
 } from './insight-derive';
 
 /** Curated link ids surfaced first on the official card (ids come from the API list). */
 const OFFICIAL_FIRST = ['sipongi', 'bmkg-spartan'];
 const OFFICIAL_SHOWN = 2;
-
-const TIER: Record<
-  NotificationPriority,
-  { icon: string; badge: 'warning' | 'default' | 'muted'; border: string }
-> = {
-  attention: {
-    icon: 'bg-warning-soft text-warning-ink',
-    badge: 'warning',
-    border: 'border-warning/50',
-  },
-  watch: { icon: 'bg-primary-soft text-primary-strong', badge: 'default', border: 'border-border' },
-  info: { icon: 'bg-surface text-ink-muted', badge: 'muted', border: 'border-border' },
-};
 
 const ICON: Record<NotificationId, LucideIcon> = {
   combined: ShieldAlert,
@@ -171,7 +158,7 @@ export function InsightNotifications({
       <ul className="grid items-start gap-3 md:grid-cols-2 lg:grid-cols-3">
         {notifications.map((item) => {
           const Icon = ICON[item.id];
-          const tier = TIER[item.priority];
+          const tier = PRIORITY_TIER[item.priority];
           const rule = rec.rules[item.id];
           const time = timeLine[item.id];
           return (
@@ -183,21 +170,8 @@ export function InsightNotifications({
               )}
             >
               <div className="flex items-start justify-between gap-2">
-                <span
-                  className={cn(
-                    'relative flex size-10 shrink-0 items-center justify-center rounded-full',
-                    tier.icon,
-                  )}
-                >
-                  {item.priority === 'attention' && (
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 animate-[pv-pulse-ring_2.4s_ease-out_infinite] rounded-full bg-warning/30"
-                    />
-                  )}
-                  <Icon className="relative size-5" aria-hidden />
-                </span>
-                <Badge variant={tier.badge}>{n.priority[item.priority]}</Badge>
+                <PriorityIcon priority={item.priority} icon={Icon} pulse />
+                <PriorityBadge priority={item.priority} />
               </div>
 
               <p className="font-heading text-base font-semibold leading-snug">{title[item.id]}</p>
