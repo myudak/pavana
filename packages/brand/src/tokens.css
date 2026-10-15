@@ -47,6 +47,12 @@
   --pv-exp-high: #db2777;
   --pv-exp-unknown: #9ca3af;
 
+  /* Amber warning (attention states, from the olive branch). */
+  --pv-warning: #d97706;
+  --pv-warning-strong: #b45309;
+  --pv-warning-soft: #fef3c7;
+  --pv-warning-ink: #78350f;
+
   /* Data-state colors */
   --pv-state-demo: #7c3aed;
   --pv-state-stale: #b45309;
@@ -97,6 +103,10 @@
   --pv-exp-moderate: #fb923c;
   --pv-exp-high: #f472b6;
   --pv-exp-unknown: #9ca3af;
+  --pv-warning: #f59e0b;
+  --pv-warning-strong: #fbbf24;
+  --pv-warning-soft: #2e2411;
+  --pv-warning-ink: #fef3c7;
 
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
@@ -143,6 +153,10 @@
     --pv-exp-moderate: #fb923c;
     --pv-exp-high: #f472b6;
     --pv-exp-unknown: #9ca3af;
+    --pv-warning: #f59e0b;
+    --pv-warning-strong: #fbbf24;
+    --pv-warning-soft: #2e2411;
+    --pv-warning-ink: #fef3c7;
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;

@@ -75,3 +75,11 @@
   --color-exp-high: var(--pv-exp-high);
   --color-exp-unknown: var(--pv-exp-unknown);
 }
+
+/* Amber warning (bg-warning-soft, text-warning-ink, border-warning). */
+@theme inline {
+  --color-warning: var(--pv-warning);
+  --color-warning-strong: var(--pv-warning-strong);
+  --color-warning-soft: var(--pv-warning-soft);
+  --color-warning-ink: var(--pv-warning-ink);
+}

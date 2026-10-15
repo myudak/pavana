@@ -34,3 +34,11 @@ export function useExposure(hours = 24) {
     queryFn: ({ signal }) => api.exposure(location, hours, signal),
   });
 }
+
+/** Curated official links (BMKG, SiPongi, BPBD…) — location-independent. */
+export function useOfficialLinks() {
+  return useQuery({
+    queryKey: ['official-links'],
+    queryFn: ({ signal }) => api.officialLinks(signal),
+  });
+}

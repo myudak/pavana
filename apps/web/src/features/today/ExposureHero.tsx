@@ -94,6 +94,11 @@ export function ExposureHero({
             </span>
           )}
         </div>
+        {cat !== 'unknown' && (
+          <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
+            {t.today.heroDesc[cat]}
+          </p>
+        )}
         <ProvenanceNote
           provenance={c.airQuality.provenance}
           timeZone={tz}

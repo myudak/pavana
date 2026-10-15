@@ -5,11 +5,19 @@ import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FactorList } from '@/features/insights/FactorList';
-import { ForecastChart } from '@/features/insights/ForecastChart';
+import { InsightAlert } from '@/features/insights/InsightAlert';
+import { InsightMetricCards } from '@/features/insights/InsightMetricCards';
+import { InsightNotifications } from '@/features/insights/InsightNotifications';
+import { PM25TimeSeries } from '@/features/insights/PM25TimeSeries';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { useCopy } from '@/lib/i18n';
-import { useExposure, useForecast, useInsights } from '@/lib/queries';
+import {
+  useConditions,
+  useExposure,
+  useForecast,
+  useInsights,
+  useOfficialLinks,
+} from '@/lib/queries';
 import { SmokeBars } from './SmokeBars';
 import { BmkgReference } from './BmkgReference';
 import { WeatherTable } from './WeatherTable';
@@ -20,7 +28,10 @@ const TAB =
 export default function ForecastPage() {
   const t = useCopy();
   const insights = useInsights();
-  const forecast = useForecast(24);
+  const conditions = useConditions();
+  // 48h so the PM2.5 chart can offer 24/48h ranges; the weather table shows the first 24.
+  const forecast = useForecast(48);
+  const officialLinks = useOfficialLinks();
   const exposure = useExposure(24);
   const tz = forecast.data?.location.timezone ?? insights.data?.location.timezone ?? 'Asia/Jakarta';
   const isDemo = forecast.data?.state === 'demo';
@@ -36,6 +47,10 @@ export default function ForecastPage() {
           {t.forecast.title}
         </h1>
       </header>
+
+      {conditions.data && (
+        <InsightAlert conditions={conditions.data} forecastHours={forecast.data?.hours ?? []} />
+      )}
 
       <Tabs defaultValue="air" className="gap-4">
         <TabsList className="glass h-11 w-full rounded-full p-1">
@@ -63,9 +78,7 @@ export default function ForecastPage() {
               query={forecast}
               skeleton={<Skeleton className="h-56 w-full rounded-2xl" />}
             >
-              {(f) => (
-                <ForecastChart hours={f.hours} timeZone={tz} nowLabel={t.insights.nowMarker} />
-              )}
+              {(f) => <PM25TimeSeries hours={f.hours} timeZone={tz} />}
             </QueryState>
           </Panel>
         </TabsContent>
@@ -90,7 +103,7 @@ export default function ForecastPage() {
             >
               {(f) => (
                 <>
-                  <WeatherTable hours={f.hours} timeZone={tz} />
+                  <WeatherTable hours={f.hours.slice(0, 24)} timeZone={tz} />
                   {f.state !== 'demo' && <BmkgReference timeZone={tz} />}
                 </>
               )}
@@ -99,13 +112,24 @@ export default function ForecastPage() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid items-start gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        <Panel title={t.forecast.factorsTitle}>
-          <QueryState query={insights} inline>
-            {(i) => <FactorList factors={i.factors} timeZone={tz} />}
-          </QueryState>
-        </Panel>
+      {conditions.data && (
+        <>
+          <InsightNotifications
+            conditions={conditions.data}
+            insights={insights.data}
+            forecastHours={forecast.data?.hours ?? []}
+            officialLinks={officialLinks}
+          />
+          <section aria-label={t.forecast.factorsTitle} className="space-y-2">
+            <h2 className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {t.forecast.factorsTitle}
+            </h2>
+            <InsightMetricCards conditions={conditions.data} insights={insights} />
+          </section>
+        </>
+      )}
 
+      <div className="[&>*]:min-w-0">
         <Panel>
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-state-demo/15">
