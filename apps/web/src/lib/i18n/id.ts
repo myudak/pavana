@@ -53,6 +53,8 @@ export const id = {
 
   today: {
     currentTitle: 'PM2.5 saat ini',
+    now: 'Kini',
+    seeAll: 'Lihat semua',
     unit: 'µg/m³',
     timelineTitle: '24 jam ke depan',
     whyTitle: 'Kenapa bisa berubah?',
@@ -112,6 +114,11 @@ export const id = {
 
   map: {
     title: 'Peta',
+    openFull: 'Buka peta',
+    closeDetail: 'Tutup detail',
+    layerDensity: 'Kepadatan hotspot',
+    layerWind: 'Angin',
+    legendDensity: 'Kepadatan deteksi satelit — bukan konsentrasi PM2.5',
     layerHotspots: 'Titik panas',
     legendHotspot: 'Deteksi anomali panas satelit',
     legendLocation: 'Lokasi dipilih',
@@ -130,6 +137,7 @@ export const id = {
   insights: {
     title: 'Insight',
     chartTitle: 'Prakiraan PM2.5',
+    nowMarker: 'Kini',
     factorsTitle: 'Faktor',
     methodTitle: 'Metode',
     methodDeterministic:
