@@ -19,7 +19,7 @@ export function AppShell() {
       </a>
 
       {/* Desktop side nav */}
-      <aside className="hidden w-60 shrink-0 border-r border-border px-4 py-6 lg:block">
+      <aside className="hidden w-64 shrink-0 border-r border-border px-4 py-6 lg:block">
         <Wordmark className="px-2" />
         <nav className="mt-8 space-y-1" aria-label="Navigasi utama">
           {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
@@ -31,7 +31,7 @@ export function AppShell() {
                 cn(
                   'flex items-center gap-3 rounded-full px-3 py-2 text-sm',
                   isActive
-                    ? 'bg-primary-soft font-medium text-primary-strong'
+                    ? 'bg-primary-soft font-medium text-primary-strong dark:text-accent'
                     : 'text-ink-muted hover:bg-surface-muted',
                 )
               }
@@ -50,7 +50,7 @@ export function AppShell() {
 
         <main
           id="main"
-          className="mx-auto w-full max-w-2xl flex-1 px-4 pb-28 pt-2 lg:px-8 lg:pb-12"
+          className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12"
         >
           <Suspense fallback={<p className="py-8 text-sm text-ink-muted">{t.common.loading}</p>}>
             <Outlet />
@@ -72,7 +72,9 @@ export function AppShell() {
                 className={({ isActive }) =>
                   cn(
                     'flex flex-col items-center gap-1 py-2.5 text-xs',
-                    isActive ? 'font-medium text-primary-strong' : 'text-ink-muted',
+                    isActive
+                      ? 'font-medium text-primary-strong dark:text-accent dark:[filter:drop-shadow(0_0_8px_rgba(244,114,182,0.55))]'
+                      : 'text-ink-muted',
                   )
                 }
               >

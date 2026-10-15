@@ -15,7 +15,7 @@ export default function InsightsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="pt-2 font-display text-3xl font-medium tracking-tight">{t.insights.title}</h1>
+      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.insights.title}</h1>
 
       <QueryState query={insights}>
         {(i) => (
@@ -31,33 +31,37 @@ export default function InsightsPage() {
                 <DataStateBadge state={i.state} />
               </CardHeader>
               <QueryState query={forecast}>
-                {(f) => <ForecastChart hours={f.hours} timeZone={i.location.timezone} />}
+                {(f) => (
+                  <ForecastChart hours={f.hours} timeZone={i.location.timezone} nowLabel={t.insights.nowMarker} />
+                )}
               </QueryState>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.insights.factorsTitle}</CardTitle>
-              </CardHeader>
-              <FactorList factors={i.factors} timeZone={i.location.timezone} />
-            </Card>
+            <div className="grid items-start gap-4 lg:grid-cols-2 lg:gap-5">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.insights.factorsTitle}</CardTitle>
+                </CardHeader>
+                <FactorList factors={i.factors} timeZone={i.location.timezone} />
+              </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.insights.methodTitle}</CardTitle>
-                <Badge variant="muted">{i.model.method}</Badge>
-              </CardHeader>
-              {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
-              <p className="text-sm">{t.insights.methodDeterministic}</p>
-              <details className="mt-3 rounded-xl bg-surface-muted p-3 text-sm">
-                <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
-                <ul className="mt-2 list-disc space-y-2 pl-5 text-ink-muted">
-                  {t.insights.howBody.map((p) => (
-                    <li key={p}>{p}</li>
-                  ))}
-                </ul>
-              </details>
-            </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.insights.methodTitle}</CardTitle>
+                  <Badge variant="muted">{i.model.method}</Badge>
+                </CardHeader>
+                {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
+                <p className="text-sm">{t.insights.methodDeterministic}</p>
+                <details className="mt-3 rounded-xl bg-surface-muted p-3 text-sm">
+                  <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
+                  <ul className="mt-2 list-disc space-y-2 pl-5 text-ink-muted">
+                    {t.insights.howBody.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                </details>
+              </Card>
+            </div>
           </>
         )}
       </QueryState>

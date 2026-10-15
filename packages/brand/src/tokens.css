@@ -47,6 +47,14 @@
 
   --pv-radius: 1rem;
   --pv-font-display: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  /* Peran font: wordmark = Comfortaa (brand), judul & angka = Plus Jakarta Sans
+     (humanis, paling dekat referensi), isi = Plus Jakarta Sans. */
+  --pv-font-heading:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
+     Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
+     setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
+  --pv-font-wordmark: 'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
   --pv-font-body:
     'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
@@ -79,6 +87,17 @@
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
   --pv-state-error: #f87171;
+
+  /* Dusk / Haze decorative effects (dark only). */
+  --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
+  --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
+  --pv-glass: rgba(23, 27, 46, 0.72);
+  --pv-hero-scrim: linear-gradient(
+    180deg,
+    rgba(14, 17, 32, 0.28) 0%,
+    rgba(14, 17, 32, 0.66) 72%,
+    #0e1120 100%
+  );
 }
 
 /* No explicit choice → follow the OS. Keep in sync with the block above. */
@@ -108,6 +127,17 @@
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;
+
+    /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
+    --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
+    --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
+    --pv-glass: rgba(23, 27, 46, 0.72);
+    --pv-hero-scrim: linear-gradient(
+      180deg,
+      rgba(14, 17, 32, 0.28) 0%,
+      rgba(14, 17, 32, 0.66) 72%,
+      #0e1120 100%
+    );
   }
 }
 

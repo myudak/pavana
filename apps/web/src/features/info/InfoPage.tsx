@@ -21,7 +21,7 @@ export function InfoPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="pt-2 font-display text-3xl font-medium tracking-tight">{t.info.title}</h1>
+      <h1 className="pt-2 font-heading text-3xl font-semibold tracking-tight">{t.info.title}</h1>
 
       <Card>
         <CardHeader>

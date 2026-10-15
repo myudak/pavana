@@ -191,6 +191,9 @@ importers:
 
   packages/brand:
     dependencies:
+      '@fontsource-variable/comfortaa':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource-variable/outfit':
         specifier: ^5.3.0
         version: 5.3.0
@@ -953,6 +956,9 @@ packages:
 
   '@fastify/rate-limit@10.3.0':
     resolution: {integrity: sha512-eIGkG9XKQs0nyynatApA3EVrojHOuq4l6fhB4eeCk4PIOeadvOJz9/4w3vGI44Go17uaXOWEcPkaD8kuKm7g6Q==}
+
+  '@fontsource-variable/comfortaa@5.3.0':
+    resolution: {integrity: sha512-al/XR/3rUwZRLPAgAN7VsHKudQ27++W2sEQPhRpkg7x9a8VISekS3eQr4c3lICNWDfflz+gVes8dfekL/yY+Ng==}
 
   '@fontsource-variable/outfit@5.3.0':
     resolution: {integrity: sha512-fPb5XnYK0k7SbR++HEmm4+ZqDszmLKQ+sPRUr8oQ/KNC0vy6r6hazJFe8iYozv4cqlHbvJ/JECkJWrfDodUMVQ==}
@@ -4850,6 +4856,8 @@ snapshots:
       '@lukeed/ms': 2.0.2
       fastify-plugin: 5.1.0
       toad-cache: 3.7.4
+
+  '@fontsource-variable/comfortaa@5.3.0': {}
 
   '@fontsource-variable/outfit@5.3.0': {}
 

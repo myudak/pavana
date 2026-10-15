@@ -24,9 +24,12 @@ export function FactorList({ factors, timeZone }: { factors: Factor[]; timeZone:
       {factors.map((f) => {
         const Icon = ICON[f.id];
         return (
-          <li key={f.id} className="flex gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-strong">
-              <Icon className="size-4" aria-hidden />
+          <li
+            key={f.id}
+            className="flex gap-3 rounded-2xl border border-border/60 bg-surface/50 p-3"
+          >
+            <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary-strong dark:text-accent">
+              <Icon className="size-5" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
