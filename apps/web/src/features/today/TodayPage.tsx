@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { AqCategoryPill } from '@/components/AqCategoryPill';
 import { DataStateBadge } from '@/components/DataStateBadge';
 import { DemoBanner } from '@/components/DemoBanner';
+import { DuskHero } from '@/components/DuskHero';
 import { ProvenanceNote } from '@/components/ProvenanceNote';
 import { QueryState } from '@/components/QueryState';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,6 @@ import { formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { useConditions, useForecast, useInsights } from '@/lib/queries';
 import { cn } from '@/lib/utils';
-import { DuskHero } from './DuskHero';
 import { HourlyTimeline } from './HourlyTimeline';
 
 // Heavy visual chunks (Recharts, MapLibre) stay out of the main bundle —

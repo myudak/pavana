@@ -1,8 +1,8 @@
 /**
- * Decorative dusk mountain landscape for the Today hero (dark-mode reference look).
- * Purely ornamental — aria-hidden, no data. Original vector illustration, not a photo:
- * layered natural ridges, pine forest foreground, indigo-to-pink dusk sky with a
- * low sunset glow behind the far ridge.
+ * Decorative dusk mountain landscape (dark-mode reference look). Purely ornamental —
+ * aria-hidden, no data. Original vector illustration, not a photo: layered natural
+ * ridges, pine forest foreground, indigo-to-pink dusk sky with a low sunset glow
+ * behind the far ridge. Reused as an atmospheric backdrop for hero-like sections.
  */
 export function DuskHero({ className }: { className?: string }) {
   return (
