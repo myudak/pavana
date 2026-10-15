@@ -13,6 +13,7 @@ import type {
   Trend,
   UsAqiCategory,
 } from '@pavana/shared';
+import type { InfoFilter } from '@/features/info/info-derive';
 import type {
   NotificationId,
   NotificationPriority,
@@ -336,6 +337,7 @@ export const id = {
 
   info: {
     title: 'Info',
+    subtitle: 'Ringkasan data, sumber resmi, dan status pemantauan.',
     linksTitle: 'Sumber resmi',
     aboutTitle: 'Tentang Pavana',
     aboutBody:
@@ -345,6 +347,44 @@ export const id = {
     themeToggle: {
       toDark: 'Aktifkan mode gelap',
       toLight: 'Aktifkan mode terang',
+    },
+
+    // Dashboard Info: filter kategori + kartu ringkas.
+    filtersLabel: 'Filter kategori',
+    locationLabel: 'Lokasi',
+    filters: {
+      all: 'Semua',
+      pm25: 'Kualitas udara',
+      hotspots: 'Titik panas',
+      official: 'Sumber resmi',
+      data: 'Status data',
+    } satisfies Record<InfoFilter, string>,
+    staleWarning: 'Data terlambat — angka mungkin belum mencerminkan kondisi saat ini.',
+    noResults: 'Tidak ada kartu untuk filter ini.',
+    cards: {
+      pm25Title: 'Prakiraan PM2.5',
+      pm25Body: (peak: string, at: string) => `Puncak ${peak} µg/m³ sekitar pukul ${at}.`,
+      pm25Empty: 'Prakiraan belum tersedia untuk lokasi ini.',
+      pm25Action: 'Lihat grafik',
+      hotspotTitle: 'Deteksi titik panas',
+      hotspotBody: (n: string, radius: string, window: string) =>
+        `${n} deteksi dalam radius ${radius} km, ${window} jam terakhir.`,
+      hotspotNone: 'Tidak ada deteksi di area pencarian.',
+      hotspotUnknown: 'Jumlah deteksi belum tersedia.',
+      hotspotAction: 'Lihat di Peta',
+      hotspotCaveat: 'Deteksi satelit — bukan konfirmasi kebakaran.',
+      officialTitle: 'Informasi resmi BPBD/BMKG',
+      officialBody: (n: string) => `${n} kanal resmi terkurasi untuk karhutla dan kualitas udara.`,
+      officialEmpty: 'Daftar tautan resmi belum dapat dimuat.',
+      officialAction: 'Buka kanal',
+      officialAll: 'Semua tautan',
+      officialCaveat: 'Pavana bukan sumber peringatan resmi.',
+      dataTitle: 'Status data',
+      dataUpdated: (at: string) => `Diperbarui ${at}`,
+      dataStale: 'Data terlambat — jangan simpulkan kondisi aman.',
+      dataInsufficient: 'Data belum cukup untuk menilai kondisi.',
+      dataUnknown: 'Status data belum tersedia.',
+      dataAction: 'Muat ulang',
     },
   },
 
