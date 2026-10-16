@@ -3,5 +3,10 @@
     "dataset": "myudak/pavana-weather-cache",
     "version": 1,
     "sha256": "3ed7b5ba669baeb676ca14d4f0a1ad90e0b570952bdaadf8c2b7433cd525d0d1"
+  },
+  "dataKernel": {
+    "kernel": "myudak/pavana-observed-data",
+    "version": 4,
+    "sha256": "0509e4cc25919e030309433ad5b7d333f14f68081475ba9ec87e50516af96d23"
   }
 }
