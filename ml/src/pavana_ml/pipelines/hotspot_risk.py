@@ -22,6 +22,7 @@ from ..data.firms_archive import REGION_BBOX
 from ..evaluation import classification as cm
 from ..features import hotspot_grid as g
 from ..models.export import parity_vectors, to_compact
+from .contract import common_cohort, write_json
 
 MODEL_ID = "hotspot-risk"
 TRAIN_END = "2021-12-31"
@@ -40,6 +41,7 @@ PARAMS: dict[str, Any] = {
     "lambda_l2": 1.0,
     "seed": 20261016,
     "deterministic": True,
+    "num_threads": 4,
     "verbosity": -1,
 }
 MAX_ROUNDS = 600
@@ -59,8 +61,9 @@ def _sensor_ok(firms: pd.DataFrame, days: pd.DatetimeIndex) -> np.ndarray:
 
 
 def _static_cells(firms: pd.DataFrame) -> set[int]:
-    """Cells dominated by non-vegetation sources in the archive (`type` 1 volcano, 2 static, 3 offshore)."""
-    typed = firms.dropna(subset=["fire_type"])
+    """Train-only cells dominated by type 1 (volcano), 2 (static), or 3 (offshore)."""
+    train_only = firms[firms["acquired_at"] < pd.Timestamp("2022-01-01", tz="UTC")]
+    typed = train_only.dropna(subset=["fire_type"])
     cells = g.cell_index(typed["lat"].to_numpy(), typed["lon"].to_numpy())
     df = pd.DataFrame({"cell": cells, "static": typed["fire_type"].to_numpy() > 0})
     df = df[df["cell"] >= 0]
@@ -96,7 +99,7 @@ def build_table(data_dir: Path, end: str | None = None) -> tuple[pd.DataFrame, d
     for col in ("precip_mm", "rh_min_pct", "tmax_c", "wind_max_ms", "vpd_max_kpa"):
         wide = weather.pivot_table(index="date", columns=["point_lat", "point_lon"], values=col)
         wide = wide.reindex(index=days, columns=pd.MultiIndex.from_tuples(points))
-        warr[col] = wide.to_numpy(dtype=np.float32)
+        warr[col] = wide.to_numpy(dtype=np.float64)
     wf = g.weather_features(warr)
 
     # Historical frequency from the TRAINING period only (no look-ahead into validation/test).
@@ -133,7 +136,7 @@ def build_table(data_dir: Path, end: str | None = None) -> tuple[pd.DataFrame, d
                 "id": int(c),
                 "lat": round(float(a), 4),
                 "lon": round(float(b), 4),
-                "histRate": round(float(h), 6),
+                "histRate": float(h),
                 "weatherLat": float(wa),
                 "weatherLon": float(wo),
             }
@@ -148,9 +151,9 @@ def build_table(data_dir: Path, end: str | None = None) -> tuple[pd.DataFrame, d
 def _split(table: pd.DataFrame) -> dict[str, pd.DataFrame]:
     d = table["issue_day"]
     return {
-        "train": table[d <= pd.Timestamp(TRAIN_END)],
-        "valid": table[(d > pd.Timestamp(TRAIN_END)) & (d <= pd.Timestamp(VALID_END))],
-        "test": table[d > pd.Timestamp(VALID_END)],
+        "train": table[d < pd.Timestamp(TRAIN_END)],
+        "valid": table[(d > pd.Timestamp(TRAIN_END)) & (d < pd.Timestamp(VALID_END))],
+        "test": table[(d > pd.Timestamp(VALID_END)) & (d < pd.Timestamp("2025-12-31"))],
     }
 
 
@@ -175,6 +178,8 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
 
     out_dir.mkdir(parents=True, exist_ok=True)
     table, ctx = build_table(data_dir)
+    input_rows = len(table)
+    table = table.dropna(subset=list(g.FEATURES))
     parts = _split(table)
     feats = list(g.FEATURES)
     print({k: (len(v), float(v["y"].mean())) for k, v in parts.items()}, flush=True)
@@ -195,11 +200,17 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
     p_model = booster.predict(test[feats])
     refs = baselines(parts["train"], test)
     y = test["y"].to_numpy()
+    keep = common_cohort(y, {"model": p_model, **refs})
+    test = test.loc[keep].copy()
+    y, p_model = y[keep], p_model[keep]
+    refs = {k: v[keep] for k, v in refs.items()}
     metrics = {
         "model": cm.binary_metrics(y, p_model),
         **{k: cm.binary_metrics(y, v) for k, v in refs.items()},
     }
-    valid_metrics = cm.binary_metrics(parts["valid"]["y"].to_numpy(), booster.predict(parts["valid"][feats]))
+    valid_metrics = cm.binary_metrics(
+        parts["valid"]["y"].to_numpy(), booster.predict(parts["valid"][feats])
+    )
     season = pd.to_datetime(test["issue_day"]).dt.month.isin([8, 9, 10]).to_numpy()
     seasonal = {
         "model": cm.binary_metrics(y[season], p_model[season]),
@@ -220,7 +231,10 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
 
     # Parity rows: real test rows, including the NaN-bearing ones.
     nan_rows = test[test[feats].isna().any(axis=1)].head(10)
-    probe = pd.concat([sample.head(30), nan_rows])[feats].to_numpy(dtype=float)
+    probe = pd.concat(
+        [sample.head(24), nan_rows.head(6), parts["train"].tail(1), parts["valid"].tail(1)]
+    )[feats].to_numpy(dtype=float)
+    probe = np.vstack([probe, np.full((1, len(feats)), np.nan)])
 
     demo = table[table["issue_day"] == pd.Timestamp(DEMO_ISSUE_DAY)]
     demo_rows = [
@@ -233,7 +247,7 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
     ]
 
     compact = to_compact(booster)
-    version = f"{MODEL_ID}-{datetime.now(UTC):%Y%m%d}"
+    version = f"{MODEL_ID}-{datetime.now(UTC):%Y%m%d%H%M%S}-{(code_sha256 or 'untracked')[:8]}"
     meta = {
         "modelId": MODEL_ID,
         "version": version,
@@ -244,10 +258,19 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
         "evaluated": True,
         "experimental": True,
         "operationalReady": False,
+        "purgeHours": 24,
+        "evaluationRows": len(test),
+        "discardedMissingPredictorRows": input_rows - len(table),
         "features": feats,
         "windows": {
-            "train": [str(parts["train"]["issue_day"].min().date()), TRAIN_END],
-            "validation": [str(parts["valid"]["issue_day"].min().date()), VALID_END],
+            "train": [
+                str(parts["train"]["issue_day"].min().date()),
+                str(parts["train"]["issue_day"].max().date()),
+            ],
+            "validation": [
+                str(parts["valid"]["issue_day"].min().date()),
+                str(parts["valid"]["issue_day"].max().date()),
+            ],
             "test": [
                 str(test["issue_day"].min().date()),
                 str(test["issue_day"].max().date()),
@@ -255,7 +278,11 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
         },
         "rows": {k: int(len(v)) for k, v in parts.items()},
         "baseRate": {k: float(v["y"].mean()) for k, v in parts.items()},
-        "metrics": {"test": metrics, "testAugOct": seasonal, "validation": {"model": valid_metrics}},
+        "metrics": {
+            "test": metrics,
+            "testAugOct": seasonal,
+            "validation": {"model": valid_metrics},
+        },
         "calibration": calibration,
         "globalImportance": importance,
         "params": PARAMS,
@@ -268,14 +295,28 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             "note": "Replay of real archived inputs for the demo fixture's date, not live data.",
         },
     }
-    (out_dir / f"{MODEL_ID}.model.json").write_text(json.dumps(compact, separators=(",", ":")))
-    (out_dir / f"{MODEL_ID}.meta.json").write_text(json.dumps(meta, indent=2))
-    (out_dir / f"{MODEL_ID}.grid.json").write_text(json.dumps(ctx["grid"], separators=(",", ":")))
-    (out_dir / f"{MODEL_ID}.demo.json").write_text(
-        json.dumps({"issueDay": DEMO_ISSUE_DAY, "rows": demo_rows}, separators=(",", ":"))
-    )
-    (out_dir / f"{MODEL_ID}.parity.json").write_text(
-        json.dumps({"modelVersion": version, **parity_vectors(booster, probe)}, separators=(",", ":"))
+    extra = table[table["issue_day"] >= pd.Timestamp("2026-01-01")]
+    if not extra.empty:
+        ep = {"model": booster.predict(extra[feats]), **baselines(parts["train"], extra)}
+        ey = extra.y.to_numpy()
+        ek = common_cohort(ey, ep)
+        meta["metrics"]["test2026"] = {k: cm.binary_metrics(ey[ek], v[ek]) for k, v in ep.items()}
+        meta["test2026Window"] = [
+            str(extra.issue_day.min().date()),
+            str(extra.issue_day.max().date()),
+        ]
+    predictions = test[["issue_day", "cell", "y"]].copy()
+    predictions["model"] = p_model
+    for k, p in refs.items():
+        predictions[k] = p
+    predictions.to_parquet(out_dir / f"{MODEL_ID}.predictions.parquet", index=False)
+    write_json(out_dir / f"{MODEL_ID}.model.json", compact)
+    write_json(out_dir / f"{MODEL_ID}.meta.json", meta)
+    write_json(out_dir / f"{MODEL_ID}.grid.json", ctx["grid"])
+    write_json(out_dir / f"{MODEL_ID}.demo.json", {"issueDay": DEMO_ISSUE_DAY, "rows": demo_rows})
+    write_json(
+        out_dir / f"{MODEL_ID}.parity.json",
+        {"modelVersion": version, **parity_vectors(booster, probe)},
     )
     booster.save_model(str(out_dir / f"{MODEL_ID}.lgb.txt"))
     print(json.dumps(meta["metrics"]["test"], indent=1), flush=True)

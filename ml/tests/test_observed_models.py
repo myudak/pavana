@@ -13,13 +13,21 @@ from pavana_ml.features import haze_station as hs
 from pavana_ml.features import hotspot_grid as g
 from pavana_ml.features.upwind import upwind_exposure_score
 
-FIRMS_ARCHIVE = """latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight,type
+FIRMS_ARCHIVE = (
+    "latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,"
+    "confidence,version,bright_ti5,frp,daynight,type\n"
+    """\
 -0.10,109.40,333.4,0.4,0.4,2019-09-01,554,N,VIIRS,n,2,290.1,5.5,D,0
 -0.12,109.41,330.0,0.4,0.4,2019-09-01,1806,N,VIIRS,h,2,290.1,,N,3
 """
-FIRMS_NRT = """latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,confidence,version,bright_ti5,frp,daynight
+)
+FIRMS_NRT = (
+    "latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,confidence,"
+    "version,bright_ti5,frp,daynight\n"
+    """\
 -1.5,113.9,367,0.34,0.56,2026-10-09,0228,N,high,2.0NRT,293.86,9.22,D
 """
+)
 ASOS = """station,valid,vsby,wxcodes,tmpf,dwpf,drct,sknt
 WIOO,2019-09-15 00:00,1.24,HZ,80.6,73.4,90,5
 WIOO,2019-09-15 00:30,M,M,M,M,M,M
@@ -78,7 +86,10 @@ def test_dry_day_run_and_precip_windows():
     run = g.dry_day_run(p)[:, 0]
     assert np.isnan(run[3]) and run[4] == 1 and run[5] == 0
     w = g.weather_features(
-        {k: np.ones((70, 1), np.float32) for k in ("precip_mm", "rh_min_pct", "tmax_c", "wind_max_ms", "vpd_max_kpa")}
+        {
+            k: np.ones((70, 1), np.float32)
+            for k in ("precip_mm", "rh_min_pct", "tmax_c", "wind_max_ms", "vpd_max_kpa")
+        }
     )
     assert np.isnan(w["precip_60d_mm"][58, 0]) and w["precip_60d_mm"][59, 0] == 60
 
@@ -100,7 +111,13 @@ def test_upwind_feature_matches_shared_formula():
     age = (t0 - firms["acquired_at"]).dt.total_seconds().to_numpy() / 3600
     keep = age <= 72
     ref = upwind_exposure_score(
-        -0.15, 109.4, 135.0, firms["lat"][keep], firms["lon"][keep], firms["frp_mw"][keep], age[keep]
+        -0.15,
+        109.4,
+        135.0,
+        firms["lat"][keep],
+        firms["lon"][keep],
+        firms["frp_mw"][keep],
+        age[keep],
     )
     assert out["upwind_72h"].iloc[0] == pytest.approx(ref.score, rel=1e-9)
     nan_wind = hs.fire_features(times, np.array([np.nan]), -0.15, 109.4, firms)
@@ -125,7 +142,11 @@ def test_compact_export_reproduces_lightgbm():
     x = rng.normal(size=(500, 3))
     x[rng.random(500) < 0.1, 0] = np.nan
     y = (x[:, 1] + rng.normal(size=500) > 0).astype(int)
-    b = lgb.train({"objective": "binary", "verbosity": -1, "num_leaves": 7}, lgb.Dataset(x, y), 10)
+    b = lgb.train(
+        {"objective": "binary", "verbosity": -1, "num_leaves": 7, "num_threads": 2},
+        lgb.Dataset(x, y),
+        10,
+    )
     m = to_compact(b)
     assert m["format"] == "pavana-gbdt-v1" and len(m["trees"]) == 10
     v = parity_vectors(b, x[:5])
@@ -142,16 +163,30 @@ def _synthetic_snapshot(tmp_path):
     cells = np.array([g.cell_index(np.array([-0.1]), np.array([109.4]))[0] + k for k in range(4)])
     lat, lon = g.cell_center(cells)
     rows = []
-    for d in days[::2]:
+    for d in days:
+        # A sensor heartbeat elsewhere in the study region, outside the four test grid cells.
+        rows.append((-1.0, 100.0, d + pd.Timedelta(hours=6), 1.0, "n", 0.0, "D", "test"))
         for la, lo in zip(lat, lon, strict=True):
             if rng.random() < (0.3 if d.month in (8, 9) else 0.05):
                 rows.append((la, lo, d + pd.Timedelta(hours=6), 5.0, "n", 0.0, "D", "test"))
     firms = pd.DataFrame(
-        rows, columns=["lat", "lon", "acquired_at", "frp_mw", "confidence_class", "fire_type", "daynight", "source"]
+        rows,
+        columns=[
+            "lat",
+            "lon",
+            "acquired_at",
+            "frp_mw",
+            "confidence_class",
+            "fire_type",
+            "daynight",
+            "source",
+        ],
     )
     firms["acquired_at"] = pd.to_datetime(firms["acquired_at"], utc=True)
     firms.to_parquet(tmp_path / "firms_snpp.parquet")
-    land = pd.DataFrame({"cell": cells, "lat": lat, "lon": lon, "elev_center_m": 10.0, "land_points": 5})
+    land = pd.DataFrame(
+        {"cell": cells, "lat": lat, "lon": lon, "elev_center_m": 10.0, "land_points": 5}
+    )
     land.to_parquet(tmp_path / "grid_land.parquet")
     wlat, wlon = g.weather_point(lat, lon)
     pts = sorted({(float(a), float(b)) for a, b in zip(wlat, wlon, strict=True)})

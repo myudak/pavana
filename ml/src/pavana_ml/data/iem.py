@@ -13,6 +13,7 @@ no archive at IEM, so the haze model cannot cover it directly.
 from __future__ import annotations
 
 import io
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,11 +53,34 @@ AIRPORTS_BY_ICAO = {a.icao: a for a in AIRPORTS}
 
 # Present-weather tokens that explain low visibility without smoke.
 _PRECIP = ("RA", "DZ", "SH", "TS", "GR", "GS", "SN", "PL", "UP")
+_WX_TOKEN = re.compile(
+    r"^(?:[-+]|VC)?(?:MI|BC|PR|DR|BL|SH|TS|FZ)?(?:DZ|RA|SN|SG|IC|PL|GR|GS|UP|BR|FG|FU|VA|DU|SA|HZ|PY|PO|SQ|FC|SS|DS)+$"
+)
+
+
+def normalise_wx(code: object, metar: object) -> str | None:
+    """IEM uses M for both absent weather and missing fields; inspect the original report.
+
+    A parseable visibility group with no weather token means no significant present weather.
+    An absent/NIL/partial raw report remains unknown. Trend groups are excluded.
+    """
+    if pd.notna(code) and str(code) not in ("M", "T"):
+        return str(code)
+    if pd.isna(metar):
+        return None
+    body = re.split(r"\b(?:TEMPO|BECMG|NOSIG)\b", str(metar).upper())[0]
+    if "NIL" in body or not re.search(r"\b\d{6}Z\b", body):
+        return None
+    if not re.search(r"(?:\bCAVOK\b|\b\d{4}\b|\b\d+(?:/\d+)?SM\b)", body):
+        return None
+    if "////" in body:
+        return None
+    return " ".join(t for t in body.split() if _WX_TOKEN.fullmatch(t))
 
 
 def wx_flags(wxcodes: pd.Series) -> pd.DataFrame:
-    """Boolean flags from METAR present-weather strings. Missing codes → all False (no report)."""
-    s = wxcodes.astype("string").fillna("").str.upper()
+    """Nullable flags: blank means no significant weather; a missing code stays unknown."""
+    s = wxcodes.astype("string").str.upper()
     return pd.DataFrame(
         {
             "wx_haze": s.str.contains("HZ", regex=False),
@@ -73,7 +97,7 @@ def parse_asos_csv(text: str) -> pd.DataFrame:
     text = text.strip()
     if not text or not text.startswith("station"):
         return pd.DataFrame(columns=["station", "valid_at", "vsby_km"])
-    raw = pd.read_csv(io.StringIO(text), na_values=["M", "T", ""], keep_default_na=False)
+    raw = pd.read_csv(io.StringIO(text), na_values=["M", "T"], keep_default_na=False)
     out = pd.DataFrame(
         {
             "station": raw["station"].astype("string"),
@@ -87,11 +111,25 @@ def parse_asos_csv(text: str) -> pd.DataFrame:
         }
     )
     out = out.dropna(subset=["valid_at"])
-    out = pd.concat([out.reset_index(drop=True), wx_flags(out["wxcodes"]).reset_index(drop=True)], axis=1)
+    original = raw.get("metar", pd.Series(pd.NA, index=raw.index))
+    out["raw_metar"] = original
+    out["wxcodes"] = pd.Series(
+        [normalise_wx(c, m) for c, m in zip(out["wxcodes"], original.loc[out.index], strict=True)],
+        index=out.index,
+        dtype="string",
+    )
+    out = pd.concat(
+        [out.reset_index(drop=True), wx_flags(out["wxcodes"]).reset_index(drop=True)], axis=1
+    )
     # Relative humidity from temperature and dew point (Magnus); NaN when either is missing.
     a, b = 17.625, 243.04
     t, td = out["tmpc"], out["dwpc"]
     out["rh_pct"] = 100.0 * np.exp(a * td / (b + td) - a * t / (b + t))
+    # Inconsistent temperature/dew-point reports are unknown, never clipped into valid data.
+    out.loc[~out["rh_pct"].between(0, 100), "rh_pct"] = np.nan
+    out.loc[~out["wind_dir_from_deg"].between(0, 360), "wind_dir_from_deg"] = np.nan
+    for col in ("wind_speed_ms", "vsby_km"):
+        out.loc[out[col] < 0, col] = np.nan
     return out
 
 
@@ -106,7 +144,7 @@ def fetch_station(
     s, e = pd.Timestamp(start), pd.Timestamp(end)
     params = [
         ("station", icao),
-        *[("data", d) for d in ("vsby", "wxcodes", "tmpf", "dwpf", "drct", "sknt")],
+        *[("data", d) for d in ("vsby", "wxcodes", "metar", "tmpf", "dwpf", "drct", "sknt")],
         ("year1", s.year),
         ("month1", s.month),
         ("day1", s.day),
@@ -137,9 +175,9 @@ def fetch_station(
 
 
 def hourly(df: pd.DataFrame) -> pd.DataFrame:
-    """One row per station-hour: the last report in each UTC hour (specials supersede routine)."""
+    """One whole report per completed UTC hour, labelled at the hour END."""
     if df.empty:
         return df
     out = df.sort_values("valid_at").copy()
-    out["hour"] = out["valid_at"].dt.floor("h")
-    return out.groupby(["station", "hour"], as_index=False).last()
+    out["hour"] = out["valid_at"].dt.ceil("h")
+    return out.drop_duplicates(["station", "hour"], keep="last").reset_index(drop=True)

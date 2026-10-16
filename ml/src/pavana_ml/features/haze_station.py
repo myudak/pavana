@@ -45,24 +45,32 @@ def haze_event(df: pd.DataFrame) -> pd.Series:
     hz = df["wx_haze"] | df["wx_smoke"]
     clean = ~(df["wx_precip"] | df["wx_fog"])
     ev = ((df["vsby_km"] < VIS_KM) & hz & clean).astype(float)
-    return ev.where(df["vsby_km"].notna())
+    known = df[["wx_haze", "wx_smoke", "wx_precip", "wx_fog"]].notna().all(axis=1)
+    return ev.where(df["vsby_km"].notna() & (known | (df["vsby_km"] >= VIS_KM)))
 
 
 def station_hourly(metar: pd.DataFrame, station: str, tz_offset_h: int) -> pd.DataFrame:
     """Regular hourly frame for one station (NaN rows where no report)."""
-    df = metar[metar["station"] == station].sort_values("valid_at")
-    df = df.assign(hour=df["valid_at"].dt.floor("h")).groupby("hour").last()
+    from ..data.iem import hourly
+
+    df = hourly(metar[metar["station"] == station])
+    if df.empty:
+        return pd.DataFrame()
+    df = df.set_index("hour")
     idx = pd.date_range(df.index.min(), df.index.max(), freq="h")
     df = df.reindex(idx)
     df.index.name = "hour"
     out = pd.DataFrame(index=idx)
-    out["reported"] = df["vsby_km"].notna()
+    out["reported"] = df["valid_at"].notna()
+    out["report_at"] = df["valid_at"]
     out["vsby_km"] = df["vsby_km"]
-    out["event"] = haze_event(df.fillna({c: False for c in ("wx_haze", "wx_smoke", "wx_precip", "wx_fog")}))
-    out["haze_wx"] = (df["wx_haze"].fillna(False) | df["wx_smoke"].fillna(False)).astype(float)
-    out.loc[~out["reported"], "haze_wx"] = np.nan
+    out["event"] = haze_event(df)
+    out["haze_wx"] = (df["wx_haze"].astype("boolean") | df["wx_smoke"].astype("boolean")).astype(
+        float
+    )
+    out.loc[out["vsby_km"].isna(), "haze_wx"] = np.nan
     out["precip_wx"] = df["wx_precip"].astype("boolean").astype(float)
-    out.loc[~out["reported"], "precip_wx"] = np.nan
+    out.loc[out["vsby_km"].isna(), "precip_wx"] = np.nan
     for c in ("rh_pct", "tmpc", "wind_speed_ms", "wind_dir_from_deg"):
         out[c] = df[c].astype(float)
     # Calm (0 kt) reports carry direction 0, which is not "from the north": unknown direction.
@@ -112,7 +120,9 @@ def fire_features(
     near = near.sort_values("acquired_at")
     t_det = near["acquired_at"].to_numpy(dtype="datetime64[ns]").astype("int64") / 3.6e12
     d = near["d"].to_numpy()
-    brg = np.deg2rad(initial_bearing_deg(near["lat"].to_numpy(), near["lon"].to_numpy(), st_lat, st_lon))
+    brg = np.deg2rad(
+        initial_bearing_deg(near["lat"].to_numpy(), near["lon"].to_numpy(), st_lat, st_lon)
+    )
     de, dn = np.sin(brg), np.cos(brg)
     frp = near["frp_mw"].to_numpy(dtype=float)
     frp = np.where(np.isnan(frp), p.frp_fallback, frp)

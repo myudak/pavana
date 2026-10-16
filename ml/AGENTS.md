@@ -24,8 +24,14 @@ Serving policy (user decision, 16 Oct 2026 — replaces the earlier "never serve
 a model may be served when it has an **observed** target, was **evaluated on a temporal holdout**
 against honest baselines, and is labelled **"eksperimental"** in the UI
 (`pavana_ml.models.lgbm.is_servable_experimental`). `is_app_ready` (operational readiness) stays
-stricter and nothing meets it. The CAMS-target Path 2 experiment (`models/experiment.py`) predicts a
-model field, so it stays research-only in `/lab-ml`.
+stricter and nothing meets it. The original CAMS-target Path 2 ablation (`models/experiment.py`)
+stays historical research in `/lab-ml`.
+
+Narrow exception authorized by the user on 16 Oct 2026: the NEW CAMS-only t+6h autoregression in
+`pipelines/regressions.py` may be served under `servingPolicy: experimental-cams-proxy`.
+Its `targetKind` stays `model`, never observation, and `operationalReady` stays false. This does
+not qualify it for `is_servable_experimental` or `is_app_ready`; the API checks the separate
+explicit proxy contract. See [ML live handoff](../docs/ML_LIVE_HANDOFF.md).
 
 Served models (trained in Kaggle, see `kaggle/`):
 
@@ -33,6 +39,8 @@ Served models (trained in Kaggle, see `kaggle/`):
 | --- | --- | --- |
 | `hotspot-risk` | ≥1 Suomi NPP VIIRS detection in a 0.25° Kalimantan cell on UTC day d+1 | `pipelines/hotspot_risk.py`, `features/hotspot_grid.py` |
 | `haze-6h`, `haze-24h` | airport METAR visibility < 3 km with HZ/FU, no rain/fog, at t+6 h / t+24 h | `pipelines/haze_nowcast.py`, `features/haze_station.py` |
+| `pm25` | CAMS model field t+6h (explicit proxy exception) | `pipelines/regressions.py`, `features/pm25.py` |
+| `wind-u`, `wind-v` | airport METAR wind-vector components t+6h | `pipelines/regressions.py`, `features/station_wind.py` |
 
 Workflow — everything heavy runs on Kaggle, nothing needs local data:
 

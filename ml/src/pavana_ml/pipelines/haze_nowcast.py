@@ -20,6 +20,7 @@ from ..data.iem import AIRPORTS
 from ..evaluation import classification as cm
 from ..features import haze_station as hs
 from ..models.export import parity_vectors, to_compact
+from .contract import common_cohort, temporal_parts, windows, write_json
 
 MODEL_ID = "haze"
 TRAIN_END = pd.Timestamp("2021-12-31 23:00", tz="UTC")
@@ -37,6 +38,7 @@ PARAMS: dict[str, Any] = {
     "lambda_l2": 1.0,
     "seed": 20261016,
     "deterministic": True,
+    "num_threads": 4,
     "verbosity": -1,
 }
 MAX_ROUNDS = 600
@@ -51,7 +53,11 @@ def build_table(data_dir: Path) -> pd.DataFrame:
         if h.empty:
             continue
         f = hs.report_features(h)
-        f = f.join(hs.fire_features(h.index, h["wind_dir_from_deg"].to_numpy(), a.lat, a.lon, firms))
+        f["current_event"] = h["event"]
+        f["report_at"] = h["report_at"]
+        f = f.join(
+            hs.fire_features(h.index, h["wind_dir_from_deg"].to_numpy(), a.lat, a.lon, firms)
+        )
         for hz in hs.HORIZONS_H:
             f[f"y_{hz}h"] = h["event"].shift(-hz)  # report at exactly t+h, NaN when absent
         f["station"] = a.icao
@@ -83,14 +89,18 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
         "valid": table[(t > TRAIN_END) & (t <= VALID_END)],
         "test": table[(t > VALID_END) & (t <= TEST_END)],
     }
-    rate_table = (
-        parts["train"].groupby(["station", "month"])["haze_now"].mean().reset_index()
-    )
+    rate_table = parts["train"].groupby(["station", "month"])["haze_now"].mean().reset_index()
     rng = np.random.default_rng(20261016)
     models: dict[str, Any] = {}
     for hz in hs.HORIZONS_H:
         ycol = f"y_{hz}h"
-        sp = {k: v.dropna(subset=[ycol]) for k, v in parts.items()}
+        purged = temporal_parts(
+            table, "issue_at", hz, "2021-12-31 23:00", "2023-12-31 23:00", "2025-12-31 23:00"
+        )
+        sp = {
+            k: v.dropna(subset=[ycol, "current_event", "vsby_km", "haze_now", "rh_pct", "tmpc"])
+            for k, v in purged.items()
+        }
         dtrain = lgb.Dataset(sp["train"][feats], sp["train"][ycol], free_raw_data=False)
         dvalid = lgb.Dataset(sp["valid"][feats], sp["valid"][ycol], reference=dtrain)
         booster = lgb.train(
@@ -107,8 +117,8 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
         p = booster.predict(test[feats])
         tr = sp["train"]
         # Persistence: event-rate given the current report is / is not haze-limited (train only).
-        now_event = (test["vsby_km"] < hs.VIS_KM) & (test["haze_now"] == 1)
-        tr_event = (tr["vsby_km"] < hs.VIS_KM) & (tr["haze_now"] == 1)
+        now_event = test["current_event"] == 1
+        tr_event = tr["current_event"] == 1
         p1, p0 = float(tr.loc[tr_event, ycol].mean()), float(tr.loc[~tr_event, ycol].mean())
         persistence = np.where(now_event, p1, p0)
         clim = tr.groupby(["station", "month"])[ycol].mean()
@@ -116,13 +126,20 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             pd.MultiIndex.from_arrays([test["station"], test["month"]])
         ).to_numpy()
         climatology = np.where(np.isnan(climatology), float(tr[ycol].mean()), climatology)
+        keep = common_cohort(
+            y, {"model": p, "persistence": persistence, "climatology": climatology}
+        )
+        test = test.loc[keep].copy()
+        y, p, persistence, climatology = y[keep], p[keep], persistence[keep], climatology[keep]
         metrics = {
             "model": cm.binary_metrics(y, p),
             "persistence": cm.binary_metrics(y, persistence),
             "climatology": cm.binary_metrics(y, climatology),
         }
         per_station = {
-            st: cm.binary_metrics(y[test["station"].to_numpy() == st], p[test["station"].to_numpy() == st])
+            st: cm.binary_metrics(
+                y[test["station"].to_numpy() == st], p[test["station"].to_numpy() == st]
+            )
             for st in sorted(test["station"].unique())
         }
         sample = test.iloc[rng.choice(len(test), size=min(20000, len(test)), replace=False)]
@@ -135,17 +152,23 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             key=lambda r: -r["meanAbsShap"],
         )
         nan_rows = test[test[feats].isna().any(axis=1)].head(10)
-        probe = pd.concat([sample.head(30), nan_rows])[feats].to_numpy(dtype=float)
+        probe = pd.concat(
+            [sample.head(24), nan_rows.head(6), sp["train"].tail(1), sp["valid"].tail(1)]
+        )[feats].to_numpy(dtype=float)
+        probe = np.vstack([probe, np.full((1, len(feats)), np.nan)])
         name = f"{MODEL_ID}-{hz}h"
-        (out_dir / f"{name}.model.json").write_text(
-            json.dumps(to_compact(booster), separators=(",", ":"))
-        )
-        (out_dir / f"{name}.parity.json").write_text(
-            json.dumps(parity_vectors(booster, probe), separators=(",", ":"))
-        )
+        write_json(out_dir / f"{name}.model.json", to_compact(booster))
+        write_json(out_dir / f"{name}.parity.json", parity_vectors(booster, probe))
+        pred = test[["station", "issue_at", ycol]].copy()
+        pred["target_at"] = pred.issue_at + pd.Timedelta(hours=hz)
+        pred["model"], pred["persistence"], pred["climatology"] = p, persistence, climatology
+        pred.to_parquet(out_dir / f"{name}.predictions.parquet", index=False)
         booster.save_model(str(out_dir / f"{name}.lgb.txt"))
         models[f"{hz}h"] = {
             "horizonHours": hz,
+            "purgeHours": hz,
+            "evaluationRows": len(test),
+            "windows": windows(sp, "issue_at"),
             "rows": {k: int(len(v)) for k, v in sp.items()},
             "baseRate": {k: float(v[ycol].mean()) for k, v in sp.items()},
             "metrics": {"test": metrics},
@@ -173,6 +196,7 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             {
                 "station": st,
                 "issueAt": r["issue_at"].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "reportAt": r["report_at"].strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "x": [None if pd.isna(r[f]) else float(r[f]) for f in feats],
                 "observed": {
                     f"{hz}h": None if pd.isna(r[f"y_{hz}h"]) else bool(r[f"y_{hz}h"] > 0)
@@ -183,7 +207,9 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
 
     meta = {
         "modelId": MODEL_ID,
-        "version": f"{MODEL_ID}-{datetime.now(UTC):%Y%m%d}",
+        "version": (
+            f"{MODEL_ID}-{datetime.now(UTC):%Y%m%d%H%M%S}-{(code_sha256 or 'untracked')[:8]}"
+        ),
         "createdAt": datetime.now(UTC).isoformat(timespec="seconds"),
         "title": "Asap / jarak pandang (eksperimental)",
         "target": "METAR visibility < 3 km with HZ or FU and no precipitation/fog code, at t+h",
@@ -193,7 +219,13 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
         "operationalReady": False,
         "features": feats,
         "stations": [
-            {"icao": a.icao, "name": a.name, "lat": a.lat, "lon": a.lon, "tzOffsetHours": a.tz_offset_h}
+            {
+                "icao": a.icao,
+                "name": a.name,
+                "lat": a.lat,
+                "lon": a.lon,
+                "tzOffsetHours": a.tz_offset_h,
+            }
             for a in AIRPORTS
         ],
         "stationMonthRate": [
@@ -215,8 +247,8 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             "note": "Replay of real archived METAR/FIRMS inputs (test period), not live data.",
         },
     }
-    (out_dir / f"{MODEL_ID}.meta.json").write_text(json.dumps(meta, indent=2))
-    (out_dir / f"{MODEL_ID}.demo.json").write_text(
-        json.dumps({"issueAt": meta["demo"]["issueAt"], "rows": demo_rows}, separators=(",", ":"))
+    write_json(out_dir / f"{MODEL_ID}.meta.json", meta)
+    write_json(
+        out_dir / f"{MODEL_ID}.demo.json", {"issueAt": meta["demo"]["issueAt"], "rows": demo_rows}
     )
     return meta

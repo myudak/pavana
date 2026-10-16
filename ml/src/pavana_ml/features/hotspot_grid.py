@@ -103,7 +103,7 @@ def _window_sum(a: np.ndarray, k: int) -> np.ndarray:
     nans[k:] = nan_c[k:] - nan_c[:-k]
     out[: k - 1] = np.nan  # incomplete history at the start
     out[nans > 0] = np.nan
-    return out.astype(np.float32)
+    return out.astype(np.result_type(a.dtype, np.float32))
 
 
 def _box_sum(a: np.ndarray, radius: int) -> np.ndarray:
@@ -158,7 +158,7 @@ def fire_features(counts: np.ndarray, sensor_ok: np.ndarray) -> dict[str, np.nda
 
 
 def dry_day_run(precip: np.ndarray) -> np.ndarray:
-    """Consecutive days (ending today) with precipitation < 1 mm, capped at 60. NaN resets to NaN."""
+    """Consecutive days with precipitation < 1 mm, capped at 60. NaN resets to NaN."""
     out = np.full(precip.shape, np.nan, dtype=np.float32)
     run = np.full(precip.shape[1:], np.nan, dtype=np.float32)
     for t in range(precip.shape[0]):

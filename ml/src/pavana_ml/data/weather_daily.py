@@ -47,9 +47,17 @@ def _get(url: str, params: dict, tries: int = 6, timeout: int = 180) -> object:
             if r.status_code == 429:
                 last = r.text[:200]
                 print(f"open-meteo 429 (attempt {attempt + 1}): {last}", flush=True)
-                if "Daily" in last:
+                if "daily" in last.lower():
                     break  # waiting minutes will not help
-                time.sleep(65 * (attempt + 1))
+                retry = r.headers.get("Retry-After", "")
+                wait = (
+                    int(retry)
+                    if retry.isdigit()
+                    else 3600
+                    if "hourly" in last.lower()
+                    else 65 * (attempt + 1)
+                )
+                time.sleep(wait)
                 continue
             r.raise_for_status()
             return r.json()
@@ -85,8 +93,8 @@ def fetch_daily_points(
     start: str,
     end: str,
     cache_dir: Path,
-    batch: int = 10,
-    pause_s: float = 2.0,
+    batch: int = 1,
+    pause_s: float = 230.0,
 ) -> pd.DataFrame:
     """Daily archive weather for many points, `batch` points per request, cached per batch."""
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -112,7 +120,10 @@ def fetch_daily_points(
         )
         df = parse_daily(payload, chunk)  # type: ignore[arg-type]
         df.to_parquet(path, index=False)
-        print(f"weather batch {i // batch + 1}/{-(-len(points) // batch)}: {len(df):,} rows", flush=True)
+        print(
+            f"weather batch {i // batch + 1}/{-(-len(points) // batch)}: {len(df):,} rows",
+            flush=True,
+        )
         frames.append(df)
         time.sleep(pause_s)
     return pd.concat(frames, ignore_index=True)

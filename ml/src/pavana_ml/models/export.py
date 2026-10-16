@@ -62,15 +62,16 @@ def _compact_tree(info: dict[str, Any]) -> dict[str, list]:
 
 
 def to_compact(booster) -> dict[str, Any]:
-    """`pavana-gbdt-v1` dict for a binary LightGBM booster."""
+    """Numerical binary (sigmoid:1) or identity-link regression booster."""
     dump = booster.dump_model()
-    if dump.get("objective", "").split(" ")[0] != "binary":
-        raise ValueError(f"only binary models are exported, got {dump.get('objective')!r}")
-    if "sigmoid:1" not in dump.get("objective", ""):
+    objective = dump.get("objective", "").split(" ")[0]
+    if objective not in ("binary", "regression", "regression_l1"):
+        raise ValueError(f"unsupported objective {dump.get('objective')!r}")
+    if objective == "binary" and "sigmoid:1" not in dump.get("objective", ""):
         raise ValueError("expected the default sigmoid:1 link")
     return {
         "format": "pavana-gbdt-v1",
-        "objective": "binary",
+        "objective": "binary" if objective == "binary" else "regression",
         "featureNames": list(dump["feature_names"]),
         "trees": [_compact_tree(t) for t in dump["tree_info"]],
     }
@@ -85,12 +86,14 @@ def parity_vectors(booster, x: np.ndarray, max_rows: int = 40) -> dict[str, Any]
     x = np.asarray(x, dtype=float)[:max_rows]
     raw = booster.predict(x, raw_score=True)
     contrib = booster.predict(x, pred_contrib=True)
+    binary = to_compact(booster)["objective"] == "binary"
     return {
         "rows": [
             {
                 "x": _json_row(x[i]),
                 "raw": float(raw[i]),
-                "proba": float(1.0 / (1.0 + np.exp(-raw[i]))),
+                **({"proba": float(1.0 / (1.0 + np.exp(-raw[i])))} if binary else {}),
+                "prediction": float(booster.predict(x[i : i + 1])[0]),
                 "shap": [float(v) for v in contrib[i]],
             }
             for i in range(len(x))

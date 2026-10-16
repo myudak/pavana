@@ -1,9 +1,10 @@
 # Pavana ML (research workspace)
 
-> **Experimental. Not operational.** Live forecasts use provider data and deterministic indicators
-> (`apps/api/src/services/insights.ts`); demo mode uses the synthetic fixture. `/lab-ml` displays frozen
-> historical research output. Serving a model as a live forecast requires `is_app_ready`, including an
-> **observed** target — no artifact in this workspace has one.
+> **Experimental. Not operational.** The app keeps its provider forecasts and deterministic
+> indicators, alongside separately labelled experimental ML outputs. The six-booster Kaggle flow
+> and its serving contracts are documented in
+> [ML live handoff](../docs/ML_LIVE_HANDOFF.md). Operational readiness (`is_app_ready`) stays strict.
+> The older H-1 CAMS ablation below remains historical research in `/lab-ml`.
 
 ## Two research paths — never merge them
 
