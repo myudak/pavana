@@ -25,12 +25,16 @@ provider yet — the app still serves the fixture.
 
 ## Map tiles (atribusi peta)
 
-- Default `VITE_MAP_STYLE_URL` = `https://demotiles.maplibre.org/style.json` (lihat `.env.example`).
-  Atribusi tampil otomatis lewat kontrol atribusi MapLibre (`attributionControl: { compact: true }`
-  di `apps/web/src/features/map/HotspotMap.tsx`) sesuai isi style JSON.
-- Penyedia tile final (MapTiler / Protomaps / OSM) **belum diputuskan** — lihat B3 di `docs/PRD.md`.
-  Saat penyedia dipilih: cantumkan lisensinya di tabel ini dan pastikan kreditnya tampil di
-  aplikasi (halaman Info dan/atau kontrol peta).
+- Default basemaps: **CARTO Voyager** (light) and **CARTO Dark Matter** (dark), free CARTO
+  vector basemaps built on OpenStreetMap data (`apps/web/src/features/map/basemap.ts`; the
+  mobile app uses the same pair). Dark Matter gets a gentle Dusk grade (land/water/rivers/
+  boundaries) at runtime; Voyager is untouched.
+- Override with `VITE_MAP_STYLE_URL` (light) and `VITE_MAP_STYLE_URL_DARK` (dark); empty =
+  the CARTO defaults (see `.env.example`).
+- Attribution: "© CARTO, © OpenStreetMap contributors" comes from the style JSON and is shown
+  by the MapLibre attribution control (kept above the map's bottom sheet). CARTO's free
+  basemaps are for non-commercial/low-volume use; revisit B3 in `docs/PRD.md` before any
+  commercial or high-traffic launch.
 
 ## Observed PM2.5 is the blocker
 

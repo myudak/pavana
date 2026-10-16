@@ -8,16 +8,68 @@ import {
   type StreamlineField,
 } from '@pavana/shared';
 import type { FeatureCollection, LineString, Point } from 'geojson';
-import maplibregl, { type GeoJSONSource, type ImageSource } from 'maplibre-gl';
+import maplibregl, {
+  type ExpressionSpecification,
+  type GeoJSONSource,
+  type ImageSource,
+} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
 import { cssVar } from '@/lib/aq';
-import { formatDateTime } from '@/lib/format';
-import { useCopy, type Copy } from '@/lib/i18n';
-
-const STYLE_URL = import.meta.env.VITE_MAP_STYLE_URL || 'https://demotiles.maplibre.org/style.json';
+import { useCopy } from '@/lib/i18n';
+import { useDarkMode } from '@/lib/theme-context';
+import { basemapStyleUrl, DARK_STYLE_URL, gradeDarkBasemap } from './basemap';
+import {
+  ageClass,
+  ageColorExpr,
+  hotspotAgeHours,
+  hotspotReferenceMs,
+  HOTSPOT_OPACITY,
+  HOTSPOT_RADIUS,
+  readMapPalette,
+  withAlpha,
+  type MapPalette,
+} from './hotspot-style';
 
 const RASTER_ID = 'density-raster';
+/** VIIRS pixels are ~375 m; closer zooms only magnify the detection footprint. */
+const MIN_ZOOM = 3;
+const MAX_ZOOM = 14;
+/** Individual detections from this zoom; clusters (and the density glow) below it. */
+const CLUSTER_MAX_ZOOM = 9;
+const HOTSPOT_LAYERS = [
+  'hotspot-heat',
+  'hotspot-glow',
+  'hotspots',
+  'hotspot-hit',
+  'clusters',
+  'cluster-count',
+];
+const LABEL_FONT = ['Montserrat Medium', 'Open Sans Bold', 'Noto Sans Regular'];
+
+/**
+ * Generic extra data layer drawn under the detections and basemap labels, e.g. a
+ * future gridded model output. The caller owns the legend and provenance copy.
+ * - `fill`: polygons (grid cells) colored by `valueProperty` through `stops`.
+ * - `heatmap`: points weighted by `valueProperty` (0–1), colored by density stops.
+ * Features whose value is missing/null are not drawn (never treated as zero).
+ */
+export interface MapOverlay {
+  id: string;
+  type: 'fill' | 'heatmap';
+  data: FeatureCollection;
+  valueProperty: string;
+  stops: [number, string][];
+  opacity?: number;
+  visible?: boolean;
+}
+
+export interface MapInsets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
 
 /** Idempotent source/layer setup (load can re-fire per map instance in dev). */
 function ensureSource(map: maplibregl.Map, id: string, def: object) {
@@ -30,6 +82,9 @@ function ensureLayer(
 ) {
   if (!map.getLayer(def.id)) map.addLayer(def, before);
 }
+function firstSymbolId(map: maplibregl.Map): string | undefined {
+  return map.getStyle()?.layers.find((l) => l.type === 'symbol')?.id;
+}
 
 /** 1px transparent placeholder so the image source exists before data arrives. */
 function transparentPixel(): string {
@@ -40,12 +95,12 @@ function transparentPixel(): string {
 }
 
 /** Small up-pointing triangle sprite for streamline direction arrows. */
-function windArrowImage(): ImageData {
+function windArrowImage(color: string): ImageData {
   const canvas = document.createElement('canvas');
   canvas.width = 24;
   canvas.height = 24;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#f472b6';
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(12, 3);
   ctx.lineTo(20, 19);
@@ -82,47 +137,147 @@ function windLine(c: LatLon, flowBearing: number): LineString {
 }
 
 function toGeoJSON(hotspots: Hotspot[]): FeatureCollection<Point> {
+  const refMs = hotspotReferenceMs(hotspots);
   return {
     type: 'FeatureCollection',
-    features: hotspots.map((h) => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [h.lon, h.lat] },
-      properties: {
-        id: h.id,
-        lat: h.lat,
-        lon: h.lon,
-        acquiredAt: h.acquiredAt,
-        frpMw: h.frpMw,
-        confidence: h.confidence,
-        satellite: `${h.satellite} · ${h.instrument}`,
-        isDemo: h.provenance.isDemo,
-      },
-    })),
+    features: hotspots.map((h) => {
+      const ageH = hotspotAgeHours(h.acquiredAt, refMs);
+      return {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [h.lon, h.lat] },
+        properties: {
+          id: h.id,
+          lat: h.lat,
+          lon: h.lon,
+          acquiredAt: h.acquiredAt,
+          ageH: ageH == null ? null : Math.round(ageH * 10) / 10,
+          ageClass: ageH == null ? 3 : ageClass(ageH),
+          frpMw: h.frpMw,
+          confidence: h.confidence,
+          satellite: `${h.satellite} · ${h.instrument}`,
+          isDemo: h.provenance.isDemo,
+        },
+      };
+    }),
   };
 }
 
-/** Popup DOM built with textContent (no HTML injection). */
-function popupContent(props: Record<string, unknown>, t: Copy, timeZone: string): HTMLElement {
-  const el = document.createElement('div');
-  el.className = 'space-y-1 text-sm text-neutral-900';
-  const rows: [string, string][] = [
-    [t.map.acquired, formatDateTime(String(props.acquiredAt), timeZone)],
-    [t.map.frp, props.frpMw == null || props.frpMw === 'null' ? '—' : `${props.frpMw} MW`],
-    [t.map.confidence, String(props.confidence ?? '—')],
-    [t.map.satellite, String(props.satellite)],
-  ];
-  for (const [k, v] of rows) {
-    const p = document.createElement('p');
-    const b = document.createElement('strong');
-    b.textContent = `${k}: `;
-    p.append(b, v);
-    el.append(p);
-  }
-  const note = document.createElement('p');
-  note.className = 'pt-1 text-xs text-neutral-600';
-  note.textContent = t.map.hotspotDisclaimer + (props.isDemo ? ` (${t.demoBanner})` : '');
-  el.append(note);
-  return el;
+function addHotspotLayers(map: maplibregl.Map, p: MapPalette) {
+  const unclustered: ExpressionSpecification = ['!', ['has', 'point_count']];
+  // Low-zoom detection-density glow; crossfades out as individual dots take over.
+  ensureLayer(map, {
+    id: 'hotspot-heat',
+    type: 'heatmap',
+    source: 'hotspots-raw',
+    maxzoom: 11,
+    paint: {
+      'heatmap-weight': [
+        'case',
+        ['==', ['get', 'frpMw'], null],
+        0.5,
+        ['interpolate', ['linear'], ['get', 'frpMw'], 0, 0.35, 50, 1],
+      ],
+      'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 3, 0.3, 6, 0.55, 9, 1.2],
+      'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 3, 6, 6, 12, 9, 22],
+      'heatmap-color': [
+        'interpolate',
+        ['linear'],
+        ['heatmap-density'],
+        0,
+        withAlpha(p.heat[0], 0),
+        0.1,
+        withAlpha(p.heat[0], 0.45),
+        0.35,
+        withAlpha(p.heat[1], 0.8),
+        0.7,
+        p.heat[2],
+        1,
+        p.heat[3],
+      ],
+      'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 5, 0.75, 8, 0.45, 10.5, 0],
+    },
+  });
+  ensureLayer(map, {
+    id: 'hotspot-glow',
+    type: 'circle',
+    source: 'hotspots',
+    minzoom: 7,
+    filter: unclustered,
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 7, 10, 14, 13, 22],
+      'circle-color': ageColorExpr(p),
+      'circle-blur': 0.8,
+      'circle-opacity': ['interpolate', ['linear'], ['zoom'], 7, 0, 9, 0.3],
+    },
+  });
+  ensureLayer(map, {
+    id: 'hotspots',
+    type: 'circle',
+    source: 'hotspots',
+    filter: unclustered,
+    paint: {
+      'circle-radius': HOTSPOT_RADIUS,
+      'circle-color': ageColorExpr(p),
+      'circle-opacity': HOTSPOT_OPACITY,
+      'circle-stroke-color': p.stroke,
+      'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 4, 0.5, 9, 1.2, 12, 1.6],
+      'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.5, 8, 0.9],
+    },
+  });
+  // Larger invisible target so small dots are tappable on phones.
+  ensureLayer(map, {
+    id: 'hotspot-hit',
+    type: 'circle',
+    source: 'hotspots',
+    filter: unclustered,
+    paint: { 'circle-radius': 14, 'circle-color': '#000000', 'circle-opacity': 0 },
+  });
+  ensureLayer(map, {
+    id: 'hotspot-selected',
+    type: 'circle',
+    source: 'hotspots-raw',
+    filter: ['==', ['get', 'id'], ''],
+    paint: {
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 7, 9, 13, 13, 20],
+      'circle-color': 'rgba(0,0,0,0)',
+      'circle-stroke-color': cssVar('--pv-ink') || '#1f2937',
+      'circle-stroke-width': 2.5,
+    },
+  });
+  // Cluster bubbles: colored by the freshest detection inside, sized by count.
+  ensureLayer(map, {
+    id: 'clusters',
+    type: 'circle',
+    source: 'hotspots',
+    minzoom: 6,
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': ageColorExpr(p, 'fresh'),
+      'circle-radius': ['step', ['get', 'point_count'], 11, 10, 14, 50, 18, 150, 23],
+      'circle-stroke-color': p.stroke,
+      'circle-stroke-width': 2,
+      'circle-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 0.92],
+      'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0, 7, 0.9],
+    },
+  });
+  ensureLayer(map, {
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'hotspots',
+    minzoom: 6.5,
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': ['get', 'point_count_abbreviated'],
+      'text-font': LABEL_FONT,
+      'text-size': 11.5,
+      'text-allow-overlap': true,
+    },
+    paint: {
+      'text-color': '#ffffff',
+      'text-halo-color': 'rgba(0,0,0,0.55)',
+      'text-halo-width': 1.2,
+    },
+  });
 }
 
 export function HotspotMap({
@@ -136,17 +291,22 @@ export function HotspotMap({
   fitTo = null,
   streamlines = null,
   fitNonce = 0,
-  timeZone,
+  fitMaxZoom = 11,
   onError,
   styleUrl,
   wind,
   onSelectHotspot,
-  controls = true,
+  selectedId = null,
   plumes = null,
   showPlumes = false,
+  insets,
+  overlays = [],
+  onMapReady,
+  interactive = true,
+  attributionPosition = 'bottom-right',
 }: {
-  /** MapLibre zoom/fullscreen buttons. Off when the caller draws its own controls. */
-  controls?: boolean;
+  /** Corner for the (license-required) basemap attribution. */
+  attributionPosition?: 'bottom-right' | 'bottom-left';
   /** Indicative downwind trails from hotspots (see tracePlumes). */
   plumes?: PlumeTrail[] | null;
   showPlumes?: boolean;
@@ -167,24 +327,40 @@ export function HotspotMap({
   fitTo?: BBox | null;
   /** Regional wind streamlines (flow direction). Null hides the layers. */
   streamlines?: StreamlineField | null;
-  /** Increment to refit the viewport (fit button). */
+  /** Increment to refit the viewport (view buttons). */
   fitNonce?: number;
-  timeZone: string;
+  /** Closest zoom a fit may reach (large screens otherwise zoom in very far). */
+  fitMaxZoom?: number;
   onError: () => void;
-  /** MapLibre style URL. Dark callers pass a dark basemap; falls back to demotiles. */
+  /** MapLibre style URL override. Default: CARTO Voyager (light) / Dark Matter (dark). */
   styleUrl?: string;
   /** Current wind at the selected location (FROM degrees + speed). Renders a flow arrow. */
   wind?: { fromDeg: number; speedMs: number } | null;
-  /** Called with the clicked detection's properties (for the side panel). */
-  onSelectHotspot?: (props: Record<string, unknown>) => void;
+  /** Called with the tapped detection's properties, or null when tapping empty map. */
+  onSelectHotspot?: (props: Record<string, unknown> | null) => void;
+  /** Highlighted detection id (ring). */
+  selectedId?: string | null;
+  /** Screen area covered by floating chrome; fits keep the target inside the rest. */
+  insets?: MapInsets;
+  /** Optional extra data layers (see MapOverlay). */
+  overlays?: MapOverlay[];
+  /** Receives the MapLibre instance once its style is ready (null on teardown). */
+  onMapReady?: (map: maplibregl.Map | null) => void;
+  /** Pan/zoom gestures. Off for static previews. */
+  interactive?: boolean;
 }) {
   const t = useCopy();
+  const dark = useDarkMode();
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const loadedRef = useRef(false);
   const fittedRef = useRef('');
-  const style = styleUrl || STYLE_URL;
+  const style = styleUrl || basemapStyleUrl(dark);
   const windFlow = wind != null ? windFromToFlowBearing(wind.fromDeg) : null;
+  const onSelectRef = useRef(onSelectHotspot);
+  onSelectRef.current = onSelectHotspot;
+  const onReadyRef = useRef(onMapReady);
+  onReadyRef.current = onMapReady;
 
   // Create the map once per center / style.
   useEffect(() => {
@@ -196,36 +372,17 @@ export function HotspotMap({
         style,
         center: [center.lon, center.lat],
         zoom: 9,
-        attributionControl: { compact: true },
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        interactive,
+        attributionControl: false,
       });
+      map.addControl(new maplibregl.AttributionControl({ compact: true }), attributionPosition);
     } catch {
       onError(); // e.g. WebGL unavailable
       return;
     }
     mapRef.current = map;
-    if (controls) {
-      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-      map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-    }
-    // Dusk/Haze navy grade over the CARTO dark-matter style (no style fork):
-    // background + water go navy/black, admin boundaries dim indigo.
-    // Roads, rivers, labels and other layers keep the provider's styling.
-    const gradeBasemap = () => {
-      if (map.getLayer('background')) {
-        map.setPaintProperty('background', 'background-color', '#070b1f');
-      }
-      if (map.getLayer('water')) {
-        map.setPaintProperty('water', 'fill-color', '#050818');
-      }
-      if (map.getLayer('boundary_state')) {
-        map.setPaintProperty('boundary_state', 'line-color', '#5b6ad0');
-        map.setPaintProperty('boundary_state', 'line-opacity', 0.35);
-      }
-      if (map.getLayer('boundary_county')) {
-        map.setPaintProperty('boundary_county', 'line-color', '#3a4670');
-        map.setPaintProperty('boundary_county', 'line-opacity', 0.3);
-      }
-    };
     map.on('error', (e) => {
       if (!loadedRef.current) {
         console.error('[map]', e.error);
@@ -233,110 +390,28 @@ export function HotspotMap({
       }
     });
 
-    map.on('load', () => {
+    // style.load (not load): draw overlays without waiting for every basemap tile.
+    map.once('style.load', () => {
       loadedRef.current = true;
       fittedRef.current = '';
-      gradeBasemap();
+      if (dark && style === DARK_STYLE_URL) gradeDarkBasemap(map);
+      const p = readMapPalette(dark);
+      const firstSymbol = firstSymbolId(map);
+
       ensureSource(map, 'hotspots', {
         type: 'geojson',
         data: toGeoJSON([]),
         cluster: true,
-        clusterMaxZoom: 12,
-        clusterRadius: 60,
+        clusterMaxZoom: CLUSTER_MAX_ZOOM,
+        clusterRadius: 34,
+        clusterProperties: { fresh: ['min', ['get', 'ageClass']] },
       });
-      // Indicative smoke-direction trails, under the detections.
+      ensureSource(map, 'hotspots-raw', { type: 'geojson', data: toGeoJSON([]) });
       ensureSource(map, 'plumes', {
         type: 'geojson',
         lineMetrics: true,
         data: { type: 'FeatureCollection', features: [] },
       });
-      ensureLayer(map, {
-        id: 'plumes-line',
-        type: 'line',
-        source: 'plumes',
-        layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' },
-        paint: {
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            4,
-            ['*', 3, ['get', 'w']],
-            7,
-            ['*', 6, ['get', 'w']],
-            10,
-            ['*', 12, ['get', 'w']],
-          ],
-          'line-blur': ['interpolate', ['linear'], ['zoom'], 4, 1.5, 10, 6],
-          'line-gradient': [
-            'interpolate',
-            ['linear'],
-            ['line-progress'],
-            0,
-            'rgba(244,114,182,0.95)',
-            0.5,
-            'rgba(168,85,247,0.6)',
-            1,
-            'rgba(99,102,241,0)',
-          ],
-        },
-      });
-      const hotspotColor = cssVar('--pv-aq-unhealthy') || '#dc2626';
-      // Soft halo beneath each detection (decorative luminance; color still semantic).
-      // Hidden at regional zoom — the raster carries the luminance there.
-      ensureLayer(map, {
-        id: 'hotspot-glow',
-        type: 'circle',
-        source: 'hotspots',
-        minzoom: 9,
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-radius': 8,
-          'circle-color': hotspotColor,
-          'circle-opacity': 0.18,
-        },
-      });
-      ensureLayer(map, {
-        id: 'hotspots',
-        type: 'circle',
-        source: 'hotspots',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 7, 4, 10, 6],
-          'circle-color': hotspotColor,
-          'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 4, 0.6, 9, 1.5],
-          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.85, 10, 0.95],
-        },
-      });
-      // Cluster bubbles for overlapping detections (hidden at regional zoom).
-      ensureLayer(map, {
-        id: 'clusters',
-        type: 'circle',
-        source: 'hotspots',
-        minzoom: 7,
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': cssVar('--pv-primary') || '#6366f1',
-          'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 1.5,
-          'circle-radius': ['step', ['get', 'point_count'], 16, 5, 20, 10, 26],
-        },
-      });
-      ensureLayer(map, {
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'hotspots',
-        minzoom: 7,
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': ['get', 'point_count_abbreviated'],
-          'text-size': 12,
-        },
-        paint: { 'text-color': '#ffffff' },
-      });
-      // Separate unclustered source for markers is unchanged ('hotspots').
-      // The regional density raster below uses its own image source.
       ensureSource(map, 'density-src', {
         type: 'image',
         url: transparentPixel(),
@@ -347,54 +422,37 @@ export function HotspotMap({
           [108.5, -4.5],
         ],
       });
-      ensureSource(map, 'wind-flow', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      });
-      ensureLayer(map, {
-        id: 'wind-flow-line',
-        type: 'line',
-        source: 'wind-flow',
-        paint: {
-          'line-color': cssVar('--pv-accent') || '#f472b6',
-          'line-width': 2.5,
-          'line-dasharray': [2, 2],
-          'line-opacity': 0.8,
-        },
-      });
-      // Regional streamlines (below labels, above the raster).
-      ensureSource(map, 'wind-streamlines', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      });
-      ensureSource(map, 'wind-arrows', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      });
-      if (!map.hasImage('wind-arrow')) {
-        map.addImage('wind-arrow', windArrowImage(), { pixelRatio: 2 });
+      for (const id of ['wind-flow', 'wind-streamlines', 'wind-arrows']) {
+        ensureSource(map, id, {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        });
       }
-      // Regional streamlines: below basemap labels, above the raster.
-      const firstSymbol = map.getStyle()?.layers.find((l) => l.type === 'symbol')?.id;
+      if (!map.hasImage('wind-arrow')) {
+        map.addImage('wind-arrow', windArrowImage(p.windB), { pixelRatio: 2 });
+      }
+
+      // Regional streamlines: below basemap labels.
       ensureLayer(
         map,
         {
           id: 'wind-streamlines-line',
           type: 'line',
           source: 'wind-streamlines',
+          layout: { 'line-cap': 'round' },
           paint: {
-            'line-width': 1,
-            'line-opacity': 0.55,
+            'line-width': dark ? 1 : 1.3,
+            'line-opacity': 0.6,
             'line-gradient': [
               'interpolate',
               ['linear'],
               ['line-progress'],
               0,
-              'rgba(183,166,255,0)',
+              withAlpha(p.windA, 0),
               0.3,
-              '#b7a6ff',
+              p.windA,
               1,
-              '#f08cc8',
+              p.windB,
             ],
           },
         },
@@ -418,6 +476,50 @@ export function HotspotMap({
         },
         firstSymbol,
       );
+      // Indicative smoke-direction trails, under the detections.
+      ensureLayer(map, {
+        id: 'plumes-line',
+        type: 'line',
+        source: 'plumes',
+        layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' },
+        paint: {
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            4,
+            ['*', 3, ['get', 'w']],
+            7,
+            ['*', 6, ['get', 'w']],
+            10,
+            ['*', 12, ['get', 'w']],
+          ],
+          'line-blur': ['interpolate', ['linear'], ['zoom'], 4, 1.5, 10, 6],
+          'line-gradient': [
+            'interpolate',
+            ['linear'],
+            ['line-progress'],
+            0,
+            withAlpha(p.plumeA, dark ? 0.95 : 0.85),
+            0.5,
+            withAlpha(p.plumeB, dark ? 0.6 : 0.5),
+            1,
+            withAlpha(p.plumeB, 0),
+          ],
+        },
+      });
+      ensureLayer(map, {
+        id: 'wind-flow-line',
+        type: 'line',
+        source: 'wind-flow',
+        paint: {
+          'line-color': p.windB,
+          'line-width': 2.5,
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.85,
+        },
+      });
+      addHotspotLayers(map, p);
       ensureSource(map, 'location', {
         type: 'geojson',
         data: {
@@ -427,52 +529,55 @@ export function HotspotMap({
         },
       });
       ensureLayer(map, {
+        id: 'location-halo',
+        type: 'circle',
+        source: 'location',
+        paint: { 'circle-radius': 20, 'circle-color': p.location, 'circle-opacity': 0.16 },
+      });
+      ensureLayer(map, {
         id: 'location',
         type: 'circle',
         source: 'location',
         paint: {
-          'circle-radius': 9,
-          'circle-color': cssVar('--pv-primary') || '#f97316',
+          'circle-radius': 8,
+          'circle-color': p.location,
           'circle-stroke-color': '#ffffff',
           'circle-stroke-width': 3,
         },
       });
 
-      map.on('click', 'hotspots', (e) => {
-        const f = e.features?.[0];
-        if (!f || f.geometry.type !== 'Point') return;
-        onSelectHotspot?.(f.properties ?? {});
-        new maplibregl.Popup({ closeButton: true, maxWidth: '260px' })
-          .setLngLat(f.geometry.coordinates as [number, number])
-          .setDOMContent(popupContent(f.properties ?? {}, t, timeZone))
-          .addTo(map);
+      map.on('click', (e) => {
+        const hit = map.queryRenderedFeatures(e.point, { layers: ['hotspot-hit', 'clusters'] });
+        const f = hit[0];
+        if (!f || f.geometry.type !== 'Point') {
+          onSelectRef.current?.(null);
+          return;
+        }
+        const clusterId = f.properties?.['cluster_id'];
+        if (typeof clusterId === 'number') {
+          const coords = f.geometry.coordinates.slice(0, 2) as [number, number];
+          (map.getSource('hotspots') as GeoJSONSource | undefined)
+            ?.getClusterExpansionZoom(clusterId)
+            .then((zoom) => map.easeTo({ center: coords, zoom: zoom + 0.2 }))
+            .catch(() => {
+              // expansion unavailable — stay at the current view
+            });
+          return;
+        }
+        onSelectRef.current?.(f.properties ?? {});
       });
-      map.on('click', 'clusters', (e) => {
-        const f = e.features?.[0];
-        const clusterId = f?.properties?.['cluster_id'];
-        if (!f || f.geometry.type !== 'Point' || typeof clusterId !== 'number') return;
-        const coords = f.geometry.coordinates.slice(0, 2) as [number, number];
-        const source = map.getSource('hotspots') as
-          (GeoJSONSource & { getClusterExpansionZoom(id: number): Promise<number> }) | undefined;
-        source
-          ?.getClusterExpansionZoom(clusterId)
-          .then((zoom) => {
-            map.easeTo({ center: coords, zoom });
-          })
-          .catch(() => {
-            // zoom expansion unavailable — stay at the current view
-          });
-      });
-      map.on('mouseenter', 'hotspots', () => (map.getCanvas().style.cursor = 'pointer'));
-      map.on('mouseleave', 'hotspots', () => (map.getCanvas().style.cursor = ''));
-      map.on('mouseenter', 'clusters', () => (map.getCanvas().style.cursor = 'pointer'));
-      map.on('mouseleave', 'clusters', () => (map.getCanvas().style.cursor = ''));
+      for (const id of ['hotspot-hit', 'clusters']) {
+        map.on('mouseenter', id, () => (map.getCanvas().style.cursor = 'pointer'));
+        map.on('mouseleave', id, () => (map.getCanvas().style.cursor = ''));
+      }
+      onReadyRef.current?.(map);
       map.fire('pavana:ready');
     });
 
     return () => {
       loadedRef.current = false;
       mapRef.current = null;
+      onReadyRef.current?.(null);
       map?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- recreate only when the center or style moves
@@ -481,11 +586,12 @@ export function HotspotMap({
   // Push data/visibility updates once the style is ready.
   // First batch also fits the viewport (explicit fitTo bbox wins over data bounds).
   const lastCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const doFit = (map: maplibregl.Map) => {
-    const fitKey = fitTo
+  const fitKeyFor = () =>
+    fitTo
       ? `fit:${fitTo.join(',')},${style}`
       : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
-    fittedRef.current = fitKey;
+  const doFit = (map: maplibregl.Map) => {
+    fittedRef.current = fitKeyFor();
     const bounds = new maplibregl.LngLatBounds([center.lon, center.lat], [center.lon, center.lat]);
     if (fitTo != null) {
       bounds.extend([fitTo[0], fitTo[1]]);
@@ -494,9 +600,19 @@ export function HotspotMap({
       for (const h of hotspots) bounds.extend([h.lon, h.lat]);
     }
     map.resize();
+    const pad = fitTo != null ? 12 : 40;
+    const i = insets ?? { top: 0, right: 0, bottom: 0, left: 0 };
+    // Guard against insets larger than the canvas (tiny containers).
+    const h = map.getContainer().clientHeight;
+    const vertical = i.top + i.bottom + 2 * pad < h - 80;
     map.fitBounds(bounds, {
-      padding: fitTo != null ? 32 : 70,
-      maxZoom: 10,
+      padding: {
+        top: (vertical ? i.top : 0) + pad,
+        bottom: (vertical ? i.bottom : 0) + pad,
+        left: i.left + pad,
+        right: i.right + pad,
+      },
+      maxZoom: fitMaxZoom,
       duration: 0,
     });
   };
@@ -506,7 +622,8 @@ export function HotspotMap({
     const update = () => {
       const geo = toGeoJSON(hotspots);
       (map.getSource('hotspots') as GeoJSONSource | undefined)?.setData(geo);
-      for (const id of ['hotspots', 'hotspot-glow', 'clusters', 'cluster-count']) {
+      (map.getSource('hotspots-raw') as GeoJSONSource | undefined)?.setData(geo);
+      for (const id of [...HOTSPOT_LAYERS, 'hotspot-selected']) {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, 'visibility', showHotspots ? 'visible' : 'none');
         }
@@ -522,10 +639,7 @@ export function HotspotMap({
         }
         if (!map.getLayer(RASTER_ID)) {
           const layers = map.getStyle()?.layers ?? [];
-          const below =
-            layers.find((l) => l.id === 'water')?.id ??
-            layers.find((l) => l.type === 'symbol')?.id ??
-            (map.getLayer('hotspot-glow') ? 'hotspot-glow' : undefined);
+          const below = layers.find((l) => l.id === 'water')?.id ?? firstSymbolId(map);
           ensureLayer(
             map,
             {
@@ -541,10 +655,14 @@ export function HotspotMap({
       } else if (map.getLayer(RASTER_ID)) {
         map.setLayoutProperty(RASTER_ID, 'visibility', 'none');
       }
+      // The density raster already carries the regional picture; avoid a double glow.
+      if (map.getLayer('hotspot-heat') && showHotspots) {
+        map.setLayoutProperty('hotspot-heat', 'visibility', rasterVisible ? 'none' : 'visible');
+      }
       const windSource = map.getSource('wind-flow') as GeoJSONSource | undefined;
       // Single local streamline only outside the regional fit (regional view
       // uses the streamline field instead).
-      const showLocalLine = showWind && windFlow != null && fitTo == null;
+      const showLocalLine = showWind && windFlow != null && streamlines == null;
       windSource?.setData({
         type: 'FeatureCollection',
         features: showLocalLine
@@ -554,8 +672,7 @@ export function HotspotMap({
       if (map.getLayer('wind-flow-line')) {
         map.setLayoutProperty('wind-flow-line', 'visibility', showLocalLine ? 'visible' : 'none');
       }
-      const slSource = map.getSource('wind-streamlines') as GeoJSONSource | undefined;
-      slSource?.setData({
+      (map.getSource('wind-streamlines') as GeoJSONSource | undefined)?.setData({
         type: 'FeatureCollection',
         features: (streamlines?.lines ?? []).map((l) => ({
           type: 'Feature',
@@ -563,8 +680,7 @@ export function HotspotMap({
           properties: {},
         })),
       });
-      const arrowsSource = map.getSource('wind-arrows') as GeoJSONSource | undefined;
-      arrowsSource?.setData({
+      (map.getSource('wind-arrows') as GeoJSONSource | undefined)?.setData({
         type: 'FeatureCollection',
         features: (streamlines?.arrows ?? []).map((a) => ({
           type: 'Feature',
@@ -572,8 +688,8 @@ export function HotspotMap({
           properties: { rot: a.rot },
         })),
       });
-      // Dimmer under the density raster, full strength in the wind tab.
-      const slOpacity = showDensity ? 0.3 : showPlumes ? 0.35 : 0.7;
+      // Dimmer under the density raster or the smoke trails.
+      const slOpacity = showDensity ? 0.35 : showPlumes ? 0.45 : 0.75;
       for (const id of ['wind-streamlines-line', 'wind-streamlines-arrow']) {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, 'visibility', showWind ? 'visible' : 'none');
@@ -583,7 +699,7 @@ export function HotspotMap({
         map.setPaintProperty('wind-streamlines-line', 'line-opacity', slOpacity);
       }
       if (map.getLayer('wind-streamlines-arrow')) {
-        map.setPaintProperty('wind-streamlines-arrow', 'icon-opacity', slOpacity + 0.2);
+        map.setPaintProperty('wind-streamlines-arrow', 'icon-opacity', slOpacity + 0.15);
       }
       (map.getSource('plumes') as GeoJSONSource | undefined)?.setData({
         type: 'FeatureCollection',
@@ -602,11 +718,7 @@ export function HotspotMap({
           showPlumes && plumes ? 'visible' : 'none',
         );
       }
-      const fitKey = fitTo
-        ? `fit:${fitTo.join(',')},${style}`
-        : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
-      if (fittedRef.current !== fitKey && (fitTo != null || hotspots.length > 0)) {
-        fittedRef.current = fitKey;
+      if (fittedRef.current !== fitKeyFor() && (fitTo != null || hotspots.length > 0)) {
         doFit(map);
       }
     };
@@ -623,7 +735,93 @@ export function HotspotMap({
     fitTo,
     plumes,
     showPlumes,
+    style,
   ]);
+
+  // Selected-detection ring.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      if (map.getLayer('hotspot-selected')) {
+        map.setFilter('hotspot-selected', ['==', ['get', 'id'], selectedId ?? '']);
+      }
+    };
+    if (loadedRef.current) apply();
+    else map.once('pavana:ready', apply);
+  }, [selectedId, style]);
+
+  // Extension point: generic extra data layers, below basemap labels.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const sync = () => {
+      const wanted = new Set(overlays.map((o) => `ovl-${o.id}`));
+      for (const layer of map.getStyle()?.layers ?? []) {
+        if (layer.id.startsWith('ovl-') && !wanted.has(layer.id)) {
+          map.removeLayer(layer.id);
+          if (map.getSource(layer.id)) map.removeSource(layer.id);
+        }
+      }
+      const before = map.getLayer('wind-streamlines-line') ? 'wind-streamlines-line' : undefined;
+      for (const o of overlays) {
+        const id = `ovl-${o.id}`;
+        const has: ExpressionSpecification = [
+          'all',
+          ['has', o.valueProperty],
+          ['!=', ['get', o.valueProperty], null],
+        ];
+        const ramp = o.stops.flatMap(([v, c]) => [v, c]);
+        if (!map.getSource(id)) map.addSource(id, { type: 'geojson', data: o.data });
+        else (map.getSource(id) as GeoJSONSource).setData(o.data);
+        if (o.type === 'fill') {
+          ensureLayer(
+            map,
+            {
+              id,
+              type: 'fill',
+              source: id,
+              filter: has,
+              paint: {
+                'fill-color': [
+                  'interpolate',
+                  ['linear'],
+                  ['get', o.valueProperty],
+                  ...ramp,
+                ] as ExpressionSpecification,
+                'fill-opacity': o.opacity ?? 0.55,
+              },
+            },
+            before,
+          );
+        } else {
+          ensureLayer(
+            map,
+            {
+              id,
+              type: 'heatmap',
+              source: id,
+              filter: has,
+              paint: {
+                'heatmap-weight': ['get', o.valueProperty],
+                'heatmap-color': [
+                  'interpolate',
+                  ['linear'],
+                  ['heatmap-density'],
+                  ...ramp,
+                ] as ExpressionSpecification,
+                'heatmap-opacity': o.opacity ?? 0.6,
+              },
+            },
+            before,
+          );
+        }
+        map.setLayoutProperty(id, 'visibility', o.visible === false ? 'none' : 'visible');
+      }
+    };
+    if (loadedRef.current) sync();
+    else map.once('pavana:ready', sync);
+  }, [overlays, style]);
 
   // Fit button: refit on demand (e.g. after the user pans away).
   const prevNonceRef = useRef(fitNonce);
@@ -646,40 +844,39 @@ export function HotspotMap({
     });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [style]);
 
   // Wind flow arrow at the selected location (real current wind, null-safe).
-  const windMarkerRef = useRef<maplibregl.Marker | null>(null);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    let marker: maplibregl.Marker | null = null;
     const place = () => {
-      windMarkerRef.current?.remove();
-      windMarkerRef.current = null;
       if (!showWind || wind == null) return;
+      const p = readMapPalette(dark);
       const flow = windFromToFlowBearing(wind.fromDeg);
       const el = document.createElement('div');
       el.setAttribute('aria-hidden', 'true');
       el.style.width = '38px';
       el.style.height = '38px';
-      el.style.filter = 'drop-shadow(0 0 8px rgba(244,114,182,0.65))';
+      el.style.filter = `drop-shadow(0 0 6px ${withAlpha(p.windB, dark ? 0.65 : 0.4)})`;
       el.innerHTML =
         `<svg width="38" height="38" viewBox="0 0 38 38" fill="none">` +
         `<g transform="rotate(${flow} 19 19)">` +
-        `<path d="M19 6 L27 24 L19 19.5 L11 24 Z" fill="#f472b6" stroke="#eef0f4" stroke-width="1.5" stroke-linejoin="round"/>` +
+        `<path d="M19 6 L27 24 L19 19.5 L11 24 Z" fill="${p.windB}" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>` +
         `</g></svg>`;
-      windMarkerRef.current = new maplibregl.Marker({ element: el })
+      marker = new maplibregl.Marker({ element: el })
         .setLngLat([center.lon, center.lat])
         .addTo(map);
     };
     if (loadedRef.current) place();
     else map.once('pavana:ready', place);
     return () => {
-      windMarkerRef.current?.remove();
-      windMarkerRef.current = null;
+      map.off('pavana:ready', place);
+      marker?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- deps are wind primitives + center; the object identity changes every render
-  }, [showWind, wind?.fromDeg, wind?.speedMs, center.lat, center.lon]);
+  }, [showWind, wind?.fromDeg, wind?.speedMs, center.lat, center.lon, style]);
 
   // Traveling dot along the wind streamline (subtle motion cue, reduced-motion aware).
   useEffect(() => {
@@ -690,13 +887,14 @@ export function HotspotMap({
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!map || !showWind || !animatedWind || reduced || windFlow == null) return;
     const place = () => {
+      const p = readMapPalette(dark);
       const el = document.createElement('div');
       el.setAttribute('aria-hidden', 'true');
       el.style.width = '10px';
       el.style.height = '10px';
       el.style.borderRadius = '9999px';
-      el.style.background = '#f472b6';
-      el.style.boxShadow = '0 0 10px rgba(244,114,182,0.9)';
+      el.style.background = p.windB;
+      el.style.boxShadow = `0 0 10px ${withAlpha(p.windB, 0.8)}`;
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([center.lon, center.lat])
         .addTo(map);
@@ -718,27 +916,17 @@ export function HotspotMap({
       };
     };
     let cleanup: (() => void) | undefined;
+    const onReady = () => {
+      cleanup = place();
+    };
     if (loadedRef.current) cleanup = place();
-    else
-      map.once('pavana:ready', () => {
-        cleanup = place();
-      });
-    return () => cleanup?.();
+    else map.once('pavana:ready', onReady);
+    return () => {
+      map.off('pavana:ready', onReady);
+      cleanup?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- primitives + center; see above
-  }, [showWind, animatedWind, windFlow, center.lat, center.lon]);
+  }, [showWind, animatedWind, windFlow, center.lat, center.lon, style]);
 
-  return (
-    <div className="relative h-full w-full">
-      <div ref={ref} className="h-full w-full" role="region" aria-label={t.map.title} />
-      {/* Decorative depth vignette (styling only — tiles show through). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 hidden dark:block"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, transparent 52%, rgba(14,17,32,0.55) 100%)',
-        }}
-      />
-    </div>
-  );
+  return <div ref={ref} className="pv-map h-full w-full" role="region" aria-label={t.map.title} />;
 }

@@ -1,11 +1,15 @@
 import {
+  ArrowDown01Icon,
+  ArrowUp01Icon,
   Cancel01Icon,
+  CloudFastWindIcon,
   FastWindIcon,
   FireIcon,
   Gps01Icon,
   Layers01Icon,
   MapsGlobal01Icon,
-  CloudFastWindIcon,
+  MinusSignIcon,
+  PlusSignIcon,
 } from '@hugeicons/core-free-icons';
 import {
   BORNEO_RENDER_BBOX,
@@ -33,7 +37,16 @@ import {
   type BBox,
   type Hotspot,
 } from '@pavana/shared';
-import { useEffect, useMemo, useState } from 'react';
+import type maplibregl from 'maplibre-gl';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { DesktopNav } from '@/app/layout/DesktopNav';
 import { DemoPill } from '@/components/DemoBanner';
 import { Icon } from '@/components/Icon';
@@ -46,23 +59,27 @@ import { LocationPicker } from '@/features/location/LocationPicker';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { useConditions } from '@/lib/queries';
-import { useDarkMode } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 import { msToKmh, windSummary } from '@/lib/wind';
-import { HotspotMap } from './HotspotMap';
+import { HotspotMap, type MapInsets } from './HotspotMap';
+import { MapLegend } from './MapLegend';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
-import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
+import { useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
 type Layer = 'hotspots' | 'plumes' | 'density' | 'wind';
 /** Strongest detections get a trail; more would only add noise at regional zoom. */
 const PLUME_SOURCES = 160;
+
+/** 'Sekitarku' half-span in degrees (~90 km across): zoom ≈ 8 on a phone. */
+const LOCAL_HALF_SPAN_DEG = 0.4;
+/** Large screens would fit the same box much closer; keep nearby detections in view. */
+const LOCAL_MAX_ZOOM = 8.75;
 
 const CHIP =
   'glass h-9 shrink-0 gap-1.5 rounded-full border-0 px-3.5 text-[13px] font-medium text-foreground/80 data-[state=on]:bg-haze/20 data-[state=on]:text-haze data-[state=on]:shadow-[0_0_18px_-4px_var(--pv-accent)]';
 
 export default function MapPage() {
   const t = useCopy();
-  const dark = useDarkMode();
   const { location, query: hotspots } = useHotspots();
   const regional = useRegionalHotspots();
   const windField = useWindField();
@@ -73,11 +90,23 @@ export default function MapPage() {
   const [plumeHours, setPlumeHours] = useState(6);
   const [mapFailed, setMapFailed] = useState(false);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1024px)').matches,
+  );
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [insets, setInsets] = useState<MapInsets>({ top: 0, right: 56, bottom: 0, left: 0 });
 
   const on = (l: Layer) => layers.includes(l);
-  // 'Sekitarku' view: roughly 250 km around the selected location.
   const localBox = useMemo(
-    () => [location.lon - 1.1, location.lat - 1.1, location.lon + 1.1, location.lat + 1.1] as BBox,
+    () =>
+      [
+        location.lon - LOCAL_HALF_SPAN_DEG,
+        location.lat - LOCAL_HALF_SPAN_DEG,
+        location.lon + LOCAL_HALF_SPAN_DEG,
+        location.lat + LOCAL_HALF_SPAN_DEG,
+      ] as BBox,
     [location.lon, location.lat],
   );
   const tz = conditions.data?.location.timezone ?? 'Asia/Jakarta';
@@ -149,6 +178,49 @@ export default function MapPage() {
 
   useEffect(() => setSelected(null), [location.lat, location.lon]);
 
+  // Floating chrome covers parts of the map: measure it so fits, the legend and
+  // the attribution stay in the visible area.
+  useLayoutEffect(() => {
+    const top = topRef.current;
+    const sheet = sheetRef.current;
+    if (!top || !sheet) return;
+    const measure = () => {
+      const next = {
+        top: Math.round(top.getBoundingClientRect().bottom - 16),
+        right: 56,
+        bottom: Math.max(0, Math.round(window.innerHeight - sheet.getBoundingClientRect().top)),
+        left: 0,
+      };
+      setInsets((prev) => (prev.top === next.top && prev.bottom === next.bottom ? prev : next));
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const obs = new ResizeObserver(measure);
+    obs.observe(top);
+    obs.observe(sheet);
+    window.addEventListener('resize', measure);
+    return () => {
+      obs.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [mapFailed]);
+
+  // Keep the selected detection visible above the (taller) detail card.
+  useEffect(() => {
+    const map = mapRef.current;
+    const lat = selected?.['lat'];
+    const lon = selected?.['lon'];
+    if (!map || typeof lat !== 'number' || typeof lon !== 'number') return;
+    const y = map.project([lon, lat]).y;
+    const h = map.getContainer().clientHeight;
+    if (y > insets.top && y < h - insets.bottom - 24) return;
+    map.easeTo({
+      center: [lon, lat],
+      offset: [0, (insets.top - insets.bottom) / 2],
+      duration: 400,
+    });
+  }, [selected, insets]);
+
   const goTo = (v: 'local' | 'region') => {
     setView(v);
     setFitNonce((n) => n + 1);
@@ -158,8 +230,15 @@ export default function MapPage() {
       ? { ...windSummary(wind.windDirectionFromDeg, t), kmh: msToKmh(wind.windSpeedMs) }
       : null;
 
+  const ageH = typeof selected?.['ageH'] === 'number' ? selected['ageH'] : null;
+  const frp = selected?.['frpMw'];
+  const conf = selected?.['confidence'];
+
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-background">
+    <div
+      className="relative h-dvh w-full overflow-hidden bg-background"
+      style={{ '--pv-map-inset-bottom': `${insets.bottom}px` } as CSSProperties}
+    >
       {!mapFailed ? (
         <HotspotMap
           center={location}
@@ -173,11 +252,12 @@ export default function MapPage() {
           plumes={plumes}
           showPlumes={on('plumes')}
           fitNonce={fitNonce}
-          timeZone={tz}
-          controls={false}
+          fitMaxZoom={view === 'local' ? LOCAL_MAX_ZOOM : 11}
+          insets={insets}
+          onMapReady={(m) => (mapRef.current = m)}
           onError={() => setMapFailed(true)}
-          styleUrl={dark ? DARK_STYLE_URL : undefined}
           onSelectHotspot={(p) => setSelected(p)}
+          selectedId={typeof selected?.['id'] === 'string' ? selected['id'] : null}
           wind={
             wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
               ? { fromDeg: wind.windDirectionFromDeg, speedMs: wind.windSpeedMs }
@@ -194,7 +274,10 @@ export default function MapPage() {
       )}
 
       {/* Top chrome */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 space-y-2 bg-gradient-to-b from-background/80 to-transparent px-3 pb-6 pt-[max(env(safe-area-inset-top),0.75rem)]">
+      <div
+        ref={topRef}
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 space-y-2 bg-gradient-to-b from-background/80 to-transparent px-3 pb-4 pt-[max(env(safe-area-inset-top),0.75rem)]"
+      >
         <div className="pointer-events-auto flex items-center gap-2">
           <div className="glass flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full pl-4 pr-2">
             <LocationPicker className="min-w-0 flex-1" />
@@ -225,42 +308,63 @@ export default function MapPage() {
         </ToggleGroup>
       </div>
 
-      {/* Right-side view controls */}
-      <div className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => goTo('local')}
-          aria-label={t.map.viewLocal}
-          title={t.map.viewLocal}
-          className={cn('glass size-11 rounded-full', view === 'local' && 'text-haze')}
-        >
-          <Icon icon={Gps01Icon} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => goTo('region')}
-          aria-label={t.map.viewRegion}
-          title={t.map.viewRegion}
-          className={cn('glass size-11 rounded-full', view === 'region' && 'text-haze')}
-        >
-          <Icon icon={MapsGlobal01Icon} />
-        </Button>
-      </div>
+      {on('hotspots') && !mapFailed && (
+        <div className="absolute left-3 z-10" style={{ top: insets.top + 8 }}>
+          <MapLegend />
+        </div>
+      )}
 
-      {/* Bottom sheet */}
-      <div className="absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 mx-auto max-w-lg lg:bottom-6">
+      {/* Right-side map controls: zoom, then the two views (Sekitarku re-centers). */}
+      {!mapFailed && (
+        <div className="absolute right-3 z-10 flex flex-col gap-2" style={{ top: insets.top + 8 }}>
+          <div className="glass flex flex-col overflow-hidden rounded-full">
+            <MapButton label={t.map.zoomIn} onClick={() => mapRef.current?.zoomIn()}>
+              <Icon icon={PlusSignIcon} className="size-5" />
+            </MapButton>
+            <span aria-hidden className="mx-2.5 h-px bg-border" />
+            <MapButton label={t.map.zoomOut} onClick={() => mapRef.current?.zoomOut()}>
+              <Icon icon={MinusSignIcon} className="size-5" />
+            </MapButton>
+          </div>
+          <div
+            role="group"
+            aria-label={t.map.viewsLabel}
+            className="glass flex flex-col overflow-hidden rounded-full"
+          >
+            <MapButton
+              label={t.map.viewLocal}
+              pressed={view === 'local'}
+              onClick={() => goTo('local')}
+            >
+              <Icon icon={Gps01Icon} className="size-5" />
+            </MapButton>
+            <span aria-hidden className="mx-2.5 h-px bg-border" />
+            <MapButton
+              label={t.map.viewRegion}
+              pressed={view === 'region'}
+              onClick={() => goTo('region')}
+            >
+              <Icon icon={MapsGlobal01Icon} className="size-5" />
+            </MapButton>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom sheet: hotspot detail, or the collapsible smoke-direction panel */}
+      <div
+        ref={sheetRef}
+        className="absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 mx-auto max-w-lg lg:bottom-6"
+      >
         {selected ? (
           <div className="glass rounded-3xl p-4">
             <div className="flex items-start justify-between gap-2">
-              <div>
+              <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   {t.map.detailTitle}
                 </p>
                 <p className="mt-1 font-heading text-lg font-semibold tabular">
                   {typeof selected['lat'] === 'number' && typeof selected['lon'] === 'number'
-                    ? `${(selected['lat'] as number).toFixed(3)}, ${(selected['lon'] as number).toFixed(3)}`
+                    ? `${selected['lat'].toFixed(3)}, ${selected['lon'].toFixed(3)}`
                     : String(selected['id'] ?? '')}
                 </p>
               </div>
@@ -280,76 +384,155 @@ export default function MapPage() {
                 <dd>{formatDateTime(String(selected['acquiredAt']), tz)}</dd>
               </div>
               <div>
+                <dt className="text-xs text-muted-foreground">{t.map.age}</dt>
+                <dd className="flex items-center gap-1.5">
+                  {ageH != null && (
+                    <span
+                      aria-hidden
+                      className="size-2.5 rounded-full"
+                      style={{ background: `var(--pv-fire-age-${String(selected['ageClass'])})` }}
+                    />
+                  )}
+                  <span title={t.map.ageNote}>{ageH == null ? '—' : t.map.ageValue(ageH)}</span>
+                </dd>
+              </div>
+              <div>
                 <dt className="text-xs text-muted-foreground">{t.map.frp}</dt>
-                <dd>
-                  {selected['frpMw'] == null || selected['frpMw'] === 'null'
-                    ? '—'
-                    : `${String(selected['frpMw'])} MW`}
+                <dd className="tabular">
+                  {frp == null || frp === 'null' ? '—' : `${String(frp)} MW`}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-muted-foreground">{t.map.confidence}</dt>
-                <dd>{String(selected['confidence'] ?? '—')}</dd>
+                <dd>
+                  {conf == null || conf === 'null'
+                    ? '—'
+                    : (t.map.confidenceLevels[String(conf)] ?? String(conf))}
+                </dd>
               </div>
-              <div>
+              <div className="col-span-2">
                 <dt className="text-xs text-muted-foreground">{t.map.satellite}</dt>
                 <dd>{String(selected['satellite'] ?? '—')}</dd>
               </div>
             </dl>
-            <p className="mt-3 text-[11px] text-muted-foreground">{t.map.hotspotDisclaimer}</p>
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              {t.map.hotspotDisclaimer} {t.map.ageNote}
+              {selected['isDemo'] === true && ` (${t.demoBanner})`}
+            </p>
           </div>
         ) : (
-          <div className="glass rounded-3xl p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-medium">{t.map.plumesTitle}</p>
-              <p className="tabular text-sm font-semibold text-haze">
-                {t.map.plumesHours(plumeHours)}
-              </p>
-            </div>
-            <Slider
-              className="mt-3"
-              value={[plumeHours]}
-              min={0}
-              max={12}
-              step={1}
-              onValueChange={([v]) => {
-                setPlumeHours(v ?? 0);
-                if (!on('plumes')) setLayers((l) => [...l, 'plumes']);
-              }}
-              aria-label={t.map.plumesTitle}
-            />
-            <div
-              aria-hidden
-              className="mt-3 h-2 rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, #f472b6, #a855f7, rgba(99,102,241,0.15))',
-              }}
-            />
-            <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
-              <span>{t.map.plumesFrom}</span>
-              <span>{t.map.plumesHours(plumeHours)}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2.5 rounded-full bg-aq-unhealthy ring-2 ring-white/80" />
-                {t.map.count(shown.length)}
-              </span>
-              {windNow && (
-                <span className="inline-flex items-center gap-1.5">
-                  <WindArrow toDeg={windNow.toDeg} className="size-3.5 text-haze" />
-                  {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
+          <div className="glass rounded-3xl">
+            <button
+              type="button"
+              onClick={() => setSheetOpen((o) => !o)}
+              aria-expanded={sheetOpen}
+              aria-label={sheetOpen ? t.map.hideSheet : t.map.showSheet}
+              className="flex w-full items-center gap-3 rounded-3xl px-4 py-3 text-left"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between gap-3">
+                  <span className="font-medium">{t.map.plumesTitle}</span>
+                  <span className="tabular text-sm font-semibold text-haze">
+                    {t.map.plumesHours(plumeHours)}
+                  </span>
                 </span>
-              )}
-            </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              {t.map.plumesNote}
-            </p>
-            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-              {isDemo ? t.map.creditDemo : t.map.creditLive}
-            </p>
+                {!sheetOpen && (
+                  <span className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground">
+                    <span className="tabular">{t.map.count(shown.length)}</span>
+                    {windNow && (
+                      <span className="inline-flex items-center gap-1">
+                        <WindArrow toDeg={windNow.toDeg} className="size-3 text-haze" />
+                        {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
+                      </span>
+                    )}
+                  </span>
+                )}
+              </span>
+              <Icon
+                icon={sheetOpen ? ArrowDown01Icon : ArrowUp01Icon}
+                className="size-4 shrink-0 text-muted-foreground"
+              />
+            </button>
+            {sheetOpen && (
+              <div className="px-4 pb-4">
+                <Slider
+                  value={[plumeHours]}
+                  min={0}
+                  max={12}
+                  step={1}
+                  onValueChange={([v]) => {
+                    setPlumeHours(v ?? 0);
+                    if (!on('plumes')) setLayers((l) => [...l, 'plumes']);
+                  }}
+                  aria-label={t.map.plumesTitle}
+                />
+                <div
+                  aria-hidden
+                  className="mt-3 h-2 rounded-full"
+                  style={{
+                    background:
+                      'linear-gradient(90deg, var(--pv-map-plume-a), var(--pv-map-plume-b), transparent)',
+                  }}
+                />
+                <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+                  <span>{t.map.plumesFrom}</span>
+                  <span>{t.map.plumesHours(plumeHours)}</span>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden
+                      className="size-2.5 rounded-full ring-2 ring-[var(--pv-fire-stroke)]"
+                      style={{ background: 'var(--pv-fire-age-0)' }}
+                    />
+                    {t.map.count(shown.length)}
+                  </span>
+                  {windNow && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <WindArrow toDeg={windNow.toDeg} className="size-3.5 text-haze" />
+                      {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                  {t.map.plumesNote}
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                  {isDemo ? t.map.creditDemo : t.map.creditLive}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function MapButton({
+  label,
+  onClick,
+  pressed,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  pressed?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      aria-pressed={pressed}
+      className={cn(
+        'flex size-11 items-center justify-center text-foreground/80 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+        pressed && 'text-haze',
+      )}
+    >
+      {children}
+    </button>
   );
 }

@@ -576,6 +576,30 @@ export const id = {
     viewRegion: 'Kalimantan',
     detailTitle: 'Detail deteksi',
     count: (n: number) => `${n} deteksi dalam area`,
+    zoomIn: 'Perbesar peta',
+    zoomOut: 'Perkecil peta',
+    viewsLabel: 'Tampilan peta',
+    legendAge: 'Umur deteksi',
+    ageClasses: ['< 6 jam', '6–24 jam', '24–48 jam', '> 48 jam'] as const,
+    legendFrp: 'Ukuran: FRP (MW)',
+    legendCluster: 'Angka = jumlah deteksi. Zoom jauh: pendar = kepadatan.',
+    age: 'Umur',
+    ageValue: (h: number) =>
+      h < 1
+        ? '< 1 jam lalu'
+        : h < 48
+          ? `${Math.floor(h)} jam lalu`
+          : `${Math.floor(h / 24)} hari lalu`,
+    ageNote: 'Umur dihitung dari waktu data terbaru.',
+    confidenceLevels: { low: 'Rendah', nominal: 'Sedang', high: 'Tinggi' } as Record<
+      string,
+      string
+    >,
+    showSheet: 'Tampilkan panel arah asap',
+    hideSheet: 'Sembunyikan panel arah asap',
+    showLegend: 'Tampilkan legenda',
+    hideLegend: 'Sembunyikan legenda',
+    legendTitle: 'Legenda',
   },
 
   insights: {
