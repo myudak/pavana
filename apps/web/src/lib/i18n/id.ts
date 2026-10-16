@@ -570,8 +570,8 @@ export const id = {
     layersLabel: 'Lapisan peta',
     layerPlumes: 'Arah asap',
     layerRisk: 'Risiko titik panas',
-    riskLegend: (day: string, demo: boolean) =>
-      `Model eksperimental: peluang ≥1 deteksi satelit Suomi NPP per kotak ~28 km pada ${day} (UTC). Kuning→merah = peluang naik; kotak kosong = data masukan tidak tersedia. Bukan peringatan resmi.${demo ? ' Demo: replay input arsip nyata.' : ''}`,
+    riskLegend: (day: string, demo: boolean, inputDay: string, version: string) =>
+      `Model eksperimental: peluang ≥1 deteksi satelit Suomi NPP per kotak ~28 km pada ${day} (UTC). Kuning→merah = peluang naik; kotak kosong = data masukan tidak tersedia. Bukan peringatan resmi. ${demo ? 'Replay arsip nyata' : 'Input langsung'} · input hingga ${inputDay} 23:59 UTC · ${version}.`,
     plumesTitle: 'Arah sebaran asap',
     plumesHours: (h: number) => (h === 0 ? 'Kini' : `+${h} jam`),
     plumesFrom: 'Titik panas',

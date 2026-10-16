@@ -362,7 +362,12 @@ export default function MapPage() {
             {risk.data
               ? risk.data.state === 'unavailable'
                 ? t.model.unknownWhy
-                : t.map.riskLegend(risk.data.targetDay, risk.data.provenance.isDemo)
+                : t.map.riskLegend(
+                    risk.data.targetDay,
+                    risk.data.provenance.isDemo,
+                    risk.data.issueDay,
+                    risk.data.model.version,
+                  )
               : risk.isError
                 ? t.model.unknownWhy
                 : t.common.loading}
