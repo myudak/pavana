@@ -12,13 +12,15 @@ import { useHotspots } from '@/features/map/use-hotspots';
 import { categoryOf } from '@/lib/aq';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy, type Copy } from '@/lib/i18n';
-import { useConditions, useForecast, useInsights } from '@/lib/queries';
+import { useConditions, useExposure, useForecast, useInsights } from '@/lib/queries';
 import { useIsMobile } from '@/lib/use-is-mobile';
 import { cn } from '@/lib/utils';
 import { DuskBackdrop } from './DuskBackdrop';
 import { useFitText } from './use-fit-text';
 import { ActionsCard } from './ActionsCard';
 import { DailyForecastCard } from './DailyForecastCard';
+import { ConditionTiles } from './ConditionTiles';
+import { SmokeTimeline } from './SmokeTimeline';
 import { panelFill, panelSurface } from './glass';
 import { HourlyTimeline } from './HourlyTimeline';
 import { summarizeDayForecast } from './forecast-summary';
@@ -108,6 +110,7 @@ export function TodayPage() {
   const conditions = useConditions();
   const forecast = useForecast(24);
   const insights = useInsights();
+  const exposure = useExposure(24);
   const { query: hotspotQuery } = useHotspots();
   // Mobile (< 768px) swaps the heavy below-fold sections for the 10-day card.
   // Conditional render (not CSS hiding) keeps MapLibre/Recharts out of the
@@ -135,6 +138,11 @@ export function TodayPage() {
           windFactor && typeof windFactor.metrics.directionFromDeg === 'number'
             ? describeFactor(windFactor, t, tz)
             : '';
+        const exposurePeak = exposure.data?.summary.peakLevel;
+        const bannerHeadline =
+          exposure.data && (exposurePeak === 'moderate' || exposurePeak === 'high')
+            ? t.exposure.headline[exposurePeak]
+            : t.trendHeadline[c.trend];
 
         return (
           <div>
@@ -264,7 +272,7 @@ export function TodayPage() {
                         </div>
                         <div className="hidden min-w-0 border-t border-hairline p-3 dark:border-white/10 md:block md:border-l md:border-t-0 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center">
                           <Link
-                            to="/insight"
+                            to="/prakiraan"
                             className="flex items-center gap-2 text-sm text-ink hover:opacity-80"
                           >
                             <span className="min-w-0 flex-1 truncate">
@@ -313,7 +321,7 @@ export function TodayPage() {
                           {t.today.hourlyLabel}
                         </p>
                         <Link
-                          to="/insight"
+                          to="/prakiraan"
                           className="inline-flex min-h-[2.5rem] shrink-0 items-center gap-1 text-[0.8125rem] font-medium text-primary-strong md:min-h-0 md:text-sm"
                         >
                           {t.today.seeAll} <ArrowRight className="size-4" aria-hidden />
@@ -338,7 +346,7 @@ export function TodayPage() {
                       )}
 
                       <Link
-                        to="/insight"
+                        to="/prakiraan"
                         className={cn(
                           'mt-[clamp(0.5rem,1.5svh,1rem)] flex max-h-[4.75rem] min-h-[3rem] items-center gap-3 rounded-[1.125rem] border p-3 md:mt-2 md:px-4 md:py-1 lg:mt-[clamp(0.5rem,1.3svh,0.875rem)] lg:h-[clamp(3rem,6svh,3.625rem)] lg:min-h-0 lg:max-h-none lg:py-0',
                           panelSurface,
@@ -347,7 +355,7 @@ export function TodayPage() {
                         <Wind className="size-7 shrink-0 text-primary-strong" aria-hidden />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium md:overflow-visible md:whitespace-normal md:text-clip md:text-[0.9375rem]">
-                            {t.trendHeadline[c.trend]}
+                            {bannerHeadline}
                           </span>
                           {windText && (
                             <span className="mt-0.5 line-clamp-2 block text-xs text-ink-muted md:text-[0.8125rem] md:line-clamp-none">
@@ -415,8 +423,12 @@ export function TodayPage() {
                 height (5 cols), then why + actions. ============ */}
             <div className="bg-canvas [--section-gap:20px]">
               {isMobile ? (
-                <div className="px-4 pb-28 pt-3">
+                <div className="space-y-4 px-4 pb-28 pt-3">
                   <DailyForecastCard timeZone={tz} nowPm25={pm} />
+                  <QueryState query={exposure}>
+                    {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
+                  </QueryState>
+                  <ConditionTiles conditions={c} now={exposure.data?.hours[0]} />
                 </div>
               ) : (
                 <div className="px-[6.25vw] pb-28 lg:pt-[var(--section-gap)]">
@@ -428,7 +440,7 @@ export function TodayPage() {
                           <span className="normal-case tracking-normal">({t.today.unit})</span>
                         </CardTitle>
                         <Link
-                          to="/insight"
+                          to="/prakiraan"
                           className="inline-flex items-center gap-1 text-sm font-medium text-primary-strong"
                         >
                           {t.today.seeAll} <ArrowRight className="size-4" aria-hidden />
@@ -489,7 +501,7 @@ export function TodayPage() {
                       <CardHeader className="mb-2">
                         <CardTitle>{t.today.whyTitle}</CardTitle>
                         <Link
-                          to="/insight"
+                          to="/prakiraan"
                           className="inline-flex items-center gap-1 text-sm font-medium text-primary-strong"
                         >
                           {t.today.whyMore} <ArrowRight className="size-4" aria-hidden />
@@ -508,6 +520,18 @@ export function TodayPage() {
                         forecastCard,
                       )}
                     />
+
+                    <div className={cn('lg:col-span-7 lg:row-start-4', glassCard, forecastCard, 'rounded-card border p-3')}>
+                      <QueryState query={exposure}>
+                        {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
+                      </QueryState>
+                    </div>
+
+                    <div className={cn('lg:col-span-5 lg:col-start-8 lg:row-start-4', glassCard, forecastCard, 'rounded-card border p-3')}>
+                      <QueryState query={exposure}>
+                        {() => <ConditionTiles conditions={c} now={exposure.data?.hours[0]} />}
+                      </QueryState>
+                    </div>
                   </div>
                 </div>
               )}

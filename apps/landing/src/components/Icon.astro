@@ -1,0 +1,35 @@
+---
+/**
+ * Hugeicons as inline SVG (no React on the landing). Pass an icon from
+ * `@hugeicons/core-free-icons`; decorative unless `label` is given.
+ */
+type IconNode = readonly (readonly [string, Record<string, string | number>])[];
+
+interface Props {
+  icon: IconNode;
+  class?: string;
+  strokeWidth?: number;
+  label?: string;
+}
+
+const { icon, class: className = 'size-5', strokeWidth = 1.8, label } = Astro.props;
+const kebab = (k: string) => k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+const nodes = icon.map(([tag, attrs]) => {
+  const a = Object.entries(attrs)
+    .filter(([k]) => k !== 'key')
+    .map(([k, v]) => [kebab(k), k === 'strokeWidth' ? strokeWidth : v]);
+  return { tag, attrs: Object.fromEntries(a) };
+});
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="none"
+  class:list={['shrink-0', className]}
+  aria-hidden={label ? undefined : 'true'}
+  aria-label={label}
+  role={label ? 'img' : undefined}
+>
+  {nodes.map(({ tag: Tag, attrs }) => <Tag {...attrs} />)}
+</svg>

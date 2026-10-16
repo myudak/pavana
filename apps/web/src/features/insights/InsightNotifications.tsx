@@ -16,16 +16,16 @@ import {
   Landmark,
   ShieldAlert,
   TrendingUp,
-  type LucideIcon,
-} from 'lucide-react';
-import { AtmosphereSection } from '@/components/AtmosphereSection';
+  type AppIcon,
+} from '@/components/icons';
+
 import { PriorityBadge, PriorityIcon } from '@/components/PriorityMarker';
 import { PRIORITY_TIER } from '@/components/priority-tier';
 import { formatDateTime, formatNumber, formatTime, tzAbbr } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { windDirectionLabel } from '@/lib/wind-label';
 import {
+  bearingToCompass8,
   deriveNotifications,
   factorNumber,
   peakOf,
@@ -37,7 +37,7 @@ import {
 const OFFICIAL_FIRST = ['sipongi', 'bmkg-spartan'];
 const OFFICIAL_SHOWN = 2;
 
-const ICON: Record<NotificationId, LucideIcon> = {
+const ICON: Record<NotificationId, AppIcon> = {
   combined: ShieldAlert,
   'pm25-rise': TrendingUp,
   hotspots: Flame,
@@ -102,7 +102,11 @@ export function InsightNotifications({
     Boolean(hotspotFactor?.provenance[0]?.isDemo) ||
     Boolean(windFactor?.provenance[0]?.isDemo);
 
-  const windFrom = windDirectionLabel(windFromDeg) ?? '';
+  const windFrom = (() => {
+    if (windFromDeg === null) return '';
+    const code = bearingToCompass8(windFromDeg);
+    return `${t.insights.compass8[code]} (${code})`;
+  })();
 
   const vars: RecommendationVars = {
     peakUgM3: peak ? formatNumber(peak.pm25UgM3, 1) : '',
@@ -143,7 +147,7 @@ export function InsightNotifications({
   };
 
   return (
-    <AtmosphereSection labelledBy="notif-title">
+    <section aria-labelledby="notif-title" className="glass rounded-3xl p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="notif-title" className="font-heading text-xl font-semibold tracking-tight">
           {n.title}
@@ -237,6 +241,6 @@ export function InsightNotifications({
       </ul>
 
       <p className="mt-3 text-xs text-ink-muted">{n.note}</p>
-    </AtmosphereSection>
+    </section>
   );
 }

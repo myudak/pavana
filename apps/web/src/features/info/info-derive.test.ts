@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { deriveInfoCards, filterInfoCards, hasDataWarning, type InfoCardDescriptor } from './info-derive';
+import {
+  deriveInfoCards,
+  filterInfoCards,
+  hasDataWarning,
+  type InfoCardDescriptor,
+} from './info-derive';
 
 const base = { trend: 'stable', hotspotCount: null, linkCount: 6, dataState: 'live' } as const;
 
@@ -9,7 +14,12 @@ function byId(cards: readonly InfoCardDescriptor[]) {
 
 describe('deriveInfoCards', () => {
   it('always returns the four dashboard cards in order', () => {
-    expect(deriveInfoCards(base).map((c) => c.id)).toEqual(['pm25', 'hotspots', 'official', 'data']);
+    expect(deriveInfoCards(base).map((c) => c.id)).toEqual([
+      'pm25',
+      'hotspots',
+      'official',
+      'data',
+    ]);
   });
 
   it('raises the PM2.5 card only when the forecast worsens', () => {

@@ -4,6 +4,7 @@ import {
   EARTH_RADIUS_KM,
   windFromToFlowBearing,
   type BBox,
+  type PlumeTrail,
   type StreamlineField,
 } from '@pavana/shared';
 import type { FeatureCollection, LineString, Point } from 'geojson';
@@ -65,8 +66,7 @@ const WIND_FWD_KM = 35;
  */
 function offsetKm(c: LatLon, eastKm: number, northKm: number): [number, number] {
   const dLat = (northKm / EARTH_RADIUS_KM) * (180 / Math.PI);
-  const dLon =
-    ((eastKm / EARTH_RADIUS_KM) * (180 / Math.PI)) / Math.cos((c.lat * Math.PI) / 180);
+  const dLon = ((eastKm / EARTH_RADIUS_KM) * (180 / Math.PI)) / Math.cos((c.lat * Math.PI) / 180);
   return [c.lon + dLon, c.lat + dLat];
 }
 
@@ -141,7 +141,15 @@ export function HotspotMap({
   styleUrl,
   wind,
   onSelectHotspot,
+  controls = true,
+  plumes = null,
+  showPlumes = false,
 }: {
+  /** MapLibre zoom/fullscreen buttons. Off when the caller draws its own controls. */
+  controls?: boolean;
+  /** Indicative downwind trails from hotspots (see tracePlumes). */
+  plumes?: PlumeTrail[] | null;
+  showPlumes?: boolean;
   center: LatLon;
   hotspots: Hotspot[];
   showHotspots: boolean;
@@ -151,7 +159,10 @@ export function HotspotMap({
   /** Traveling dot along the wind streamline. Honors reduced-motion. */
   animatedWind?: boolean;
   /** Pre-rendered density canvas + corner coordinates, or null. */
-  density?: { canvas: HTMLCanvasElement; coords: [[number, number], [number, number], [number, number], [number, number]] } | null;
+  density?: {
+    canvas: HTMLCanvasElement;
+    coords: [[number, number], [number, number], [number, number], [number, number]];
+  } | null;
   /** Fit the viewport to this bbox instead of the data bounds. */
   fitTo?: BBox | null;
   /** Regional wind streamlines (flow direction). Null hides the layers. */
@@ -192,8 +203,10 @@ export function HotspotMap({
       return;
     }
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    if (controls) {
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+      map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    }
     // Dusk/Haze navy grade over the CARTO dark-matter style (no style fork):
     // background + water go navy/black, admin boundaries dim indigo.
     // Roads, rivers, labels and other layers keep the provider's styling.
@@ -231,6 +244,43 @@ export function HotspotMap({
         clusterMaxZoom: 12,
         clusterRadius: 60,
       });
+      // Indicative smoke-direction trails, under the detections.
+      ensureSource(map, 'plumes', {
+        type: 'geojson',
+        lineMetrics: true,
+        data: { type: 'FeatureCollection', features: [] },
+      });
+      ensureLayer(map, {
+        id: 'plumes-line',
+        type: 'line',
+        source: 'plumes',
+        layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' },
+        paint: {
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            4,
+            ['*', 3, ['get', 'w']],
+            7,
+            ['*', 6, ['get', 'w']],
+            10,
+            ['*', 12, ['get', 'w']],
+          ],
+          'line-blur': ['interpolate', ['linear'], ['zoom'], 4, 1.5, 10, 6],
+          'line-gradient': [
+            'interpolate',
+            ['linear'],
+            ['line-progress'],
+            0,
+            'rgba(244,114,182,0.95)',
+            0.5,
+            'rgba(168,85,247,0.6)',
+            1,
+            'rgba(99,102,241,0)',
+          ],
+        },
+      });
       const hotspotColor = cssVar('--pv-aq-unhealthy') || '#dc2626';
       // Soft halo beneath each detection (decorative luminance; color still semantic).
       // Hidden at regional zoom — the raster carries the luminance there.
@@ -252,11 +302,11 @@ export function HotspotMap({
         source: 'hotspots',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 2, 10, 5],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 7, 4, 10, 6],
           'circle-color': hotspotColor,
           'circle-stroke-color': '#ffffff',
-          'circle-stroke-width': 1.5,
-          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 6, 0.65, 10, 0.9],
+          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 4, 0.6, 9, 1.5],
+          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.85, 10, 0.95],
         },
       });
       // Cluster bubbles for overlapping detections (hidden at regional zoom).
@@ -325,10 +375,9 @@ export function HotspotMap({
         map.addImage('wind-arrow', windArrowImage(), { pixelRatio: 2 });
       }
       // Regional streamlines: below basemap labels, above the raster.
-      const firstSymbol = map
-        .getStyle()
-        ?.layers.find((l) => l.type === 'symbol')?.id;
-      ensureLayer(map, 
+      const firstSymbol = map.getStyle()?.layers.find((l) => l.type === 'symbol')?.id;
+      ensureLayer(
+        map,
         {
           id: 'wind-streamlines-line',
           type: 'line',
@@ -351,7 +400,8 @@ export function HotspotMap({
         },
         firstSymbol,
       );
-      ensureLayer(map, 
+      ensureLayer(
+        map,
         {
           id: 'wind-streamlines-arrow',
           type: 'symbol',
@@ -403,8 +453,7 @@ export function HotspotMap({
         if (!f || f.geometry.type !== 'Point' || typeof clusterId !== 'number') return;
         const coords = f.geometry.coordinates.slice(0, 2) as [number, number];
         const source = map.getSource('hotspots') as
-          | (GeoJSONSource & { getClusterExpansionZoom(id: number): Promise<number> })
-          | undefined;
+          (GeoJSONSource & { getClusterExpansionZoom(id: number): Promise<number> }) | undefined;
         source
           ?.getClusterExpansionZoom(clusterId)
           .then((zoom) => {
@@ -437,10 +486,7 @@ export function HotspotMap({
       ? `fit:${fitTo.join(',')},${style}`
       : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
     fittedRef.current = fitKey;
-    const bounds = new maplibregl.LngLatBounds(
-      [center.lon, center.lat],
-      [center.lon, center.lat],
-    );
+    const bounds = new maplibregl.LngLatBounds([center.lon, center.lat], [center.lon, center.lat]);
     if (fitTo != null) {
       bounds.extend([fitTo[0], fitTo[1]]);
       bounds.extend([fitTo[2], fitTo[3]]);
@@ -450,7 +496,7 @@ export function HotspotMap({
     map.resize();
     map.fitBounds(bounds, {
       padding: fitTo != null ? 32 : 70,
-      maxZoom: fitTo != null ? 6 : 11,
+      maxZoom: 10,
       duration: 0,
     });
   };
@@ -480,7 +526,8 @@ export function HotspotMap({
             layers.find((l) => l.id === 'water')?.id ??
             layers.find((l) => l.type === 'symbol')?.id ??
             (map.getLayer('hotspot-glow') ? 'hotspot-glow' : undefined);
-          ensureLayer(map, 
+          ensureLayer(
+            map,
             {
               id: RASTER_ID,
               type: 'raster',
@@ -526,7 +573,7 @@ export function HotspotMap({
         })),
       });
       // Dimmer under the density raster, full strength in the wind tab.
-      const slOpacity = showDensity ? 0.3 : 0.7;
+      const slOpacity = showDensity ? 0.3 : showPlumes ? 0.35 : 0.7;
       for (const id of ['wind-streamlines-line', 'wind-streamlines-arrow']) {
         if (map.getLayer(id)) {
           map.setLayoutProperty(id, 'visibility', showWind ? 'visible' : 'none');
@@ -537,6 +584,23 @@ export function HotspotMap({
       }
       if (map.getLayer('wind-streamlines-arrow')) {
         map.setPaintProperty('wind-streamlines-arrow', 'icon-opacity', slOpacity + 0.2);
+      }
+      (map.getSource('plumes') as GeoJSONSource | undefined)?.setData({
+        type: 'FeatureCollection',
+        features: (plumes ?? [])
+          .filter((p) => p.points.length > 1)
+          .map((p) => ({
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: p.points },
+            properties: { w: p.weight },
+          })),
+      });
+      if (map.getLayer('plumes-line')) {
+        map.setLayoutProperty(
+          'plumes-line',
+          'visibility',
+          showPlumes && plumes ? 'visible' : 'none',
+        );
       }
       const fitKey = fitTo
         ? `fit:${fitTo.join(',')},${style}`
@@ -549,7 +613,17 @@ export function HotspotMap({
     if (loadedRef.current) update();
     else map.once('pavana:ready', update);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- center/style keyed via fitKey; map via ref
-  }, [hotspots, showHotspots, showDensity, showWind, windFlow, streamlines, fitTo]);
+  }, [
+    hotspots,
+    showHotspots,
+    showDensity,
+    showWind,
+    windFlow,
+    streamlines,
+    fitTo,
+    plumes,
+    showPlumes,
+  ]);
 
   // Fit button: refit on demand (e.g. after the user pans away).
   const prevNonceRef = useRef(fitNonce);
@@ -645,9 +719,10 @@ export function HotspotMap({
     };
     let cleanup: (() => void) | undefined;
     if (loadedRef.current) cleanup = place();
-    else map.once('pavana:ready', () => {
-      cleanup = place();
-    });
+    else
+      map.once('pavana:ready', () => {
+        cleanup = place();
+      });
     return () => cleanup?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- primitives + center; see above
   }, [showWind, animatedWind, windFlow, center.lat, center.lon]);

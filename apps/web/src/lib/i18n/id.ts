@@ -10,6 +10,7 @@ import type {
   FactorId,
   FactorSignal,
   ProvenanceKind,
+  ExposureLevel,
   Trend,
   UsAqiCategory,
 } from '@pavana/shared';
@@ -35,7 +36,247 @@ export const id = {
     soon: 'Segera hadir',
   },
 
-  nav: { today: 'Home', map: 'Peta', insights: 'Insight', info: 'Info' },
+landing: {
+    title: 'Pavana, Weather, Wildfire & Kualitas Udara Indonesia',
+    description:
+      'Kenali Pavana: cuaca (weather), kualitas udara PM2.5, dan konteks asap kebakaran hutan (wildfire) di Indonesia. Coba demo Kubu Raya dengan data ilustratif.',
+    nav: {
+      how: 'Cara kerja',
+      features: 'Fitur',
+      sources: 'Sumber data',
+      faq: 'FAQ',
+      openApp: 'Buka aplikasi',
+    },
+    hero: {
+      category: 'Weather · Air quality · Wildfire',
+      heading: ['Apakah asap kebakaran', 'akan sampai ke tempatmu?'],
+      introduction:
+        'Pavana dirancang untuk membantu memahami cuaca, kualitas udara PM2.5, dan potensi dampak asap kebakaran hutan dan lahan gambut di Indonesia. Jelajahi hubungan angin, titik panas satelit, dan tren kualitas udara dalam tampilan sesederhana aplikasi cuaca.',
+      demoStatus:
+        'Aplikasi saat ini menampilkan demo Kubu Raya, Kalimantan Barat dengan data ilustratif. Integrasi data langsung sedang disiapkan.',
+      ctaPrimary: 'Buka Pavana',
+      ctaDemo: 'Lihat demo',
+      mockBadge: 'Contoh · data ilustratif',
+    },
+    how: {
+      eyebrow: 'Cara kerja',
+      title: 'Satu jawaban sederhana, dari tiga sinyal.',
+      steps: [
+        {
+          title: 'Pilih lokasi',
+          body: 'Cari kota atau kabupaten, atau pakai lokasimu. Pilihan lokasi disimpan di perangkatmu.',
+        },
+        {
+          title: 'Pavana membaca tiga sinyal',
+          body: 'Titik panas satelit, prakiraan arah dan kecepatan angin, serta prakiraan PM2.5 untuk 24 jam ke depan.',
+        },
+        {
+          title: 'Jawaban per jam',
+          body: 'Potensi paparan asap, minim, rendah, sedang, atau tinggi, lengkap dengan sumber dan waktu berlakunya.',
+        },
+      ],
+      diagramTitle: 'Jarak sama, jawaban berbeda.',
+      diagramBody:
+        'Dua rumah sama jauhnya dari titik panas. Yang berada di arah tiupan angin berpotensi terpapar asap; yang di sampingnya jauh lebih kecil. Inilah yang dihitung Pavana, sebagai indikator potensi, bukan kepastian.',
+      fire: 'Titik panas',
+      wind: 'Angin',
+      houseA: 'Rumah A · searah angin',
+      houseB: 'Rumah B · di samping arah angin',
+      levelA: 'Tinggi',
+      levelB: 'Rendah',
+      sameDistance: 'Lingkaran putus-putus: jarak yang sama dari titik panas.',
+    },
+    features: {
+      eyebrow: 'Fitur',
+      title: 'Semudah aplikasi cuaca.',
+      status: {
+        available: 'Tersedia',
+        building: 'Dalam pengembangan',
+        planned: 'Belum tersedia',
+      },
+      items: [
+        {
+          key: 'reach',
+          title: 'Apakah asapnya sampai?',
+          body: 'Pilih lokasi, lihat apakah asap dari titik panas berpotensi bergerak ke wilayahmu dalam beberapa jam ke depan.',
+          status: 'available',
+        },
+        {
+          key: 'timeline',
+          title: 'Garis waktu asap',
+          body: 'Geser waktu seperti prakiraan cuaca: kini, +3, +6, +12, sampai +24 jam.',
+          status: 'available',
+        },
+        {
+          key: 'map',
+          title: 'Peta api & angin',
+          body: 'Titik panas satelit, garis aliran angin, dan arah sebaran asap yang indikatif.',
+          status: 'available',
+        },
+        {
+          key: 'why',
+          title: 'Kenapa begini?',
+          body: 'Faktor penyebab dalam bahasa sederhana: tren PM2.5, arah angin, dan titik panas searah angin.',
+          status: 'available',
+        },
+        {
+          key: 'ai',
+          title: 'Prakiraan AI',
+          body: 'Model LightGBM dengan fitur titik panas berbasis arah angin dan penjelasan SHAP. Belum dievaluasi, belum dipakai di aplikasi.',
+          status: 'building',
+        },
+        {
+          key: 'alerts',
+          title: 'Peringatan pintar',
+          body: 'Notifikasi peramban saat potensi dampak asap di lokasimu meningkat. Versi demo berjalan selama Pavana terbuka; push dari server menyusul.',
+          status: 'building',
+        },
+        {
+          key: 'chat',
+          title: 'Tanya Pavi',
+          body: 'Maskot Pavi menjawab pertanyaan soal asap, titik panas, dan kualitas udara, lengkap dengan kartu data yang mudah dibaca. Versi demo memakai percakapan contoh; asisten AI sungguhan menyusul.',
+          status: 'building',
+        },
+      ],
+    },
+    sources: {
+      eyebrow: 'Sumber data',
+      title: 'Data terbuka, sumbernya selalu terlihat.',
+      body: 'Setiap angka di Pavana menyertakan sumber, jenis data (pengamatan, prakiraan, atau demo), dan waktu berlakunya.',
+      status: {
+        integrated: 'Terintegrasi',
+        soon: 'Segera',
+        link: 'Tautan resmi',
+      },
+      items: [
+        {
+          name: 'Open-Meteo',
+          use: 'Prakiraan angin, suhu, kelembapan, hujan',
+          status: 'integrated',
+        },
+        { name: 'CAMS (Copernicus)', use: 'Prakiraan PM2.5', status: 'integrated' },
+        { name: 'BMKG', use: 'Prakiraan cuaca pembanding & sumber resmi', status: 'integrated' },
+        { name: 'NASA FIRMS', use: 'Titik panas satelit VIIRS', status: 'soon' },
+        { name: 'OpenAQ', use: 'Stasiun pemantau PM2.5 terdekat', status: 'soon' },
+        { name: 'SiPongi · BNPB · BPBD', use: 'Status karhutla & arahan resmi', status: 'link' },
+      ],
+    },
+    cta: {
+      title: 'Lihat apakah asap sampai ke tempatmu.',
+      body: 'Gratis, tanpa akun, langsung dari browser.',
+    },
+    footer: {
+      project: 'Pavana · JOINTS 2026 · Sustainability',
+      disclaimer: 'Bukan sumber peringatan resmi. Ikuti arahan BMKG dan BPBD setempat.',
+      photoCredit: 'Foto lanskap: aset tim Pavana.',
+    },
+    questions: {
+      title: 'Tentang cuaca, wildfire, dan Pavana',
+      items: [
+        {
+          question: 'Apakah Pavana merupakan aplikasi weather atau prakiraan cuaca?',
+          answer:
+            'Pavana mengusung pengalaman seperti aplikasi cuaca (weather), dengan fokus pada hubungan angin, kualitas udara PM2.5, dan potensi dampak asap. Versi saat ini menampilkan skenario demo, bukan prakiraan cuaca langsung.',
+        },
+        {
+          question: 'Apa hubungan Pavana dengan forest fire dan wildfire?',
+          answer:
+            'Forest fire berarti kebakaran hutan, sedangkan wildfire mencakup kebakaran vegetasi yang lebih luas. Pavana dirancang untuk menyajikan konteks titik panas satelit, angin, dan kualitas udara di wilayah rawan kebakaran hutan dan lahan gambut. Titik panas adalah deteksi anomali panas, bukan konfirmasi kebakaran. Pavana tidak memprediksi waktu kedatangan api atau memberi perintah evakuasi.',
+        },
+        {
+          question: 'Apakah data cuaca dan kualitas udara Pavana sudah live?',
+          answer:
+            'Belum untuk publik. Integrasi Open-Meteo, CAMS, dan BMKG sudah dibangun dan sedang diuji; NASA FIRMS dan OpenAQ menyusul. Sementara itu aplikasi menampilkan demo dengan data sintetis untuk Kubu Raya, Kalimantan Barat, dan belum ada model machine learning yang terlatih. Untuk informasi terkini dan arahan resmi, periksa BMKG dan BPBD setempat.',
+        },
+      ],
+    },
+  },
+
+  nav: { today: 'Home', map: 'Peta', chat: 'Tanya', forecast: 'Prakiraan', insights: 'Insight', info: 'Info' },
+
+  // Tanya Pavi, asisten chat. DEMO: jawaban berskrip dari skenario demo Kubu Raya,
+  // belum ada LLM (lihat docs/backlog.md).
+  chat: {
+    name: 'Pavi',
+    role: 'Asisten asap & udara',
+    navLabel: 'Tanya Pavi',
+    mascotAlt: 'Pavi, maskot Pavana',
+    status: 'Demo',
+    reset: 'Mulai ulang',
+    greeting: 'Hai, aku Pavi!',
+    intro:
+      'Tanya soal asap, titik panas, dan kualitas udara. Aku cek datanya dulu, lalu jelaskan dengan bahasa sederhana.',
+    demoBadge: 'Contoh percakapan · data demo Sungai Raya',
+    suggestions: [
+      'Apakah asap akan sampai ke sini?',
+      'Kualitas udara sekarang?',
+      'Ada titik panas di dekat sini?',
+      'Perlu pakai masker?',
+      'Kenapa udaranya begini?',
+    ],
+    placeholder: 'Tanya Pavi…',
+    send: 'Kirim',
+    stop: 'Berhenti',
+    thinking: 'Pavi sedang mengecek…',
+    footer:
+      'Pavi masih versi demo: jawaban contoh dari skenario demo, bukan saran medis atau peringatan resmi.',
+    tools: {
+      running: 'Mengecek…',
+      done: 'Selesai',
+      details: 'Lihat detail',
+      source: 'Sumber: pavana-fixture · data demo',
+      names: {
+        cek_kualitas_udara: 'Cek kualitas udara',
+        cek_titik_panas: 'Cek titik panas',
+        apakah_asap_sampai: 'Apakah asap sampai?',
+        cek_angin: 'Cek angin',
+        saran_kesehatan: 'Saran kesehatan',
+      },
+      radius: (km: number, h: number) => `Dalam radius ${km} km · ${h} jam terakhir`,
+      detections: 'deteksi',
+      upwind: (n: number) => `${n} di arah datangnya angin`,
+      hotspotNote: 'Deteksi satelit, indikasi titik panas, bukan kebakaran yang terkonfirmasi.',
+      peak: (v: string, at: string) => `Puncak ${v} µg/m³ sekitar ${at}`,
+      exposureNote:
+        'Indikatif, dari arah angin, titik panas, dan prakiraan PM2.5. Bukan pengukuran asap.',
+      windTo: (dir: string) => `Bertiup ke ${dir}`,
+      adviceNote: 'Saran umum, bukan saran medis. Ikuti arahan resmi setempat.',
+      axis: ['Kini', '+12 jam', '+24 jam'],
+    },
+    replies: {
+      greeting:
+        'Hai! Aku Pavi 🍃 Aku bisa bantu cek kualitas udara, titik panas, arah angin, dan apakah asap berpotensi sampai ke lokasimu. Coba tanya salah satu pertanyaan di bawah, ya.',
+      air: [
+        'Aku cek PM2.5 di Sungai Raya dulu, ya.',
+        'Sekarang PM2.5 sekitar 33,9 µg/m³, kategori **Sedang**. Tapi prakiraannya naik: puncaknya sekitar 159,9 µg/m³ pukul 19.00 WIB. Kalau kamu sensitif, rencanakan aktivitas luar ruangan lebih pagi.',
+      ],
+      reach: [
+        'Pertanyaan utama! Aku lihat arah angin dan titik panas di sekitarmu dulu.',
+        'Angin datang dari tenggara, dan 101 dari 103 deteksi titik panas berada di arah datangnya angin.',
+        'Jadi potensi paparan asap di Sungai Raya **tinggi** hari ini, terutama sekitar pukul 13.00–01.00 WIB, dengan puncak sekitar pukul 19.00. Ini indikator, bukan kepastian, pantau juga kanal resmi.',
+      ],
+      hotspots: [
+        'Aku cek deteksi satelit di sekitar Sungai Raya.',
+        'Ada 103 deteksi titik panas dalam radius 300 km selama 48 jam terakhir, 101 di antaranya searah datangnya angin. Ingat, ini deteksi panas dari satelit, belum tentu kebakaran.',
+      ],
+      mask: [
+        'Aku cek kondisi udara dulu sebelum kasih saran.',
+        'PM2.5 sekarang Sedang, tapi diperkirakan naik ke kategori tidak sehat menjelang sore. Ini beberapa langkah yang bisa kamu lakukan:',
+      ],
+      why: [
+        'Biar jelas, aku cek dua faktor utamanya: angin dan titik panas.',
+        'Udara memburuk karena angin bertiup dari tenggara, arah tempat sebagian besar titik panas terdeteksi, sehingga asap berpotensi terbawa ke sini. Prakiraan PM2.5 juga naik sampai sore.',
+      ],
+      fallback:
+        'Maaf, di versi demo aku baru bisa menjawab beberapa pertanyaan: kualitas udara, titik panas, arah angin, apakah asap akan sampai, dan saran masker. Coba salah satu saran di bawah, ya!',
+    },
+    advice: [
+      'Pakai masker N95/KN95 saat di luar ruangan, terutama sore hari.',
+      'Kurangi aktivitas berat di luar ruangan, apalagi untuk anak, lansia, dan penderita asma.',
+      'Tutup jendela saat udara memburuk; gunakan penjernih udara bila ada.',
+      'Pantau prakiraan Pavana dan kanal resmi (SiPongi, BMKG).',
+    ],
+  },
 
   demoBanner: 'Mode Demo · Data ilustratif',
   demoChip: 'Mode Demo',
@@ -79,7 +320,7 @@ export const id = {
   today: {
     currentTitle: 'PM2.5 saat ini',
     heroLead: 'Kualitas udara',
-    // Deskripsi singkat hero per kategori — dinamis mengikuti kategori AQI,
+    // Deskripsi singkat hero per kategori, dinamis mengikuti kategori AQI,
     // tanpa angka deteksi, radius, arah angin, atau skor indikator.
     heroDesc: {
       good: 'Udara relatif bersih. Nikmati aktivitas luar ruangan seperti biasa.',
@@ -126,8 +367,9 @@ export const id = {
       hazardous:
         'Tetap di dalam ruangan dan hindari aktivitas luar ruangan. Ikuti arahan otoritas setempat.',
     } satisfies Record<UsAqiCategory, string>,
+healthAdviceSource: 'Sumber saran: informasi umum dari lembaga resmi, selengkapnya di',
     noData: 'Tidak ada data kualitas udara untuk lokasi ini.',
-    // Kartu "Prakiraan 10 hari" — mobile (< 768px) dan kolom kanan grid desktop.
+    // Kartu "Prakiraan 10 hari", mobile (< 768px) dan kolom kanan grid desktop.
     daily: {
       title: 'PRAKIRAAN 10 HARI',
       unit: 'PM2.5 µg/m³',
@@ -171,7 +413,7 @@ export const id = {
         peakAt
           ? `Saat ini ${current} µg/m³; puncak prakiraan ${peak} µg/m³ sekitar pukul ${peakAt}.`
           : `Saat ini ${current} µg/m³.`,
-      wind: (from: string, speed: string, to: string) =>
+wind: (from: string, speed: string, to: string) =>
         `Angin dari ${from}, ${speed} m/s, bertiup ke ${to}.`,
       upwindNone: (radiusKm: string, windowH: string) =>
         `Tidak ada deteksi titik panas dalam radius ${radiusKm} km selama ${windowH} jam terakhir. Ini tidak berarti tidak ada api.`,
@@ -195,6 +437,8 @@ export const id = {
     layerHotspots: 'Titik panas',
     legendLocation: 'Lokasi dipilih',
     hotspotDisclaimer: 'Deteksi satelit, bukan konfirmasi kebakaran atau batas area terbakar.',
+    creditLive: 'Sumber: titik panas NASA FIRMS (VIIRS, 48 jam terakhir) · angin Open-Meteo.',
+    creditDemo: 'Sumber: skenario demo Pavana, titik panas dan angin ilustratif.',
     acquired: 'Waktu deteksi',
     frp: 'FRP',
     confidence: 'Keyakinan',
@@ -203,6 +447,16 @@ export const id = {
     windFrom: 'dari',
     windTo: 'bertiup ke',
     mapError: 'Peta tidak dapat dimuat. Menampilkan daftar titik panas.',
+layersLabel: 'Lapisan peta',
+    layerPlumes: 'Arah asap',
+    plumesTitle: 'Arah sebaran asap',
+    plumesHours: (h: number) => (h === 0 ? 'Kini' : `+${h} jam`),
+    plumesFrom: 'Titik panas',
+    plumesNote:
+      'Garis mengikuti prakiraan angin dari tiap titik panas, indikatif, bukan model sebaran asap dan bukan konsentrasi.',
+    viewLocal: 'Sekitarku',
+    viewRegion: 'Kalimantan',
+    detailTitle: 'Detail deteksi',
     count: (n: number) => `${n} deteksi anomali panas satelit dalam area`,
   },
 
@@ -279,7 +533,7 @@ export const id = {
       airTitle: 'Kualitas udara',
       windTitle: 'Angin',
       hotspotTitle: 'Hotspot',
-      windFrom: (name: string) => `Dari ${name}`,
+windFrom: (name: string) => `Dari ${name}`,
       windSpeed: (kmh: string) => `${kmh} km/jam`,
       windScope: 'Konteks sebaran asap',
       windRelevance: 'Konteks arah sebaran asap, bukan bukti asap akan mencapai lokasi Anda.',
@@ -287,7 +541,7 @@ export const id = {
       hotspotScope: (radius: string, window: string) =>
         `Dalam radius ${radius} km · ${window} jam terakhir`,
       hotspotScopeArea: 'Area pencarian di sekitar lokasi terpilih.',
-      hotspotNone: 'Tidak ada deteksi di area pencarian, bukan berarti tidak ada kebakaran.',
+hotspotNone: 'Tidak ada deteksi di area pencarian, bukan berarti tidak ada kebakaran.',
       hotspotError: 'Jumlah titik panas tidak dapat dimuat.',
       seeChart: 'Lihat grafik',
       seeMap: 'Lihat di peta',
@@ -309,7 +563,7 @@ export const id = {
       staleBody: 'Angka terakhir belum mencerminkan kondisi saat ini.',
       insufficientBody: 'Perubahan kualitas udara belum dapat dinilai.',
       hotspotTitle: 'Titik panas terdeteksi di sekitar wilayah',
-      hotspotBody: (n: string) => `${n} deteksi satelit, indikasi titik panas, bukan kebakaran.`,
+hotspotBody: (n: string) => `${n} deteksi satelit, indikasi titik panas, bukan kebakaran.`,
       officialTitle: 'Informasi resmi karhutla',
       officialBody: 'Kanal resmi status karhutla & kualitas udara.',
       officialError: 'Tautan resmi tidak dapat dimuat.',
@@ -320,10 +574,10 @@ export const id = {
       insufficientTitle: 'Data kualitas udara belum tersedia',
     },
 
-    // Rekomendasi tindakan — aturan deterministik, satu bundel copy per notifikasi.
+    // Rekomendasi tindakan, aturan deterministik, satu bundel copy per notifikasi.
     rec: {
       open: 'Lihat rekomendasi',
-      illustrativeNote: 'Data ilustratif, bukan pengamatan nyata.',
+illustrativeNote: 'Data ilustratif, bukan pengamatan nyata.',
       rules: {
         combined: {
           trigger: (v) =>
@@ -390,11 +644,13 @@ export const id = {
     aboutTitle: 'Tentang Pavana',
     aboutBody:
       'Pavana menerjemahkan data satelit, cuaca, dan prakiraan kualitas udara menjadi informasi yang mudah dipahami untuk lokasimu. Pavana bukan sumber peringatan resmi.',
-    // Tema kini diatur dari tombol di header aplikasi (semua halaman).
+  // Tema kini diatur dari tombol di header aplikasi (semua halaman).
     themeToggle: {
       toDark: 'Aktifkan mode gelap',
       toLight: 'Aktifkan mode terang',
     },
+    theme: 'Tema',
+    themeOptions: { light: 'Terang', dark: 'Gelap', system: 'Sistem' },
 
     // Dashboard Info: filter kategori + kartu ringkas.
     filtersLabel: 'Filter kategori',
@@ -406,7 +662,7 @@ export const id = {
       official: 'Sumber resmi',
       data: 'Status data',
     } satisfies Record<InfoFilter, string>,
-    staleWarning: 'Data terlambat, angka mungkin belum mencerminkan kondisi saat ini.',
+staleWarning: 'Data terlambat, angka mungkin belum mencerminkan kondisi saat ini.',
     noResults: 'Tidak ada kartu untuk filter ini.',
     cards: {
       pm25Title: 'Prakiraan PM2.5',
@@ -419,7 +675,7 @@ export const id = {
       hotspotNone: 'Tidak ada deteksi di area pencarian.',
       hotspotUnknown: 'Jumlah deteksi belum tersedia.',
       hotspotAction: 'Lihat di Peta',
-      hotspotCaveat: 'Deteksi satelit, bukan konfirmasi kebakaran.',
+hotspotCaveat: 'Deteksi satelit, bukan konfirmasi kebakaran.',
       officialTitle: 'Informasi resmi BPBD/BMKG',
       officialBody: (n: string) => `${n} kanal resmi terkurasi untuk karhutla dan kualitas udara.`,
       officialEmpty: 'Daftar tautan resmi belum dapat dimuat.',
@@ -428,7 +684,7 @@ export const id = {
       officialCaveat: 'Pavana bukan sumber peringatan resmi.',
       dataTitle: 'Status data',
       dataUpdated: (at: string) => `Diperbarui ${at}`,
-      dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
+dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
       dataInsufficient: 'Data belum cukup untuk menilai kondisi.',
       dataUnknown: 'Status data belum tersedia.',
       dataAction: 'Muat ulang',
@@ -441,6 +697,171 @@ export const id = {
     myLocation: 'Lokasi saya',
     geoDenied: 'Izin lokasi ditolak.',
     noResults: 'Tidak ada hasil.',
+  },
+
+  // "Will the smoke reach me?", a POTENTIAL level, never a probability or a certainty.
+  exposure: {
+    eyebrow: 'Apakah asap akan sampai ke sini?',
+    level: {
+      none: 'Minim',
+      low: 'Rendah',
+      moderate: 'Sedang',
+      high: 'Tinggi',
+      unknown: 'Tidak diketahui',
+    } satisfies Record<ExposureLevel, string>,
+    headline: {
+      none: 'Potensi paparan asap minim',
+      low: 'Potensi paparan asap rendah',
+      moderate: 'Potensi paparan asap sedang',
+      high: 'Potensi paparan asap tinggi',
+      unknown: 'Belum cukup data untuk menilai asap',
+    } satisfies Record<ExposureLevel, string>,
+    peakAt: (time: string) => `Paling tinggi sekitar pukul ${time}`,
+    firstElevatedAt: (time: string) => `mulai meningkat sekitar ${time}`,
+    driver: {
+      pm25: 'Berdasarkan prakiraan PM2.5.',
+      upwind: 'Angin datang dari arah titik panas di sekitarmu.',
+      both: 'Prakiraan PM2.5 tinggi dan angin datang dari arah titik panas.',
+      none: 'Tidak ada sinyal kuat dari PM2.5 maupun arah angin.',
+    },
+    potentialLabel: 'Potensi paparan',
+    disclaimer:
+      'Indikator potensi dari prakiraan PM2.5 dan arah angin terhadap titik panas, bukan peluang, bukan kepastian. Ambang belum dikalibrasi terhadap pengamatan.',
+    timelineTitle: 'Garis waktu asap',
+    timelineHint: 'Geser untuk melihat jam lain',
+    stepNow: 'Kini',
+    stepHours: (h: number) => `+${h} jam`,
+    upwindCount: (n: number, total: number) =>
+      total === 0 ? 'Tidak ada deteksi di sekitar' : `${n} dari ${total} titik panas searah angin`,
+  },
+
+  home: {
+    hourlyTitle: 'Prakiraan 24 jam',
+    detailsTitle: 'Kondisi sekarang',
+    mapTitle: 'Titik panas & angin',
+    mapCta: 'Buka peta',
+    whyTitle: 'Kenapa begini?',
+    whyCta: 'Lihat prakiraan',
+    pm25Label: 'PM2.5',
+  },
+
+  tiles: {
+    wind: 'Angin',
+    windFrom: (dir: string) => `Dari ${dir}`,
+    windTo: (dir: string) => `bertiup ke ${dir}`,
+    humidity: 'Kelembapan',
+    temperature: 'Suhu',
+    rain: 'Hujan',
+    rainNone: 'Tidak ada',
+    hotspots: 'Titik panas',
+    hotspotsNote: 'searah angin, radius 300 km',
+    aqi: 'US AQI',
+    aqiNote: 'indikatif, dari PM2.5 per jam',
+    missing: 'Tidak ada data',
+  },
+
+  // 8-point compass in Indonesian (meteorological FROM / flow TO handled by callers).
+  compass: [
+    'Utara',
+    'Timur Laut',
+    'Timur',
+    'Tenggara',
+    'Selatan',
+    'Barat Daya',
+    'Barat',
+    'Barat Laut',
+  ],
+  compassShort: { n: 'U', e: 'T', s: 'S', w: 'B' },
+
+  forecast: {
+    title: 'Prakiraan',
+    tabs: { air: 'Kualitas udara', smoke: 'Asap', weather: 'Cuaca' },
+    airTitle: 'PM2.5 per jam',
+    smokeTitle: 'Potensi paparan asap per jam',
+    weatherTitle: 'Angin per jam',
+    factorsTitle: 'Faktor yang berpengaruh',
+    modelTitle: 'Model AI prakiraan PM2.5',
+    modelStatus: 'Dalam pengembangan',
+    modelBody:
+      'Model LightGBM dengan fitur titik panas berbasis arah angin sedang dikembangkan dan belum dievaluasi. Angka di sini berasal dari prakiraan PM2.5 dan indikator deterministik, bukan dari model tersebut.',
+    windSpeed: 'Kecepatan',
+    windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
+    temperature: 'Suhu',
+    humidity: 'Kelembapan',
+  },
+
+  /** Display names for provenance `provider` ids (unknown ids are shown as-is). */
+  providerName: {
+    'open-meteo': 'Open-Meteo',
+    'open-meteo-cams': 'Open-Meteo (CAMS)',
+    'nasa-firms': 'NASA FIRMS',
+    openaq: 'OpenAQ',
+    bmkg: 'BMKG',
+  } as Record<string, string>,
+
+  mode: {
+    title: 'Mode data',
+    live: 'Data langsung',
+    demo: 'Demo',
+    liveBody:
+      'Prakiraan dan pengamatan terbaru dari Open-Meteo (CAMS), NASA FIRMS, OpenAQ, dan BMKG.',
+    demoBody: 'Skenario sintetis Kubu Raya (September) untuk demonstrasi. Semua angka ilustratif.',
+    exitDemo: 'Lihat data langsung',
+  },
+
+  sources: {
+    title: 'Sumber data',
+    status: {
+      ok: 'Aktif',
+      error: 'Gangguan',
+      not_configured: 'Belum dikonfigurasi',
+      fixture: 'Demo',
+    },
+  },
+
+  station: {
+    line: (name: string, value: string, km: string) =>
+      `Stasiun terdekat (pengamatan): ${value} µg/m³ · ${name}, ${km} km`,
+  },
+
+  hotspotsUnavailable:
+    'Data titik panas sedang tidak tersedia, potensi dihitung dari prakiraan PM2.5 saja.',
+
+  reference: {
+    title: 'Pembanding: BMKG',
+    none: 'Belum ada titik prakiraan BMKG yang tercakup di dekat lokasi ini.',
+    note: (place: string) =>
+      `Prakiraan 3-jam BMKG untuk ${place}. Ditampilkan apa adanya, tidak dicampur dengan angka Pavana.`,
+  },
+
+  // Notifikasi, DEMO: hanya berjalan saat Pavana terbuka di peramban (lihat docs/backlog.md).
+  alerts: {
+    title: 'Peringatan pintar',
+    status: 'Demo',
+    body: 'Pavana memberi tahu saat potensi dampak asap di lokasimu meningkat, dari aturan yang sama dengan halaman Prakiraan. Versi demo: notifikasi hanya dikirim saat Pavana terbuka di peramban ini. Notifikasi push dari server belum dibangun.',
+    bellLabel: 'Notifikasi',
+    bellLabelUnread: 'Notifikasi, ada yang perlu perhatian',
+    sheetTitle: 'Notifikasi',
+    empty: 'Belum ada hal yang perlu diperhatikan dari data saat ini. Tetap pantau kanal resmi.',
+    seeForecast: 'Lihat prakiraan',
+    settingsTitle: 'Notifikasi peramban',
+    enable: 'Aktifkan notifikasi',
+    enabled: 'Notifikasi aktif',
+    demoNote: 'Demo · dikirim hanya saat Pavana terbuka.',
+    test: 'Kirim contoh notifikasi',
+    testSent: 'Contoh notifikasi dikirim.',
+    sendFailed: 'Notifikasi gagal ditampilkan di peramban ini.',
+    unsupported: 'Peramban ini tidak mendukung notifikasi.',
+    denied: 'Izin notifikasi ditolak. Ubah lewat pengaturan situs di peramban.',
+    confirmTitle: 'Notifikasi Pavana aktif',
+    confirmBody: 'Kamu akan diberi tahu saat potensi dampak asap meningkat (demo).',
+    testTitle: 'Contoh notifikasi Pavana',
+    testBody: 'Begini tampilan peringatan Pavana. Ini hanya contoh, bukan kondisi nyata.',
+    demoSuffix: 'Data demo',
+  },
+
+  theme: {
+    toggle: 'Ganti tema',
   },
 
   common: {

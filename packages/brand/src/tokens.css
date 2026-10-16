@@ -54,16 +54,23 @@
   --pv-aq-hazardous: #7f1d1d;
   --pv-aq-unknown: #9ca3af;
 
+  /* Smoke-exposure potential levels (none → high). Always pair with a text label. */
+  --pv-exp-none: #2563eb;
+  --pv-exp-low: #7c3aed;
+  --pv-exp-moderate: #ea580c;
+  --pv-exp-high: #db2777;
+  --pv-exp-unknown: #9ca3af;
+
   /* Data-state colors */
   --pv-state-demo: #7c3aed;
   --pv-state-stale: #b45309;
   --pv-state-error: #b91c1c;
 
-  /* Warning (amber) — banners & cautions. AA: strong on soft/white. */
-  --pv-warning: #d97706; /* amber-600 — borders/fills */
-  --pv-warning-strong: #b45309; /* amber-700 — text on light */
-  --pv-warning-soft: #fef3c7; /* amber-100 — tinted surfaces */
-  --pv-warning-ink: #78350f; /* amber-800 — text on soft tint */
+  /* Warning (amber), banners and cautions. AA: strong on soft/white. */
+  --pv-warning: #d97706;
+  --pv-warning-strong: #b45309;
+  --pv-warning-soft: #fef3c7;
+  --pv-warning-ink: #78350f;
 
   --pv-radius: 1rem;
   /* Peran font antarmuka: Inter untuk judul, isi, label, dan angka (lihat README
@@ -103,6 +110,15 @@
   --pv-aq-very-unhealthy: #c084fc;
   --pv-aq-hazardous: #fb7185;
   --pv-aq-unknown: #9ca3af;
+  --pv-exp-none: #60a5fa;
+  --pv-exp-low: #a78bfa;
+  --pv-exp-moderate: #fb923c;
+  --pv-exp-high: #f472b6;
+  --pv-exp-unknown: #9ca3af;
+  --pv-warning: #f59e0b;
+  --pv-warning-strong: #fbbf24;
+  --pv-warning-soft: #2e2411;
+  --pv-warning-ink: #fef3c7;
 
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
@@ -161,6 +177,15 @@
     --pv-aq-very-unhealthy: #c084fc;
     --pv-aq-hazardous: #fb7185;
     --pv-aq-unknown: #9ca3af;
+    --pv-exp-none: #60a5fa;
+    --pv-exp-low: #a78bfa;
+    --pv-exp-moderate: #fb923c;
+    --pv-exp-high: #f472b6;
+    --pv-exp-unknown: #9ca3af;
+    --pv-warning: #f59e0b;
+    --pv-warning-strong: #fbbf24;
+    --pv-warning-soft: #2e2411;
+    --pv-warning-ink: #fef3c7;
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;

@@ -76,3 +76,20 @@
     }
   }
 }
+
+/* Smoke-exposure level colors (bg-exp-high, text-exp-none, …). */
+@theme inline {
+  --color-exp-none: var(--pv-exp-none);
+  --color-exp-low: var(--pv-exp-low);
+  --color-exp-moderate: var(--pv-exp-moderate);
+  --color-exp-high: var(--pv-exp-high);
+  --color-exp-unknown: var(--pv-exp-unknown);
+}
+
+/* Amber warning (bg-warning-soft, text-warning-ink, border-warning). */
+@theme inline {
+  --color-warning: var(--pv-warning);
+  --color-warning-strong: var(--pv-warning-strong);
+  --color-warning-soft: var(--pv-warning-soft);
+  --color-warning-ink: var(--pv-warning-ink);
+}

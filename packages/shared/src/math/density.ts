@@ -86,7 +86,10 @@ export function buildDensityField(
   const { cols, sigmaWideKm, sigmaMidKm, sigmaFineKm, wideWeight, midWeight, fineWeight } = opts;
   const mercTop = mercY(maxLat);
   const mercBottom = mercY(minLat);
-  const rows = Math.max(1, Math.min(400, Math.round((cols * (mercBottom - mercTop)) / ((maxLon - minLon) / 360))));
+  const rows = Math.max(
+    1,
+    Math.min(400, Math.round((cols * (mercBottom - mercTop)) / ((maxLon - minLon) / 360))),
+  );
   const values = new Float32Array(cols * rows);
   if (sigmaWideKm <= 0 || sigmaMidKm <= 0 || sigmaFineKm <= 0 || points.length === 0) {
     return { cols, rows, bbox, values };
@@ -103,7 +106,10 @@ export function buildDensityField(
     const cosLat = Math.cos(degToRad(p.lat));
     const dLonDeg = range / KM_PER_DEG / Math.max(0.2, cosLat);
     const i0 = Math.max(0, Math.floor(((p.lon - dLonDeg - minLon) / (maxLon - minLon)) * cols));
-    const i1 = Math.min(cols - 1, Math.ceil(((p.lon + dLonDeg - minLon) / (maxLon - minLon)) * cols));
+    const i1 = Math.min(
+      cols - 1,
+      Math.ceil(((p.lon + dLonDeg - minLon) / (maxLon - minLon)) * cols),
+    );
     const my = mercY(p.lat);
     const mercPerDeg = (mercY(p.lat - 1) - mercY(p.lat + 1)) / 2;
     const dyMerc = (range / KM_PER_DEG) * mercPerDeg;

@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { LocationProvider } from '@/features/location/location-context';
+import { DemoModeProvider } from '@/lib/demo-mode';
+import { NotificationsProvider } from '@/lib/notifications';
 import { ThemeProvider } from '@/lib/theme-context';
 
 export function createQueryClient() {
@@ -25,9 +27,13 @@ export function AppProviders({
   const [client] = useState(() => queryClient ?? createQueryClient());
   return (
     <QueryClientProvider client={client}>
-      <ThemeProvider>
-        <LocationProvider>{children}</LocationProvider>
-      </ThemeProvider>
+      <DemoModeProvider>
+        <ThemeProvider>
+          <LocationProvider>
+            <NotificationsProvider>{children}</NotificationsProvider>
+          </LocationProvider>
+        </ThemeProvider>
+      </DemoModeProvider>
     </QueryClientProvider>
   );
 }

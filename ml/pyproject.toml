@@ -16,6 +16,9 @@ dependencies = [
   "python-dotenv>=1.0",
 ]
 
+[project.optional-dependencies]
+hub = ["huggingface-hub>=0.26"]
+
 [dependency-groups]
 dev = [
   "jupyterlab>=4.2",

@@ -1,0 +1,68 @@
+---
+import {
+  AiBrain01Icon,
+  ChartLineData02Icon,
+  FireIcon,
+  Idea01Icon,
+  MapsIcon,
+  Notification03Icon,
+  BubbleChatIcon,
+} from '@hugeicons/core-free-icons';
+import { id } from '../../../web/src/lib/i18n/id';
+import Icon from './Icon.astro';
+
+const c = id.landing.features;
+const ICON = {
+  reach: FireIcon,
+  timeline: ChartLineData02Icon,
+  map: MapsIcon,
+  why: Idea01Icon,
+  ai: AiBrain01Icon,
+  alerts: Notification03Icon,
+  chat: BubbleChatIcon,
+} as const;
+const CHIP = {
+  available: 'bg-[#60a5fa]/15 text-[#2563eb] ring-[#60a5fa]/30 dark:text-[#93c5fd]',
+  building: 'bg-state-stale/15 text-state-stale ring-state-stale/30',
+  planned: 'bg-surface-muted text-ink-muted ring-border',
+} as const;
+---
+
+<section id="fitur" class="scroll-mt-20 border-y border-border bg-surface-muted/60">
+  <div class="mx-auto max-w-6xl px-4 py-20 md:px-8 md:py-28">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-haze">{c.eyebrow}</p>
+    <h2 class="mt-2 font-heading text-3xl font-bold tracking-tight md:text-5xl">{c.title}</h2>
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        c.items.map((f, i) => (
+          <li
+            class:list={[
+              'glass relative flex flex-col rounded-3xl p-6',
+              i === 0 && 'ring-2 ring-haze/40 sm:col-span-2 lg:col-span-1',
+              f.key === 'chat' && 'sm:col-span-2 lg:col-span-3',
+            ]}
+          >
+            <div class="flex items-start justify-between gap-3">
+              <span class="flex size-11 items-center justify-center rounded-2xl bg-haze/15 text-haze">
+                <Icon icon={ICON[f.key as keyof typeof ICON]} class="size-6" />
+              </span>
+              <span
+                class:list={[
+                  'rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1',
+                  CHIP[f.status as keyof typeof CHIP],
+                ]}
+              >
+                {c.status[f.status as keyof typeof c.status]}
+              </span>
+            </div>
+            <h3 class="mt-4 font-heading text-xl font-semibold">
+              {f.title}
+              {i === 0 && <span class="text-haze"> ★</span>}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink-muted">{f.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

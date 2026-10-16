@@ -147,7 +147,8 @@ export function PM25TimeSeries({
     let best = -1;
     shown.forEach((h, i) => {
       const v = h.airQuality.pm25UgM3;
-      if (v !== null && (best === -1 || v > (shown[best]?.airQuality.pm25UgM3 ?? -Infinity))) best = i;
+      if (v !== null && (best === -1 || v > (shown[best]?.airQuality.pm25UgM3 ?? -Infinity)))
+        best = i;
     });
     return best;
   }, [shown]);
@@ -240,7 +241,7 @@ export function PM25TimeSeries({
           className="h-64 w-full sm:h-72 lg:h-80"
         >
           <ResponsiveContainer>
-            <ComposedChart data={points} margin={{ top: 20, right: 8, bottom: 4, left: -14 }}>
+            <ComposedChart data={points} margin={{ top: 20, right: 8, bottom: 4, left: -4 }}>
               <CartesianGrid stroke="var(--pv-border)" vertical={false} />
               <XAxis
                 dataKey="x"

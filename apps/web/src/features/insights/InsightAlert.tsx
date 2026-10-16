@@ -1,5 +1,5 @@
 import type { ConditionsResponse, ForecastHour } from '@pavana/shared';
-import { AlertTriangle, BookOpen, Info } from 'lucide-react';
+import { AlertTriangle, BookOpen, Info } from '@/components/icons';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { formatDateTime } from '@/lib/format';

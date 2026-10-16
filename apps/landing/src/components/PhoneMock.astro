@@ -1,0 +1,112 @@
+---
+/**
+ * The app's Home screen drawn in HTML/CSS (crisp at any size, no screenshot).
+ * Every number is illustrative and the frame carries a visible badge saying so.
+ * `data-nosnippet` keeps search engines from quoting the example values.
+ */
+import dusk from '@pavana/brand/backgrounds/dusk-900.webp';
+import { id } from '../../../web/src/lib/i18n/id';
+
+const steps = [
+  { label: 'Kini', level: 'Sedang', color: 'bg-[#fb923c]' },
+  { label: '+3 jam', level: 'Sedang', color: 'bg-[#fb923c]' },
+  { label: '+6 jam', level: 'Tinggi', color: 'bg-[#f472b6]' },
+  { label: '+12 jam', level: 'Tinggi', color: 'bg-[#f472b6]' },
+  { label: '+24 jam', level: 'Sedang', color: 'bg-[#fb923c]' },
+];
+---
+
+<figure class="relative mx-auto w-[min(300px,82vw)]" data-nosnippet>
+  <div
+    aria-hidden="true"
+    class="absolute -inset-10 -z-10 rounded-[4rem] bg-gradient-to-br from-[#f472b6]/40 via-[#6366f1]/30 to-transparent blur-3xl"
+  >
+  </div>
+  <div
+    class="relative aspect-[9/19] overflow-hidden rounded-[2.6rem] border-[6px] border-[#0b0e1a] bg-[#0e1120] text-[#eef0f4] shadow-[0_30px_80px_-20px_rgba(2,6,23,0.8)] ring-1 ring-white/10"
+  >
+    <img src={dusk.src} alt="" class="absolute inset-x-0 top-0 h-[62%] w-full object-cover" />
+    <div
+      class="absolute inset-0"
+      style="background: linear-gradient(180deg, rgba(14,17,32,0.5) 0%, rgba(14,17,32,0.2) 28%, rgba(14,17,32,0.75) 55%, #0e1120 70%)"
+    >
+    </div>
+    <div class="relative flex h-full flex-col px-4 pt-3 text-[10px]">
+      <div class="flex items-center justify-between text-[9px] font-semibold opacity-80">
+        <span>07.00</span><span class="h-4 w-16 rounded-full bg-black/80"></span><span>●●●</span>
+      </div>
+      <p class="mt-3 font-wordmark text-lg font-bold tracking-[-0.05em]">pavana</p>
+      <div class="mt-2 flex items-center justify-between">
+        <span class="font-medium"><span class="text-[#f472b6]">◉</span> Sungai Raya, Kubu Raya</span
+        >
+        <span
+          class="rounded-full bg-[#a78bfa]/25 px-1.5 py-0.5 text-[8px] font-semibold text-[#c4b5fd]"
+          >Demo</span
+        >
+      </div>
+      <p class="mt-3 opacity-80">Apakah asap akan sampai ke sini?</p>
+      <p
+        class="mt-1 bg-gradient-to-r from-[#f472b6] to-[#818cf8] bg-clip-text font-heading text-[22px] font-bold leading-[1.05] text-transparent"
+      >
+        Potensi paparan asap tinggi
+      </p>
+      <p class="mt-1 opacity-80">Paling tinggi sekitar pukul 19.00 WIB.</p>
+
+      <div class="mt-3 rounded-2xl border border-white/10 bg-[#171b2e]/80 p-3 backdrop-blur">
+        <p class="text-[8px] font-semibold tracking-[0.16em] opacity-60">PM2.5 SAAT INI</p>
+        <div class="flex items-end justify-between">
+          <p class="font-heading text-4xl font-bold leading-none tabular">
+            34<span class="ml-1 text-[9px] font-normal opacity-60">µg/m³</span>
+          </p>
+          <svg viewBox="0 0 100 36" class="h-8 w-20" aria-hidden="true">
+            <defs>
+              <linearGradient id="pm-spark" x1="0" x2="1">
+                <stop offset="0" stop-color="#6366f1"></stop>
+                <stop offset="1" stop-color="#f472b6"></stop>
+              </linearGradient>
+            </defs>
+            <path
+              d="M2 30 C20 30 30 28 45 24 S70 8 96 5"
+              fill="none"
+              stroke="url(#pm-spark)"
+              stroke-width="3.5"
+              stroke-linecap="round"></path>
+            <circle cx="96" cy="5" r="3.5" fill="#f472b6"></circle>
+          </svg>
+        </div>
+        <span
+          class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#facc15]/15 px-2 py-0.5 text-[9px] font-medium"
+          ><span class="size-1.5 rounded-full bg-[#facc15]"></span> Sedang</span
+        >
+      </div>
+
+      <div class="mt-2 rounded-2xl border border-white/10 bg-[#171b2e]/80 p-2.5 backdrop-blur">
+        <p class="text-[8px] font-semibold tracking-[0.16em] opacity-60">GARIS WAKTU ASAP</p>
+        <div class="mt-2 grid grid-cols-5 gap-1 text-center">
+          {
+            steps.map((s, i) => (
+              <div class:list={['rounded-xl py-1.5', i === 0 && 'bg-white/10']}>
+                <p class="text-[7px] opacity-60">{s.label}</p>
+                <span class:list={['mx-auto mt-1 block size-2 rounded-full', s.color]} />
+                <p class="mt-1 text-[8px] font-semibold">{s.level}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div
+        class="mt-auto mb-2 grid grid-cols-4 rounded-2xl border border-white/10 bg-[#171b2e]/90 py-2 text-center text-[8px] opacity-90"
+      >
+        <span class="font-semibold text-[#f472b6]">Beranda</span><span>Peta</span><span
+          >Prakiraan</span
+        ><span>Info</span>
+      </div>
+    </div>
+  </div>
+  <figcaption
+    class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#a78bfa] px-3 py-1 text-[11px] font-semibold text-[#1e1b4b] shadow-lg"
+  >
+    {id.landing.hero.mockBadge}
+  </figcaption>
+</figure>

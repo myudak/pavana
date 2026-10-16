@@ -17,6 +17,17 @@ export class NotImplementedError extends AppError {
   }
 }
 
+/** An upstream data source failed (timeout, 5xx, bad payload). Maps to HTTP 502. */
+export class UpstreamError extends AppError {
+  constructor(
+    public readonly source: string,
+    reason: string,
+  ) {
+    super(502, 'upstream_unavailable', `${source} is unavailable right now (${reason}).`);
+    this.name = 'UpstreamError';
+  }
+}
+
 export class BadRequestError extends AppError {
   constructor(message: string) {
     super(400, 'bad_request', message);

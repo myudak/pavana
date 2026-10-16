@@ -6,8 +6,8 @@ import {
   Minus,
   TrendingDown,
   TrendingUp,
-  type LucideIcon,
-} from 'lucide-react';
+  type AppIcon,
+} from '@/components/icons';
 import { Link } from 'react-router';
 import { AqCategoryPill } from '@/components/AqCategoryPill';
 import { InfoChip } from '@/components/InfoChip';
@@ -18,11 +18,10 @@ import { categoryOf } from '@/lib/aq';
 import { formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { windDirectionLabel } from '@/lib/wind-label';
 import { bearingToCompass8, factorNumber } from './insight-derive';
 
 /** Trend as a coloured glyph (text lives in the tooltip + screen-reader label). */
-const TREND: Record<Trend, { Icon: LucideIcon; className: string }> = {
+const TREND: Record<Trend, { Icon: AppIcon; className: string }> = {
   worsening: { Icon: TrendingUp, className: 'text-warning-strong' },
   improving: { Icon: TrendingDown, className: 'text-aq-good' },
   stable: { Icon: Minus, className: 'text-ink-muted' },
@@ -95,9 +94,8 @@ function WindCard({ factor, timeZone }: { factor: Factor | undefined; timeZone: 
         <>
           <p className="font-heading text-2xl font-semibold">
             {(() => {
-              const name =
-                windDirectionLabel(fromDeg) ?? t.insights.compass8[bearingToCompass8(fromDeg)];
-              return t.insights.cards.windFrom(name);
+              const compass = bearingToCompass8(fromDeg);
+              return t.insights.cards.windFrom(t.insights.compass8[compass]);
             })()}
           </p>
           {speedMs !== null && (

@@ -14,8 +14,8 @@ import {
   Landmark,
   RefreshCw,
   TrendingUp,
-  type LucideIcon,
-} from 'lucide-react';
+  type AppIcon,
+} from '@/components/icons';
 import { Link } from 'react-router';
 import { DataStateBadge } from '@/components/DataStateBadge';
 import { InfoChip } from '@/components/InfoChip';
@@ -48,7 +48,7 @@ function DashboardCard({
 }: {
   descriptor: InfoCardDescriptor;
   title: string;
-  icon: LucideIcon;
+  icon: AppIcon;
   delayMs: number;
   children: React.ReactNode;
 }) {
@@ -124,8 +124,8 @@ function Pm25Card({
             )}
           </p>
           <p className="text-xs text-ink-muted">
-            {t.insights.chart.statsMin} {formatNumber(summary.min, 1)} ·{' '}
-            {t.insights.chart.statsAvg} {formatNumber(summary.avg, 1)}
+            {t.insights.chart.statsMin} {formatNumber(summary.min, 1)} · {t.insights.chart.statsAvg}{' '}
+            {formatNumber(summary.avg, 1)}
           </p>
         </>
       ) : (
@@ -170,7 +170,11 @@ function HotspotCard({
           </p>
           <p className="text-sm text-ink-muted">
             {radiusKm !== null && windowHours !== null
-              ? c.hotspotBody(formatNumber(count), formatNumber(radiusKm), formatNumber(windowHours))
+              ? c.hotspotBody(
+                  formatNumber(count),
+                  formatNumber(radiusKm),
+                  formatNumber(windowHours),
+                )
               : c.hotspotUnknown}
           </p>
         </>
@@ -319,17 +323,13 @@ export function InfoCardGrid({
           case 'hotspots':
             return (
               <QueryState key={descriptor.id} query={insights}>
-                {(i) => (
-                  <HotspotCard descriptor={descriptor} insights={i} delayMs={delayMs} />
-                )}
+                {(i) => <HotspotCard descriptor={descriptor} insights={i} delayMs={delayMs} />}
               </QueryState>
             );
           case 'official':
             return (
               <QueryState key={descriptor.id} query={links}>
-                {(d) => (
-                  <OfficialCard descriptor={descriptor} links={d.links} delayMs={delayMs} />
-                )}
+                {(d) => <OfficialCard descriptor={descriptor} links={d.links} delayMs={delayMs} />}
               </QueryState>
             );
           case 'data':

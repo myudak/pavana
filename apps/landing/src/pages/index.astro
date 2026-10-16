@@ -1,40 +1,76 @@
 ---
-import Features from '../components/Features.astro';
+import CtaBand from '../components/CtaBand.astro';
+import FeatureGrid from '../components/FeatureGrid.astro';
 import Hero from '../components/Hero.astro';
 import Honesty from '../components/Honesty.astro';
+import HowItWorks from '../components/HowItWorks.astro';
 import Problem from '../components/Problem.astro';
+import Questions from '../components/Questions.astro';
+import Sources from '../components/Sources.astro';
 import Team from '../components/Team.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import Wordmark from '../components/Wordmark.astro';
 import Base from '../layouts/Base.astro';
+import { id } from '../../../web/src/lib/i18n/id';
 
 const appUrl = import.meta.env.PUBLIC_APP_URL ?? 'http://localhost:5173';
+const nav = id.landing.nav;
+const f = id.landing.footer;
 ---
 
 <Base>
-  <header class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 md:px-8">
-    <Wordmark />
-    <a
-      href={appUrl}
-      class="rounded-full px-4 py-2 text-sm font-medium text-primary-strong hover:bg-primary-soft"
-    >
-      Buka aplikasi →
-    </a>
+  <!-- Header floats over the hero photo and follows its theme colours (--scene-*). -->
+  <header class="absolute inset-x-0 top-0 z-20">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-8">
+      <a href="/" aria-label="Pavana — beranda">
+        <Wordmark class="text-[color:var(--scene-fg)]" />
+      </a>
+      <nav aria-label="Navigasi" class="scene-glass hidden rounded-full p-1 text-sm md:flex">
+        <a
+          href="#cara-kerja"
+          class="rounded-full px-4 py-2 hover:bg-[color:var(--scene-chip-border)]">{nav.how}</a
+        >
+        <a href="#fitur" class="rounded-full px-4 py-2 hover:bg-[color:var(--scene-chip-border)]"
+          >{nav.features}</a
+        >
+        <a href="#sumber" class="rounded-full px-4 py-2 hover:bg-[color:var(--scene-chip-border)]"
+          >{nav.sources}</a
+        >
+        <a href="#faq" class="rounded-full px-4 py-2 hover:bg-[color:var(--scene-chip-border)]"
+          >{nav.faq}</a
+        >
+      </nav>
+      <div class="flex items-center gap-2">
+        <ThemeToggle />
+        <a
+          href={appUrl}
+          class="inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold hover:opacity-90"
+          style="background: var(--scene-btn-bg); color: var(--scene-btn-fg)"
+        >
+          {nav.openApp}
+        </a>
+      </div>
+    </div>
   </header>
 
   <main>
     <Hero appUrl={appUrl} />
+    <HowItWorks />
+    <FeatureGrid />
     <Problem />
-    <Features />
     <Honesty />
+    <Sources />
+    <Questions />
     <Team />
+    <CtaBand appUrl={appUrl} />
   </main>
 
   <footer class="border-t border-border">
     <div
       class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-ink-muted md:flex-row md:justify-between md:px-8"
     >
-      <p>Pavana · JOINTS 2026 · Sustainability</p>
-      <p>Bukan sumber peringatan resmi. Ikuti arahan BMKG dan BPBD setempat.</p>
+      <p>{f.project}</p>
+      <p>{f.disclaimer}</p>
     </div>
   </footer>
 </Base>

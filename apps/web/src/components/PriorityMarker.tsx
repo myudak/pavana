@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import type { AppIcon } from '@/components/icons';
 import { PRIORITY_TIER } from '@/components/priority-tier';
 import { Badge } from '@/components/ui/badge';
 import { useCopy } from '@/lib/i18n';
@@ -7,7 +7,9 @@ import { cn } from '@/lib/utils';
 
 export function PriorityBadge({ priority }: { priority: Priority }) {
   const t = useCopy();
-  return <Badge variant={PRIORITY_TIER[priority].badge}>{t.insights.notif.priority[priority]}</Badge>;
+  return (
+    <Badge variant={PRIORITY_TIER[priority].badge}>{t.insights.notif.priority[priority]}</Badge>
+  );
 }
 
 /** Icon chip; `pulse` adds a halo for things that need attention right now. */
@@ -17,7 +19,7 @@ export function PriorityIcon({
   pulse = false,
 }: {
   priority: Priority;
-  icon: LucideIcon;
+  icon: AppIcon;
   pulse?: boolean;
 }) {
   return (

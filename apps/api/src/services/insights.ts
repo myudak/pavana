@@ -29,16 +29,20 @@ export async function getInsights(p: ProviderBundle, point: LatLon): Promise<Ins
   const query = { point: target, from: now, hours: HORIZON_HOURS };
 
   const pad = HOTSPOT_RADIUS_KM * DEG_PER_KM;
-  const [aq, wx, hotspots] = await Promise.all([
+  const [aq, wx, fetchedHotspots] = await Promise.all([
     p.airQuality.getHourly(query),
     p.weather.getHourly(query),
-    p.hotspots.getHotspots({
-      bbox: [target.lon - pad, target.lat - pad, target.lon + pad, target.lat + pad],
-      from: new Date(now.getTime() - HOTSPOT_WINDOW_HOURS * 3_600_000),
-      to: now,
-      limit: 2000,
-    }),
+    p.hotspots
+      .getHotspots({
+        bbox: [target.lon - pad, target.lat - pad, target.lon + pad, target.lat + pad],
+        from: new Date(now.getTime() - HOTSPOT_WINDOW_HOURS * 3_600_000),
+        to: now,
+        limit: 2000,
+      })
+      // Unavailable hotspot data → the upwind factor is `unknown`, not "no fires".
+      .catch(() => null),
   ]);
+  const hotspots = fetchedHotspots ?? [];
 
   const factors: Factor[] = [];
 
@@ -85,11 +89,15 @@ export async function getInsights(p: ProviderBundle, point: LatLon): Promise<Ins
   });
 
   // 3. Upwind hotspot indicator. No detections ⇒ `unknown`, never "no fire".
-  if (windFrom === null) {
+  if (windFrom === null || fetchedHotspots === null) {
     factors.push({
       id: 'upwind_hotspots',
       signal: 'unknown',
-      metrics: { score: null, contributingCount: null, consideredCount: hotspots.length },
+      metrics: {
+        score: null,
+        contributingCount: null,
+        consideredCount: fetchedHotspots === null ? null : hotspots.length,
+      },
       provenance: [],
     });
   } else {
