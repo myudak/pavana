@@ -56,6 +56,15 @@ const responses: Record<string, unknown> = {
 };
 
 beforeEach(() => {
+  // Keep browser storage isolated from Node's experimental localStorage global.
+  const values = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => values.set(key, value),
+    removeItem: (key: string) => values.delete(key),
+    clear: () => values.clear(),
+  });
+  localStorage.setItem('pavana:demo', '1');
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string) => {
@@ -78,21 +87,18 @@ function renderAt(path: string) {
   );
 }
 
-describe('Home page', () => {
-  it('answers "will the smoke reach me" with demo label, units and provenance', async () => {
+describe('Today page', () => {
+  it('shows the demo label, PM2.5 with units and a trend headline', async () => {
     renderAt('/');
-    expect(await screen.findByText('Apakah asap akan sampai ke sini?')).toBeInTheDocument();
-    expect(await screen.findByText('Potensi paparan asap tinggi')).toBeInTheDocument();
-    expect(screen.getByText('Mode Demo · Data ilustratif')).toBeInTheDocument();
-    expect(screen.getAllByText('µg/m³').length).toBeGreaterThan(0);
+    expect(await screen.findByText('Mode Demo \u00B7 Data ilustratif')).toBeInTheDocument();
+    expect(screen.getAllByText('Kualitas udara diperkirakan memburuk').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('\u00B5g/m\u00B3').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/pavana-fixture/).length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Prakiraan harian' })).toBeInTheDocument();
-    expect(await screen.findByText('Minimum 32.6, maksimum 159.9 µg/m³')).toBeInTheDocument();
   });
 
-  it('renders the four primary nav destinations', async () => {
+  it('renders the five primary nav destinations', async () => {
     renderAt('/');
-    for (const label of ['Beranda', 'Peta', 'Prakiraan', 'Info']) {
+    for (const label of ['Home', 'Peta', 'Tanya Pavi', 'Prakiraan', 'Info']) {
       expect((await screen.findAllByRole('link', { name: label })).length).toBeGreaterThan(0);
     }
   });
@@ -121,6 +127,17 @@ describe('Forecast page', () => {
     // The CAMS-proxy PM2.5 model is research-only and has no forecast card.
     expect(screen.queryByRole('heading', { name: 'Estimasi PM2.5 · CAMS t+6 jam' })).toBeNull();
   }, 20_000);
+
+  it('retains hourly weather and smoke forecasts in the new tab layout', async () => {
+    const view = renderAt('/prakiraan?tab=weather');
+    expect(await screen.findByRole('heading', { name: 'Angin per jam' })).toBeInTheDocument();
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    view.unmount();
+    renderAt('/prakiraan?tab=smoke');
+    expect(
+      await screen.findByRole('heading', { name: 'Potensi paparan asap per jam' }),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('Tanya Pavi (demo chat)', () => {
@@ -142,4 +159,31 @@ describe('Tanya Pavi (demo chat)', () => {
     expect(await screen.findByText('33,9', {}, { timeout: 10_000 })).toBeInTheDocument();
     expect(screen.getByText(/bukan saran medis atau peringatan resmi/)).toBeInTheDocument();
   }, 30_000);
+});
+
+describe('Tanya Pavi (live chat)', () => {
+  it('keeps the live API adapter in the redesigned chat', async () => {
+    localStorage.setItem('pavana:demo', '0');
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({ reply: 'Respons pengujian Pavi.', model: 'test-model', isDemo: false }),
+          { headers: { 'content-type': 'application/json' } },
+        ),
+    );
+    renderAt('/tanya');
+    expect(
+      await screen.findByText('Jawaban AI dari data lokasi yang kamu pilih'),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Kualitas udara sekarang?' }));
+    expect(await screen.findByText('Respons pengujian Pavi.')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/chat',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Kualitas udara sekarang?'),
+      }),
+    );
+  });
 });

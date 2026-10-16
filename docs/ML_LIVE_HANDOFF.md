@@ -194,9 +194,9 @@ Training kernel version 2.
 | Haze +24h PR-AUC (AP), 2023–2025     |  0.297676 |    0.096866 |          0.030921 | 291,691 (945 +) |
 | Haze +24h Brier skill                |  0.132838 |   -0.006726 |         -0.515246 |         291,691 |
 | PM2.5 MAE, µg/m³, 2026 (research)    | 21.765695 |   14.388942 |         25.421927 |           6,882 |
-| Wind vector RMSE, m/s            |  2.103496 |    3.143955 |          2.219324 |         126,651 |
-| Wind speed MAE, m/s              |  1.157072 |    1.422260 |          1.183757 |         126,651 |
-| Wind direction MAE, degrees FROM | 38.544582 |   60.800860 |         42.439353 | 70,724 non-calm |
+| Wind vector RMSE, m/s                |  2.103496 |    3.143955 |          2.219324 |         126,651 |
+| Wind speed MAE, m/s                  |  1.157072 |    1.422260 |          1.183757 |         126,651 |
+| Wind direction MAE, degrees FROM     | 38.544582 |   60.800860 |         42.439353 | 70,724 non-calm |
 
 The recent-activity reference is the train-period detection rate binned by the cell's and its
 neighbourhood's 6-day detection counts — a stronger model-free reference than one-day persistence;

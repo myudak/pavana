@@ -12,6 +12,7 @@ import {
   ChatResponseSchema,
   type ChatRequest,
   ConditionsResponseSchema,
+  DailyForecastResponseSchema,
   ExposureResponseSchema,
   ForecastResponseSchema,
   HotspotsResponseSchema,
@@ -111,6 +112,13 @@ export const api = {
     getJson('/api/conditions', { lat: p.lat, lon: p.lon }, ConditionsResponseSchema, signal),
   forecast: (p: LatLon, hours = 24, signal?: AbortSignal) =>
     getJson('/api/forecast', { lat: p.lat, lon: p.lon, hours }, ForecastResponseSchema, signal),
+  dailyForecast: (p: LatLon, days = 10, signal?: AbortSignal) =>
+    getJson(
+      '/api/forecast/daily',
+      { lat: p.lat, lon: p.lon, days },
+      DailyForecastResponseSchema,
+      signal,
+    ),
   hotspots: (
     bbox: BBox,
     opts?: { limit?: number; from?: string; to?: string },

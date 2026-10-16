@@ -1,7 +1,7 @@
-import type { Factor } from '@pavana/shared';
+import { windFromToFlowBearing, type Factor } from '@pavana/shared';
 import { formatNumber, formatTime } from '../../lib/format';
 import type { Copy } from '../../lib/i18n';
-import { compassId, msToKmh } from '../../lib/wind';
+import { windDirectionLabel } from '../../lib/wind-label';
 
 const num = (v: unknown, digits = 0) => formatNumber(typeof v === 'number' ? v : null, digits);
 
@@ -16,14 +16,13 @@ export function describeFactor(f: Factor, t: Copy, timeZone: string): string {
         num(m.peakUgM3),
         typeof m.peakAt === 'string' ? formatTime(m.peakAt, timeZone) : null,
       );
-    case 'wind':
+    case 'wind': {
       if (typeof m.directionFromDeg !== 'number') return t.factor.detail.missing;
-      return t.factor.detail.wind(
-        compassId(m.directionFromDeg, t),
-        num(m.directionFromDeg),
-        typeof m.speedMs === 'number' ? num(msToKmh(m.speedMs)) : '—',
-        compassId(Number(m.flowToDeg), t).toLowerCase(),
-      );
+      const from = windDirectionLabel(m.directionFromDeg);
+      const to = windDirectionLabel(windFromToFlowBearing(m.directionFromDeg));
+      if (from === null || to === null) return t.factor.detail.missing;
+      return t.factor.detail.wind(from, num(m.speedMs, 1), to);
+    }
     case 'upwind_hotspots':
       if (m.score === null) return t.factor.detail.missing;
       if (m.consideredCount === 0)

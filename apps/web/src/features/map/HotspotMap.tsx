@@ -34,6 +34,11 @@ import {
 const RASTER_ID = 'density-raster';
 /** VIIRS pixels are ~375 m; closer zooms only magnify the detection footprint. */
 const MIN_ZOOM = 3;
+
+const SE_ASIA_BOUNDS: [[number, number], [number, number]] = [
+  [85, -15],
+  [155, 15],
+];
 const MAX_ZOOM = 14;
 /** Individual detections from this zoom; clusters (and the density glow) below it. */
 const CLUSTER_MAX_ZOOM = 9;
@@ -289,6 +294,8 @@ export function HotspotMap({
   animatedWind = true,
   density = null,
   fitTo = null,
+  initialCamera = null,
+  autoFit = true,
   streamlines = null,
   fitNonce = 0,
   fitMaxZoom = 11,
@@ -325,6 +332,10 @@ export function HotspotMap({
   } | null;
   /** Fit the viewport to this bbox instead of the data bounds. */
   fitTo?: BBox | null;
+  /** Validated one-shot focus from a hotspot deep link. */
+  initialCamera?: { center: LatLon; zoom: number } | null;
+  /** Deep links keep their focus until an explicit view button is used. */
+  autoFit?: boolean;
   /** Regional wind streamlines (flow direction). Null hides the layers. */
   streamlines?: StreamlineField | null;
   /** Increment to refit the viewport (view buttons). */
@@ -355,6 +366,16 @@ export function HotspotMap({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const loadedRef = useRef(false);
   const fittedRef = useRef('');
+  const interactedRef = useRef(false);
+  const fittedPaddingRef = useRef('');
+  const cameraRef = useRef<{
+    locationKey: string;
+    center: [number, number];
+    zoom: number;
+    bearing: number;
+    pitch: number;
+    fitKey: string;
+  } | null>(null);
   const style = styleUrl || basemapStyleUrl(dark);
   const windFlow = wind != null ? windFromToFlowBearing(wind.fromDeg) : null;
   const onSelectRef = useRef(onSelectHotspot);
@@ -366,12 +387,20 @@ export function HotspotMap({
   useEffect(() => {
     if (!ref.current) return;
     let map: maplibregl.Map | undefined;
+    const locationKey = `${center.lat},${center.lon}`;
+    const saved = cameraRef.current?.locationKey === locationKey ? cameraRef.current : null;
     try {
       map = new maplibregl.Map({
         container: ref.current,
         style,
-        center: [center.lon, center.lat],
-        zoom: 9,
+        center: saved?.center ?? [
+          initialCamera?.center.lon ?? center.lon,
+          initialCamera?.center.lat ?? center.lat,
+        ],
+        zoom: saved?.zoom ?? initialCamera?.zoom ?? 9,
+        bearing: saved?.bearing ?? 0,
+        pitch: saved?.pitch ?? 0,
+        maxBounds: SE_ASIA_BOUNDS,
         minZoom: MIN_ZOOM,
         maxZoom: MAX_ZOOM,
         interactive,
@@ -383,6 +412,12 @@ export function HotspotMap({
       return;
     }
     mapRef.current = map;
+    map.on('dragstart', () => {
+      interactedRef.current = true;
+    });
+    map.on('zoomstart', (e) => {
+      if (e.originalEvent) interactedRef.current = true;
+    });
     map.on('error', (e) => {
       if (!loadedRef.current) {
         console.error('[map]', e.error);
@@ -393,7 +428,11 @@ export function HotspotMap({
     // style.load (not load): draw overlays without waiting for every basemap tile.
     map.once('style.load', () => {
       loadedRef.current = true;
-      fittedRef.current = '';
+      fittedRef.current = saved?.fitKey ?? '';
+      if (!saved) {
+        interactedRef.current = false;
+        fittedPaddingRef.current = '';
+      }
       if (dark && style === DARK_STYLE_URL) gradeDarkBasemap(map);
       const p = readMapPalette(dark);
       const firstSymbol = firstSymbolId(map);
@@ -578,7 +617,18 @@ export function HotspotMap({
       loadedRef.current = false;
       mapRef.current = null;
       onReadyRef.current?.(null);
-      map?.remove();
+      if (map) {
+        const position = map.getCenter();
+        cameraRef.current = {
+          locationKey,
+          center: [position.lng, position.lat],
+          zoom: map.getZoom(),
+          bearing: map.getBearing(),
+          pitch: map.getPitch(),
+          fitKey: fittedRef.current,
+        };
+        map.remove();
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- recreate only when the center or style moves
   }, [center.lat, center.lon, style]);
@@ -587,10 +637,10 @@ export function HotspotMap({
   // First batch also fits the viewport (explicit fitTo bbox wins over data bounds).
   const lastCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const fitKeyFor = () =>
-    fitTo
-      ? `fit:${fitTo.join(',')},${style}`
-      : `data:${center.lat},${center.lon},${style},${hotspots.length}`;
+    fitTo ? `fit:${fitTo.join(',')}` : `data:${center.lat},${center.lon},${hotspots.length}`;
+  const paddingKey = JSON.stringify(insets);
   const doFit = (map: maplibregl.Map) => {
+    fittedPaddingRef.current = paddingKey;
     fittedRef.current = fitKeyFor();
     const bounds = new maplibregl.LngLatBounds([center.lon, center.lat], [center.lon, center.lat]);
     if (fitTo != null) {
@@ -718,7 +768,12 @@ export function HotspotMap({
           showPlumes && plumes ? 'visible' : 'none',
         );
       }
-      if (fittedRef.current !== fitKeyFor() && (fitTo != null || hotspots.length > 0)) {
+      if (
+        autoFit &&
+        (fittedRef.current !== fitKeyFor() ||
+          (!interactedRef.current && fittedPaddingRef.current !== paddingKey)) &&
+        (fitTo != null || hotspots.length > 0)
+      ) {
         doFit(map);
       }
     };
@@ -736,6 +791,8 @@ export function HotspotMap({
     plumes,
     showPlumes,
     style,
+    autoFit,
+    paddingKey,
   ]);
 
   // Selected-detection ring.

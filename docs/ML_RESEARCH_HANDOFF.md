@@ -11,9 +11,11 @@ and reviewers. Read `AGENTS.md` and `CONTRIBUTING.md` first. The older
 ## What is implemented
 
 The Today page now shows daily minimum/maximum PM2.5 from the existing CAMS provider.
-`GET /api/forecast` accepts up to 120 hours; Open-Meteo weather and air-quality adapters
+`GET /api/forecast` accepts up to 240 requested hours; Open-Meteo weather and air-quality adapters
 request 121 forecast hours, with the existing one-hour past buffer. The response includes
-the current hour and can contain nulls beyond actual provider coverage.
+the current hour. The frontend daily view requests up to ten dates through
+`GET /api/forecast/daily`; dates beyond actual provider coverage stay unavailable.
+A longer hourly request never extends the upstream series or invents values.
 
 `summarizeDailyForecast` groups timestamps in the selected location's time zone, removes
 duplicate timestamps, preserves real zero, leaves missing values unknown, and trims only

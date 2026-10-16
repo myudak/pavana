@@ -44,7 +44,9 @@ export type ForecastHour = z.infer<typeof ForecastHourSchema>;
 export const ForecastQuerySchema = z.object({
   lat: LatSchema,
   lon: LonSchema,
-  hours: z.coerce.number().int().min(1).max(120).default(24),
+  // Up to 10 days of hourly steps: backs the 10-day daily aggregation.
+  // Days beyond a provider's real horizon return `available: false`, never invented values.
+  hours: z.coerce.number().int().min(1).max(240).default(24),
 });
 
 export const ForecastResponseSchema = z.object({

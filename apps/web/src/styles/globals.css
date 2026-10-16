@@ -47,6 +47,86 @@
   }
 }
 
+/*
+ * Desktop (lg+, 1024px ke atas) renders at 90% via CSS `zoom` on <html>, so
+ * zoom-100% looks like zoom-90%: every unit (rem, px, text, images) scales
+ * together, which plain root font-size could not do on its own.
+ * Full-height layouts must use --app-vh instead of 100dvh: dvh lengths render
+ * shorter under root zoom, so desktop compensates with calc(100dvh / 0.9)
+ * while mobile keeps plain 100dvh. Browsers without `zoom` support fall back
+ * to a 14.4px root (rem-sized UI still scales; hardcoded px sizes stay).
+ */
+:root {
+  --app-vh: 100dvh;
+}
+@media (min-width: 1024px) {
+  html {
+    zoom: 0.9;
+  }
+  :root {
+    --app-vh: calc(100dvh / 0.9);
+  }
+}
+@supports not (zoom: 1) {
+  :root {
+    --app-vh: 100dvh;
+  }
+  @media (min-width: 1024px) {
+    html {
+      font-size: 14.4px;
+    }
+  }
+}
+
+/*
+ * Section motion (Insight). Kept global so Tailwind arbitrary animations can use
+ * them; the base layer above disables them under prefers-reduced-motion.
+ */
+@keyframes pv-drift {
+  from {
+    transform: scale(1.06) translate3d(-1.5%, 0, 0);
+  }
+  to {
+    transform: scale(1.06) translate3d(1.5%, 0, 0);
+  }
+}
+
+@keyframes pv-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pv-pulse-ring {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes pv-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
 /* Pavi bobbing gently (mascot) — callers wrap it in motion-safe:. */
 @keyframes pv-float {
   0%,
@@ -55,18 +135,6 @@
   }
   50% {
     transform: translateY(-6%);
-  }
-}
-
-/* Halo behind priority icons that need attention now. */
-@keyframes pv-pulse-ring {
-  from {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  to {
-    transform: scale(1.6);
-    opacity: 0;
   }
 }
 
@@ -103,7 +171,7 @@
   }
 
   body {
-    min-height: 100dvh;
+    min-height: var(--app-vh);
     background-color: var(--pv-canvas);
   }
 
@@ -126,6 +194,15 @@
   border: 1px solid color-mix(in oklab, var(--pv-ink) 9%, transparent);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Translucent navbar pill + round header buttons (desktop shell chrome). */
+@utility pill-glass {
+  background-color: var(--pv-pill);
+  border: 1px solid var(--pv-pill-border);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.18);
 }
 
 /*

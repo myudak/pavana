@@ -1,26 +1,29 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 
-const VARIANT = {
-  default: 'bg-primary/15 text-primary-strong ring-primary/30',
-  warning: 'bg-warning-soft text-warning-ink ring-warning/40',
-  muted: 'bg-muted text-muted-foreground ring-border',
-} as const;
+export const badgeVariants = cva(
+  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary-soft text-primary-strong',
+        muted: 'bg-surface-muted text-ink-muted',
+        outline: 'border border-border text-ink',
+        demo: 'bg-state-demo/15 text-state-demo',
+        stale: 'bg-state-stale/15 text-state-stale',
+        error: 'bg-state-error/15 text-state-error',
+        warning: 'bg-warning-soft text-warning-ink',
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  },
+);
 
-/** Small status chip, same shape as the app's other chips. */
 export function Badge({
-  variant = 'default',
   className,
+  variant,
   ...props
-}: ComponentProps<'span'> & { variant?: keyof typeof VARIANT }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1',
-        VARIANT[variant],
-        className,
-      )}
-      {...props}
-    />
-  );
+}: ComponentProps<'span'> & VariantProps<typeof badgeVariants>) {
+  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
 }

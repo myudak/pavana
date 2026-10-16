@@ -144,7 +144,7 @@ describe('experimental live model contracts', () => {
       recentDetections: vi.fn(async () => ({
         detections: [],
         daysSeen: new Set<string>(),
-      coverageStartMs: undefined,
+        coverageStartMs: undefined,
         fetchedAt: new Date(now.getTime() - 2 * 3_600_000).toISOString(),
       })),
     });

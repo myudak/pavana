@@ -24,6 +24,7 @@ export interface BuildAppOptions {
 const CDN_TTL: Record<string, number> = {
   '/api/conditions': 900,
   '/api/forecast': 900,
+  '/api/forecast/daily': 900,
   '/api/exposure': 900,
   '/api/insights': 900,
   '/api/hotspots': 600,

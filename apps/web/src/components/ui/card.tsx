@@ -15,11 +15,12 @@ export function CardHeader({ className, ...props }: ComponentProps<'header'>) {
 export function CardTitle({ className, ...props }: ComponentProps<'h2'>) {
   return (
     <h2
-      className={cn(
-        'text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground',
-        className,
-      )}
+      className={cn('text-xs font-medium uppercase tracking-[0.2em] text-ink-muted', className)}
       {...props}
     />
   );
+}
+
+export function CardContent({ className, ...props }: ComponentProps<'div'>) {
+  return <div className={cn(className)} {...props} />;
 }

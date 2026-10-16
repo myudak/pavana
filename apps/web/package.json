@@ -16,6 +16,7 @@
     "@assistant-ui/react": "0.15.22",
     "@hugeicons/core-free-icons": "^4.3.5",
     "@hugeicons/react": "^1.1.10",
+    "lucide-react": "^0.577.0",
     "@pavana/brand": "workspace:*",
     "@pavana/shared": "workspace:*",
     "@radix-ui/react-slot": "^1.2.3",

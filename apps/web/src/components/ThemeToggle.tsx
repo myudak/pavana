@@ -1,24 +1,36 @@
-import { Moon02Icon, Sun03Icon } from '@hugeicons/core-free-icons';
-import { Icon } from '@/components/Icon';
-import { Button } from '@/components/ui/button';
+import { Moon, Sun } from 'lucide-react';
 import { useCopy } from '@/lib/i18n';
 import { useDarkMode, useTheme } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 
-/** One tap flips Dusk (dark) ↔ Haze (light). Full light/dark/system choice lives on Info. */
+/**
+ * Single light/dark switch for the app shell header. It sets an explicit
+ * preference (light | dark) based on the *effective* theme, so the first click
+ * always flips what you currently see — even when the stored pref is "system".
+ * The three-way choice (including "Sistem") stays on the Info page.
+ */
 export function ThemeToggle({ className }: { className?: string }) {
   const t = useCopy();
   const { setPref } = useTheme();
   const dark = useDarkMode();
+  const label = dark ? t.info.themeToggle.toLight : t.info.themeToggle.toDark;
+
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label={t.theme.toggle}
+    <button
+      type="button"
       onClick={() => setPref(dark ? 'light' : 'dark')}
-      className={cn('glass size-10 rounded-full', className)}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'pill-glass inline-flex size-10 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:text-accent-strong',
+        className,
+      )}
     >
-      <Icon icon={dark ? Sun03Icon : Moon02Icon} className="size-5" />
-    </Button>
+      {dark ? (
+        <Sun className="size-5 lg:size-[1.375rem]" aria-hidden />
+      ) : (
+        <Moon className="size-5 lg:size-[1.375rem]" aria-hidden />
+      )}
+    </button>
   );
 }

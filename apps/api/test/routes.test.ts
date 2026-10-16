@@ -1,5 +1,6 @@
 import {
   ConditionsResponseSchema,
+  DailyForecastResponseSchema,
   ExposureResponseSchema,
   ForecastResponseSchema,
   HotspotsResponseSchema,
@@ -56,6 +57,57 @@ describe('demo mode API', () => {
     expect(body.hours[0]?.weather?.windDirectionFromDeg).toBeTypeOf('number');
   });
 
+  it('GET /api/forecast accepts the raised 240h cap backing the 10-day view', async () => {
+    expect((await get(`/api/forecast?${KR}&hours=168`)).statusCode).toBe(200);
+    expect((await get(`/api/forecast?${KR}&hours=240`)).statusCode).toBe(200);
+    expect((await get(`/api/forecast?${KR}&hours=241`)).statusCode).toBe(400);
+  });
+
+  it('GET /api/forecast/daily returns 10 labelled days, padding beyond the horizon', async () => {
+    const res = await get(`/api/forecast/daily?${KR}&days=10`);
+    expect(res.statusCode).toBe(200);
+    const body = DailyForecastResponseSchema.parse(res.json());
+    expect(body.state).toBe('demo');
+    expect(body.days).toHaveLength(10);
+    // Fixture horizon covers ~2 local days; both aggregate deterministically.
+    expect(body.days[0]).toMatchObject({ date: '2026-09-15', available: true });
+    expect(body.days[0]!.pm25Min).not.toBeNull();
+    expect(body.days[0]!.pm25Max).not.toBeNull();
+    expect(body.days[0]!.pm25Mean).not.toBeNull();
+    expect(body.days[0]!.category).toBe('very_unhealthy');
+    expect(body.days[0]!.provenance.kind).toBe('fixture');
+    expect(body.days[0]!.provenance.isDemo).toBe(true);
+    expect(body.days[1]).toMatchObject({ date: '2026-09-16', available: true });
+    // Days beyond the provider horizon: available:false, nulls, unknown — never invented.
+    for (const d of body.days.slice(2)) {
+      expect(d.available).toBe(false);
+      expect(d.pm25Min).toBeNull();
+      expect(d.pm25Max).toBeNull();
+      expect(d.pm25Mean).toBeNull();
+      expect(d.category).toBe('unknown');
+    }
+    expect(body.days[9]!.date).toBe('2026-09-24');
+  });
+
+  it('GET /api/forecast/daily respects days= and rejects days>10', async () => {
+    const three = DailyForecastResponseSchema.parse(
+      (await get(`/api/forecast/daily?${KR}&days=3`)).json(),
+    );
+    expect(three.days).toHaveLength(3);
+    expect((await get(`/api/forecast/daily?${KR}&days=11`)).statusCode).toBe(400);
+  });
+
+  it('GET /api/forecast/daily outside demo coverage → insufficient, all unavailable', async () => {
+    const body = DailyForecastResponseSchema.parse(
+      (await get('/api/forecast/daily?lat=-6.2&lon=106.8')).json(),
+    );
+    expect(body.state).toBe('insufficient');
+    expect(body.days).toHaveLength(10);
+    for (const d of body.days) {
+      expect(d.available).toBe(false);
+      expect(d.pm25Max).toBeNull();
+    }
+  });
   it('GET /api/hotspots filters by bbox', async () => {
     const all = HotspotsResponseSchema.parse((await get('/api/hotspots?bbox=108,-2,111,1')).json());
     expect(all.hotspots.length).toBeGreaterThan(0);

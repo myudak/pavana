@@ -30,7 +30,30 @@
   --pv-accent: #fca5a5; /* blush */
   --pv-accent-soft: #fee2e2;
   --pv-ring: #f97316;
+  /* Stronger accent for small text on light surfaces (AA). Dark = same as accent. */
+  --pv-accent-strong: #db2777;
 
+  /* Glass + hairline tokens for the Today hero (dark values are richer; see below). */
+  --pv-glass: rgba(255, 255, 255, 0.78);
+  --pv-glass-hero: rgba(255, 255, 255, 0.6);
+  --pv-glass-border: rgba(194, 65, 12, 0.22);
+  --pv-hairline: rgba(31, 41, 55, 0.12);
+  /* Translucent navbar pill + round header buttons (desktop). */
+  --pv-pill: rgba(255, 255, 255, 0.42);
+  --pv-pill-border: rgba(255, 255, 255, 0.55);
+  /* Shell chrome metrics. --mobile-tabbar-h excludes the safe-area inset,
+     which usage sites add separately. */
+  --topbar-h: 4.75rem;
+  --mobile-tabbar-h: 6.75rem;
+  /* Alias for the bottom nav height (same element, spec language). */
+  --bottom-nav-h: var(--mobile-tabbar-h);
+  --pv-gradient-headline: linear-gradient(90deg, #4338ca 0%, #db2777 100%);
+  --pv-hero-lead: #374151;
+  --pv-hero-sub: #4b5563;
+  --pv-shadow-lift: 0 12px 40px rgba(31, 41, 55, 0.12);
+  --pv-glow-accent: 0 0 24px rgba(219, 39, 119, 0.35);
+  /* Restrained shadow for the translucent hero panels. */
+  --pv-shadow-soft: 0 8px 24px rgba(31, 41, 55, 0.1);
   /* Air-quality category colors. Always pair with a text label (never color-only). */
   --pv-aq-good: #16a34a;
   --pv-aq-moderate: #ca8a04;
@@ -46,12 +69,6 @@
   --pv-exp-moderate: #ea580c;
   --pv-exp-high: #db2777;
   --pv-exp-unknown: #9ca3af;
-
-  /* Amber warning (attention states, from the olive branch). */
-  --pv-warning: #d97706;
-  --pv-warning-strong: #b45309;
-  --pv-warning-soft: #fef3c7;
-  --pv-warning-ink: #78350f;
 
   /* Data-state colors */
   --pv-state-demo: #7c3aed;
@@ -75,20 +92,24 @@
   --pv-map-plume-a: #db2777;
   --pv-map-plume-b: #7c3aed;
 
+  /* Warning (amber), banners and cautions. AA: strong on soft/white. */
+  --pv-warning: #d97706;
+  --pv-warning-strong: #b45309;
+  --pv-warning-soft: #fef3c7;
+  --pv-warning-ink: #78350f;
+
   --pv-radius: 1rem;
-  --pv-font-display: 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
-  /* Peran font: wordmark = Comfortaa (brand), judul & angka = Plus Jakarta Sans
-     (humanis, paling dekat referensi), isi = Plus Jakarta Sans. */
-  --pv-font-heading:
-    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Peran font antarmuka: Inter untuk judul, isi, label, dan angka (lihat README
+     `Peran font`). Wordmark tetap memakai identitas sendiri di bawah. */
+  --pv-font-display: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --pv-font-heading: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
   /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
      Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
      setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
   --pv-font-wordmark:
     'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif,
     system-ui, sans-serif;
-  --pv-font-body:
-    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --pv-font-body: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Dusk / Haze */
@@ -107,6 +128,8 @@
   --pv-accent: #f472b6; /* haze pink */
   --pv-accent-soft: #3b2140;
   --pv-ring: #818cf8;
+  /* Stronger accent for small text on light surfaces (AA). Dark = same as accent. */
+  --pv-accent-strong: #f472b6;
 
   --pv-aq-good: #4ade80;
   --pv-aq-moderate: #facc15;
@@ -146,7 +169,18 @@
   /* Dusk / Haze decorative effects (dark only). */
   --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
   --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
-  --pv-glass: rgba(23, 27, 46, 0.72);
+  --pv-glass: rgba(15, 20, 48, 0.68);
+  /* Lighter glass for the translucent hero panels (landscape stays visible). */
+  --pv-glass-hero: rgba(15, 20, 48, 0.45);
+  /* Restrained shadow for the translucent hero panels. */
+  --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
+  --pv-glass-border: rgba(129, 140, 248, 0.28);
+  --pv-pill: rgba(14, 18, 42, 0.4);
+  --pv-pill-border: rgba(129, 140, 248, 0.24);
+  --pv-hairline: rgba(255, 255, 255, 0.12);
+  --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);
+  --pv-hero-lead: #e5e7f0;
+  --pv-hero-sub: #c7cbe0;
   --pv-hero-scrim: linear-gradient(
     180deg,
     rgba(14, 17, 32, 0.28) 0%,
@@ -172,6 +206,8 @@
     --pv-accent: #f472b6;
     --pv-accent-soft: #3b2140;
     --pv-ring: #818cf8;
+    /* Stronger accent for small text on light surfaces (AA). Dark = same as accent. */
+    --pv-accent-strong: #f472b6;
     --pv-aq-good: #4ade80;
     --pv-aq-moderate: #facc15;
     --pv-aq-usg: #fb923c;
@@ -209,7 +245,18 @@
     /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
     --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
     --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
-    --pv-glass: rgba(23, 27, 46, 0.72);
+    --pv-glass: rgba(15, 20, 48, 0.68);
+    /* Lighter glass for the translucent hero panels (landscape stays visible). */
+    --pv-glass-hero: rgba(15, 20, 48, 0.45);
+    /* Restrained shadow for the translucent hero panels. */
+    --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
+    --pv-glass-border: rgba(129, 140, 248, 0.28);
+    --pv-pill: rgba(14, 18, 42, 0.4);
+    --pv-pill-border: rgba(129, 140, 248, 0.24);
+    --pv-hairline: rgba(255, 255, 255, 0.12);
+    --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);
+    --pv-hero-lead: #e5e7f0;
+    --pv-hero-sub: #c7cbe0;
     --pv-hero-scrim: linear-gradient(
       180deg,
       rgba(14, 17, 32, 0.28) 0%,

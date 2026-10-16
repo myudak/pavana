@@ -53,25 +53,40 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
   `@fontsource-variable/comfortaa` (rentang variable 300–700; dependensi paket ini).
   Comfortaa dipilih agar wordmark lebih bulat dan lembut; bobot 700 dipakai agar
   mendekati ketebalan referensi. **Tidak diklaim identik** dengan referensi maupun Vernosa.
-- Outfit (OFL 1.1, `@fontsource-variable/outfit`) tetap menjadi font display/headings dan
-  tertinggal sebagai fallback dalam di tumpukan wordmark, tetapi **bukan lagi font interim
-  wordmark**.
+- Outfit (OFL 1.1, `@fontsource-variable/outfit`) tidak lagi dipakai untuk antarmuka;
+  tersisa hanya sebagai fallback terdalam di tumpukan wordmark.
 
 ## Peran font
 
 - Wordmark `pavana`: Comfortaa Bold (token `--pv-font-wordmark`, utilitas `font-wordmark`).
-- Judul & angka besar: Plus Jakarta Sans semibold/bold (token `--pv-font-heading`,
-  utilitas `font-heading`) — humanis, paling dekat referensi. Outfit (`font-display`)
-  bukan untuk judul aplikasi.
-- Isi/label/navigasi: Plus Jakarta Sans regular/medium (body default).
+  **Tidak** ikut beralih ke Inter — bentuk huruf wordmark dipertahankan.
+- Seluruh antarmuka memakai **Inter** (`@fontsource-variable/inter`, OFL 1.1), satu keluarga
+  untuk semua peran dengan hierarki bobot:
+  - Judul halaman & pesan status utama: Inter Bold/700 (`font-bold`).
+  - Isi & deskripsi: Inter Regular/400 (default body).
+  - Label & navigasi: Inter Medium/500 (`font-medium`).
+  - Angka & nilai AQI/PM2.5: Inter SemiBold/600 (`font-semibold`, `tabular-nums`).
+    Token `--pv-font-display`, `--pv-font-heading`, dan `--pv-font-body` semuanya Inter
+    (utilitas `font-display`, `font-heading`, `font-sans`).
 
 ## Ikon aplikasi (turunan huruf "p")
 
 - Format ikon persegi terlalu kecil untuk wordmark penuh, jadi dipakai satu huruf awal `p`
   sebagai turunan tipografis — **bukan simbol terpisah**.
-- `assets/favicon.svg`: huruf `p` konstruksi geometris (batang + mangkuk lingkaran, ujung
-  membulat) warna Mist `#F5F1EB` di atas kotak membulat ink `#1F2937`. Konstruksi vektor
-  disengaja (bukan glif font) agar deterministik di semua perender.
+- `assets/favicon.svg`: huruf `p` **lowercase** (bukan `P`) yang diambil dari outline glyph
+  **Comfortaa Variable wght 700** — bobot dan keluarga font yang sama dengan wordmark —
+  warna Mist `#F5F1EB` di atas kotak membulat ink `#1F2937` (`rx` 16).
+  Outline disimpan sebagai `<path>` (bukan `<text>`) agar bentuk huruf deterministik di
+  semua perender tanpa bergantung pada font yang tersedia.
+- Geometri ikon: tinggi huruf 46/64 unit, dipusatkan tepat di tengah kanvas (margin atas =
+  bawah 8.5, kiri = kanan 15.36), dengan `stroke` 1 unit berwarna sama sebagai kompensasi
+  optis supaya tetap terbaca pada ukuran tab 16 px.
+- Cara menurunkan ulang outline: ekstrak glyph `p` (U+0070) dari
+  `@fontsource-variable/comfortaa/files/comfortaa-latin-wght-normal.woff2` di instance
+  `wght=700` memakai `fontkitten` (dependensi Astro yang sudah ada), lalu skala + pusatkan
+  ke `viewBox 0 0 64 64`. Catat bahwa `getVariation()` fontkitten belum menerapkan `gvar`
+  ke glyph WOFF2, jadi varian bold diambil dengan memanggil
+  `_variationProcessor.transformPoints()` manual.
 - `assets/icon-180.png` (apple-touch), `assets/icon-192.png`, `assets/icon-512.png` adalah
   render PNG dari `favicon.svg` untuk kebutuhan app-icon/PWA (dikonsumsi Track B).
   Regenerate dengan `sharp` bawaan repo, dari root (tidak perlu font tambahan karena

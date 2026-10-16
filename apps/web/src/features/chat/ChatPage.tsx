@@ -44,21 +44,36 @@ export default function ChatPage() {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <div className="flex h-[calc(100dvh-7.5rem-env(safe-area-inset-bottom))] flex-col pt-[max(env(safe-area-inset-top),0.75rem)] lg:h-[calc(100dvh-5rem)] lg:pt-2">
-        <ChatHeader />
-        <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
-          <ThreadPrimitive.Viewport className="pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3">
-            <AuiIf condition={(s) => s.thread.isEmpty}>
-              <Welcome />
-            </AuiIf>
-            <ThreadPrimitive.Messages>
-              {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
-            </ThreadPrimitive.Messages>
-          </ThreadPrimitive.Viewport>
-          <Composer />
-        </ThreadPrimitive.Root>
-      </div>
+      <ChatLayout />
     </AssistantRuntimeProvider>
+  );
+}
+
+/** Thread column sized to the viewport; empty state never scrolls on desktop. */
+function ChatLayout() {
+  const empty = useAuiState((s) => s.thread.isEmpty);
+  return (
+    <div className="flex h-[calc(var(--app-vh)-7.5rem-env(safe-area-inset-bottom))] flex-col px-4 pt-[max(env(safe-area-inset-top),0.75rem)] md:px-6 lg:h-[calc(var(--app-vh)-5rem)] lg:px-0 lg:pt-2">
+      <ChatHeader />
+      <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
+        <ThreadPrimitive.Viewport
+          className={cn(
+            'pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3',
+            // Empty on desktop: fixed area, no scroll (content is sized to
+            // fit). Mobile keeps scroll; running threads always scroll.
+            empty && 'lg:overflow-hidden',
+          )}
+        >
+          <AuiIf condition={(s) => s.thread.isEmpty}>
+            <Welcome />
+          </AuiIf>
+          <ThreadPrimitive.Messages>
+            {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
+          </ThreadPrimitive.Messages>
+        </ThreadPrimitive.Viewport>
+        <Composer />
+      </ThreadPrimitive.Root>
+    </div>
   );
 }
 
@@ -105,7 +120,7 @@ function SuggestionChips({ compact = false }: { compact?: boolean }) {
           send
           className={cn(
             'rounded-full bg-foreground/5 text-left ring-1 ring-foreground/10 transition-colors hover:bg-primary/15 hover:ring-primary/40',
-            compact ? 'px-3 py-1.5 text-xs' : 'px-3.5 py-2 text-[13px]',
+            compact ? 'px-3 py-1.5 text-xs' : 'px-3 py-1.5 text-[13px]',
           )}
         >
           {s}
@@ -119,14 +134,14 @@ function Welcome() {
   const t = useCopy();
   const { demo } = useDemoMode();
   return (
-    <div className="m-auto flex max-w-md flex-col items-center gap-3 px-2 py-6 text-center">
-      <Mascot pose="wave" size={132} float />
+    <div className="mx-auto my-auto flex w-full max-w-md flex-col items-center gap-2 px-2 py-4 text-center lg:h-full lg:justify-center lg:py-2">
+      <Mascot pose="wave" size={104} float />
       <h2 className="font-heading text-2xl font-semibold">{t.chat.greeting}</h2>
       <p className="text-sm leading-relaxed text-muted-foreground">{t.chat.intro}</p>
       <span className="rounded-full bg-state-demo/10 px-3 py-1 text-[11px] font-medium text-state-demo">
         {demo ? t.chat.demoBadge : t.chat.liveBadge}
       </span>
-      <div className="mt-2">
+      <div className="mt-1">
         <SuggestionChips />
       </div>
     </div>

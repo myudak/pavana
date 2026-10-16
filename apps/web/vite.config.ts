@@ -30,6 +30,9 @@ export default defineConfig(({ mode }) => {
       globals: true,
       setupFiles: ['./src/test/setup.ts'],
       css: false,
+      // App-level tests mount the router with lazy routes; jsdom plus turbo running
+      // every package's suite in parallel can push those past vitest's 5s default.
+      testTimeout: 30_000,
     },
   };
 });

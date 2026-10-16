@@ -39,7 +39,9 @@ export function Mascot({
   className,
 }: {
   pose: MascotPose;
-  /** Rendered width/height in CSS px. */
+  /** Rendered width/height. Interpreted as px at the 16px root and emitted
+      in rem, so the mascot scales with the desktop 90% root (14.4px) while
+      staying pixel-identical on mobile. */
   size?: number;
   /** Gentle bobbing; disabled under prefers-reduced-motion. */
   float?: boolean;
@@ -48,11 +50,13 @@ export function Mascot({
   className?: string;
 }) {
   const t = useCopy();
+  const rem = size / 16;
   return (
     <img
       src={POSES[pose]}
       width={size}
       height={size}
+      style={{ width: `${rem}rem`, height: `${rem}rem` }}
       alt={decorative ? '' : t.chat.mascotAlt}
       aria-hidden={decorative || undefined}
       draggable={false}
