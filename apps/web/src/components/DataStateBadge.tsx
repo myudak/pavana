@@ -15,7 +15,7 @@ export function DataStateBadge({ state, className }: { state: DataState; classNa
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1',
+        'inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1',
         CLASS[state],
         className,
       )}
