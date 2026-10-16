@@ -40,3 +40,5 @@ ml/artifacts/**/*
 # remotion renders
 apps/video/out/
 .vercel
+apps/video/public/audio/vo.m4a
+apps/video/public/audio/music.mp3

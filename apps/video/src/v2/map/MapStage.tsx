@@ -10,7 +10,11 @@ const REF = Date.parse(scenario.meta.referenceTime);
 export const AGE_COLORS = ['#ff4b3e', '#ff8c42', '#ffc857', '#b39a8c'] as const;
 const AGE_HOURS = [6, 24, 48];
 
-export const HOTSPOTS = [...scenario.hotspots, ...regional.hotspots].map((h, i) => {
+const ALL = [...scenario.hotspots, ...regional.hotspots];
+const T_MIN = Math.min(...ALL.map((h) => Date.parse(h.acquiredAt)));
+export const T_RANGE = [T_MIN, REF] as const;
+
+export const HOTSPOTS = ALL.map((h, i) => {
   const age = Math.max(0, (REF - Date.parse(h.acquiredAt)) / 3_600_000);
   const cls = AGE_HOURS.findIndex((a) => age < a);
   return {
@@ -19,6 +23,8 @@ export const HOTSPOTS = [...scenario.hotspots, ...regional.hotspots].map((h, i) 
     frp: h.frpMw ?? 1,
     age: cls === -1 ? 3 : cls,
     order: random(`hs-${i}`),
+    /** 0 → 1 by acquisition time across the fixture window. */
+    tOrder: (Date.parse(h.acquiredAt) - T_MIN) / (REF - T_MIN),
   };
 });
 
@@ -42,6 +48,8 @@ interface Props {
   risk?: number;
   /** Dim the basemap (0 none – 1 black). */
   dim?: number;
+  /** Reveal detections in acquisition order instead of a random order. */
+  byTime?: boolean;
   /** Divides marker sizes, so dots keep their size while the whole stage is scaled up. */
   markerScale?: number;
 }
@@ -57,6 +65,7 @@ export function MapStage({
   risk = 0,
   dim = 0.15,
   markerScale = 1,
+  byTime = false,
 }: Props) {
   const cell = pxPerDegLon(view) * 0.25;
   const trailSources = HOTSPOTS.filter((h) => h.age <= 1)
@@ -157,14 +166,15 @@ export function MapStage({
 
         {hotspots > 0 &&
           HOTSPOTS.map((h, i) => {
-            if (h.order > hotspots) return null;
+            const ord = byTime ? h.tOrder : h.order;
+            if (ord > hotspots) return null;
             const [x, y] = project(view, h.lon, h.lat);
             if (x < -20 || x > 1940 || y < -20 || y > 1100) return null;
             const r =
               ((view === 'kuburaya' ? 7 : 3) +
                 Math.min(h.frp, 40) * (view === 'kuburaya' ? 0.35 : 0.08)) /
               markerScale;
-            const born = Math.min(1, (hotspots - h.order) * 12);
+            const born = Math.min(1, (hotspots - ord) * 12);
             const ring = pulse && h.age === 0 ? (t * 0.9 + h.order) % 1 : null;
             return (
               <g key={`h${i}`}>

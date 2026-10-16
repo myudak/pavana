@@ -18,11 +18,8 @@ const FACTOR_TEXT: Record<string, (v: number) => string> = {
 const top = model.risk.top;
 const topObserved = model.risk.cells.find((c) => c.id === top.id)?.observed;
 const test = model.risk.test;
-const pontianak = model.haze.stations.find((st) => st.icao === 'WIOO')!;
-const year = (iso: string) => iso.slice(0, 4);
-const hw = model.haze.windows24h;
-const HAZE_NOTE = `Dilatih dari laporan METAR bandara ${year(hw.train[0]!)}–${year(hw.train[1]!)}, diuji ${year(hw.test[0]!)}–${year(hw.test[1]!)} · replay ${new Date(model.haze.issueAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}`;
-const CARD = s(4.2);
+const CARD = s(4.6);
+const FACTORS = s(8.9);
 
 /** 1:10 — the hotspot-risk grid fills Kalimantan; one cell is explained with SHAP. */
 export function S07Model() {
@@ -112,7 +109,7 @@ export function S07Model() {
           FAKTOR TERBESAR (SHAP)
         </div>
         {top.factors.map((f, i) => {
-          const p = ramp(frame, CARD + 30 + i * 12, CARD + 48 + i * 12);
+          const p = ramp(frame, FACTORS + i * 14, FACTORS + 18 + i * 14);
           const label = FACTOR_TEXT[f.feature]?.(f.value) ?? f.feature;
           return (
             <div key={f.feature} style={{ marginTop: 16, opacity: p }}>
@@ -142,7 +139,7 @@ export function S07Model() {
             marginTop: 22,
             fontSize: 20,
             color: '#9ca3af',
-            opacity: ramp(frame, CARD + 70, CARD + 84),
+            opacity: ramp(frame, FACTORS + 50, FACTORS + 64),
           }}
         >
           {topObserved !== undefined &&
@@ -151,31 +148,6 @@ export function S07Model() {
           {test.model.rocAuc.toFixed(2).replace('.', ',')} (persistence{' '}
           {test.persistence.rocAuc.toFixed(2).replace('.', ',')}).
         </div>
-      </Glass>
-
-      <Glass
-        style={{
-          position: 'absolute',
-          right: 70,
-          bottom: 140,
-          width: 720,
-          padding: '22px 30px',
-          opacity: ramp(frame, s(8.4), s(9)),
-        }}
-        radius={24}
-      >
-        <div style={{ fontSize: 22, color: '#bfc3d0', fontWeight: 700 }}>
-          Asap tebal (jarak pandang &lt; 3 km) · 24 jam
-        </div>
-        <div style={{ marginTop: 6, display: 'flex', alignItems: 'baseline', gap: 16 }}>
-          <span
-            style={{ fontFamily: font.display, fontSize: 56, fontWeight: 800, color: color.amber }}
-          >
-            {Math.round((pontianak.p24 ?? 0) * 100)}%
-          </span>
-          <span style={{ fontSize: 24 }}>{pontianak.name}</span>
-        </div>
-        <div style={{ fontSize: 18, color: '#9ca3af' }}>{HAZE_NOTE}</div>
       </Glass>
 
       <Label tone="warn">Model eksperimental · replay input arsip nyata 14 Sep 2026</Label>

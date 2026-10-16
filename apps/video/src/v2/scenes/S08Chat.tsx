@@ -26,8 +26,8 @@ const LEVELS = [...Array(6).fill('m'), ...Array(13).fill('h'), ...Array(6).fill(
 )[];
 
 /** 1:22 — Tanya Pavi: the question, two tool checks, then the plain-language answer. */
-export function S08Chat() {
-  const frame = useCurrentFrame();
+export function S08Chat({ speed = 1.6 }: { speed?: number }) {
+  const frame = useCurrentFrame() * speed;
   const fade = useSceneFade(10, 10);
   const enter = ramp(frame, 0, 18);
   const typed = QUESTION.slice(0, Math.max(0, Math.floor((frame - T.type) * 1.3)));

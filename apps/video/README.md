@@ -10,35 +10,44 @@ pnpm --filter @pavana/video studio   # live preview at localhost:3000
 pnpm --filter @pavana/video render   # → apps/video/out/pavana.mp4 (git-ignored, v2)
 ```
 
-## v2: motion design + voice-over (`PavanaV2`, default)
+## v2 (v3 script): motion design + voice-over (`PavanaV2`, default)
 
-Every screen is rebuilt as animated components (`src/v2/`), not screenshots. Copy and numbers
-come from the demo fixtures and from the real model outputs (`src/data/model-demo.json`).
+Every screen is rebuilt as animated components (`src/v2/`), not screenshots. The script focuses on
+monitoring titik api around forests and peatland early (JOINTS 2026 Sustainability subtheme);
+smoke is the impact.
 
-- **Script:** `src/v2/script.ts` holds one line per scene; it is also the burned-in subtitle.
-  The readable version for recording is [`docs/video/vo-script.md`](../../docs/video/vo-script.md).
-- **Voice-over:** put `public/vo/vo-01.wav` … `vo-11.wav` (or `.mp3`) and re-render. Each scene
-  stretches to its recording plus 0.6 s (`calculateV2Metadata` in `src/v2/PavanaV2.tsx`).
+- **Script:** `src/v2/script.ts`, one line per scene; it is also the burned-in subtitle text.
+  Readable version for recording: [`docs/video/vo-script.md`](../../docs/video/vo-script.md).
+- **Voice-over:** one take at `public/audio/vo.m4a` (not committed). Scenes and subtitles are
+  timed to it word by word through `src/v2/vo-timing.json`. After a new take:
+  1. Transcribe with word timestamps (we used faster-whisper `medium`, language `id`) into a
+     list of `{w, s, e}`.
+  2. `python scripts/align-vo.py <words.json>` rewrites `vo-timing.json`.
+- **Music:** `public/audio/music.mp3` (not committed; "Cinematic Tension Cello" by Soundridemusic,
+  credited on screen). It is ducked under speech and fades in and out.
+- **Sound effects:** `public/audio/sfx/*.wav` are synthesised by `node scripts/make-sfx.mjs`
+  (no samples). Cues are listed in `SFX` in `src/v2/PavanaV2.tsx`.
+- **Visual effects:** `src/v2/fx.tsx` holds embers, light-leak flashes on cuts, grain, vignette
+  and camera shake.
 - **Map scenes:** `public/map/*.jpg` are CARTO Dark Matter captures
-  (`node scripts/capture-basemap.mjs`); overlays are projected with Web Mercator in
-  `src/v2/map/projection.ts`. Credit: © OpenStreetMap contributors © CARTO.
-- **Model scene:** `src/data/model-demo.json` is the served boosters (apps/api/src/models) evaluated on their archived
-  demo inputs (hotspot risk 14 Sep 2026, haze 5 Sep 2023). Regenerate it with `node scripts/build-model-demo.ts` when the models change.
-- **Sound effects:** each scene's `sfx` field marks where they go; music and SFX come later.
+  (`node scripts/capture-basemap.mjs`), with overlays projected in `src/v2/map/projection.ts`.
+- **Model scene:** `src/data/model-demo.json` holds the served boosters (`apps/api/src/models`)
+  evaluated on their archived demo inputs. Regenerate it with
+  `node scripts/build-model-demo.ts`.
+- **Render time** is about 4–6 minutes on 8 threads (`remotion.config.ts`).
 
-| Scene | Planned | What happens                                                         |
-| ----- | ------- | -------------------------------------------------------------------- |
-| 01    | 12 s    | ISPA count-up out of the haze, Rani's question typed                 |
-| 02    | 16 s    | Borneo map: demo detections pop in, wind guessed, Reddit bubbles     |
-| 03    | 8 s     | Smoke wipe, Pavi pops, wordmark assembles                            |
-| 04    | 12 s    | Three 3D data layers stack and collapse into the answer card         |
-| 05    | 10 s    | Recreated Beranda builds itself, with callouts                       |
-| 06    | 12 s    | Fly-in to Kubu Raya: detections by age, wind particles, smoke trails |
-| 07    | 12 s    | Model risk grid fills Kalimantan; one cell explained with SHAP       |
-| 08    | 13 s    | Tanya Pavi: question, tool checks, answer                            |
-| 09    | 8 s     | Alert on the lock screen, web + Android beta                         |
-| 10    | 9 s     | Three honesty principles stamp in                                    |
-| 11    | 8 s     | Closing line, Pavi, wordmark, URL, credits                           |
+| Scene      | VO (s)      | What happens                                                              |
+| ---------- | ----------- | ------------------------------------------------------------------------- |
+| hook       | 1.3–15.1    | 32.896,67 ha count-up (BNPB), then a peat cross-section with embers       |
+| problem    | 15.4–30.8   | Reddit bubbles, detections appear day by day, "sulit dipantau sejak dini" |
+| reveal     | 31.1–37.1   | Smoke wipe, Pavi, wordmark                                                |
+| peta       | 37.3–50.8   | Fly-in to Kubu Raya, detections by age, new fires pulse, wind, trails     |
+| model      | 50.8–64.4   | Hotspot-risk grid; one cell explained with SHAP                           |
+| beranda    | 65.4–76.7   | Layers stack into the answer, Beranda builds                              |
+| chat       | 76.7–84.3   | Tanya Pavi (demo replies)                                                 |
+| alerts     | 84.3–91.4   | Lock-screen alert, web + Android                                          |
+| principles | 92.5–100.8  | Honesty cards stamp in                                                    |
+| close      | 101.8–110.6 | Closing lines, Pavi, wordmark, URL, credits                               |
 
 ## v1 scenes (2:00, composition `Pavana`)
 

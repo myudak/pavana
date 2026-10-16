@@ -2,7 +2,7 @@ import { AbsoluteFill, interpolate, random, useCurrentFrame, useVideoConfig } fr
 import { REDDIT } from '../../data/quotes';
 import { color, font, s } from '../../theme';
 import { clamp, Label, ramp, RiseWords, useSceneFade } from '../kit';
-import { MapStage } from '../map/MapStage';
+import { MapStage, T_RANGE } from '../map/MapStage';
 import { project } from '../map/projection';
 
 const ARROWS = Array.from({ length: 34 }, (_, i) => ({
@@ -11,10 +11,11 @@ const ARROWS = Array.from({ length: 34 }, (_, i) => ({
   seed: i,
 }));
 const BUBBLES = [
-  { q: REDDIT[1], x: 1180, y: 150, rot: -2 },
-  { q: REDDIT[2], x: 1260, y: 360, rot: 1.5 },
-  { q: REDDIT[3], x: 1120, y: 560, rot: -1 },
+  { q: REDDIT[0], x: 1180, y: 150, rot: -2 },
+  { q: REDDIT[1], x: 1260, y: 340, rot: 1.5 },
 ];
+const DETECT_FROM = s(6.2);
+const DETECT_TO = s(10.2);
 const QUESTION = s(10.6);
 
 /** 0:12 — the data exists but is scattered: detections everywhere, wind guessed, people asking. */
@@ -29,7 +30,13 @@ export function S02Problem() {
   return (
     <AbsoluteFill style={{ opacity: fade, background: '#07090f' }}>
       <AbsoluteFill style={{ transform: `scale(${zoom})`, transformOrigin: '45% 55%' }}>
-        <MapStage view="borneo" t={t} hotspots={ramp(frame, 8, s(5))} dim={0.25 + q * 0.4} />
+        <MapStage
+          view="borneo"
+          t={t}
+          hotspots={interpolate(frame, [DETECT_FROM, DETECT_TO], [0.02, 1], clamp)}
+          byTime
+          dim={0.25 + q * 0.4}
+        />
         <svg width={1920} height={1080} style={{ position: 'absolute', inset: 0 }}>
           {ARROWS.map((a) => {
             const [x, y] = project('borneo', a.lon, a.lat);
@@ -57,7 +64,7 @@ export function S02Problem() {
       </AbsoluteFill>
 
       {BUBBLES.map(({ q: b, x, y, rot }, i) => {
-        const from = s(4.4 + i * 1.6);
+        const from = s(1.2 + i * 1.8);
         const p = ramp(frame, from, from + 14);
         if (frame < from) return null;
         const place = 'place' in b ? ` · ${b.place}` : '';
@@ -77,7 +84,7 @@ export function S02Problem() {
               boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
               color: color.ink,
               fontFamily: font.heading,
-              opacity: p * (1 - q),
+              opacity: p * (1 - ramp(frame, DETECT_FROM - 6, DETECT_FROM + 8)),
               transform: `translateX(${(1 - p) * 160}px) rotate(${rot * p}deg) scale(${0.9 + 0.1 * p})`,
             }}
           >
@@ -94,10 +101,10 @@ export function S02Problem() {
       {frame >= QUESTION - 6 && (
         <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
           <RiseWords
-            text="Apakah asap akan sampai ke tempatku?"
+            text="Tersebar, teknis, sulit dipantau sejak dini."
             from={QUESTION}
             stagger={4}
-            accent={['tempatku']}
+            accent={['sejak', 'dini']}
             style={{
               justifyContent: 'center',
               width: 1500,
@@ -110,6 +117,41 @@ export function S02Problem() {
             }}
           />
         </AbsoluteFill>
+      )}
+      {frame >= DETECT_FROM - 6 && frame < QUESTION && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 80,
+            top: 120,
+            fontFamily: font.heading,
+            color: color.ink,
+            opacity: ramp(frame, DETECT_FROM - 6, DETECT_FROM + 6),
+          }}
+        >
+          <div style={{ fontSize: 26, fontWeight: 700, color: '#bfc3d0' }}>
+            Deteksi titik panas satelit
+          </div>
+          <div
+            style={{
+              fontFamily: font.display,
+              fontSize: 84,
+              fontWeight: 800,
+              color: color.amber,
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {new Date(
+              T_RANGE[0] +
+                (T_RANGE[1] - T_RANGE[0]) *
+                  interpolate(frame, [DETECT_FROM, DETECT_TO], [0, 1], clamp),
+            ).toLocaleDateString('id-ID', {
+              day: 'numeric',
+              month: 'short',
+              timeZone: 'Asia/Pontianak',
+            })}
+          </div>
+        </div>
       )}
       <Label>Titik panas: data demo · panah angin: ilustrasi</Label>
     </AbsoluteFill>

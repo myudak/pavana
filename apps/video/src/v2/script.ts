@@ -1,7 +1,8 @@
-// Video v2 script: one entry per scene, in order. `vo` is the voice-over line (Indonesian) and
-// doubles as the on-screen subtitle. `seconds` is the planned length; when a recording exists
-// at public/vo/<id>.wav (or .mp3), calculateMetadata stretches the scene to fit it.
-// `sfx` marks where sound effects go once music and SFX are added.
+// Video script v3 (focus: monitoring titik api around forests and peatland early; smoke is the
+// impact). One entry per scene, in order. `vo` is the voice-over line exactly as written; the
+// burned-in subtitles show this text, timed to the recorded voice-over word by word
+// (src/v2/vo-timing.json, built by scripts/align-vo.py from public/audio/vo.m4a).
+// `seconds` is the fallback length when no timing file exists. `sfx` notes the sound design.
 
 export interface ScriptScene {
   id: string;
@@ -12,69 +13,63 @@ export interface ScriptScene {
 
 export const SCRIPT = [
   {
-    id: 'vo-01',
-    seconds: 12,
-    vo: 'Musim kemarau tahun ini, asap karhutla menyelimuti Kalimantan berminggu-minggu. Seorang ibu di Pontianak bertanya: ke mana lagi anaknya harus berlindung?',
-    sfx: 'low drone, typing ticks on the quote',
+    id: 'hook',
+    seconds: 14,
+    vo: 'Sejak Agustus, lebih dari tiga puluh dua ribu hektare lahan di Kalimantan terbakar. Di lahan gambut, api bisa menjalar di bawah permukaan, sulit dipadamkan, dan asapnya sampai ke rumah warga.',
+    sfx: 'impact on the number, embers crackle',
   },
   {
-    id: 'vo-02',
-    seconds: 16,
-    vo: 'Datanya sebenarnya ada. Satelit mendeteksi titik panas, model memprakirakan angin dan PM2.5. Tapi semuanya tersebar, teknis, dan tidak menjawab satu pertanyaan sederhana: apakah asap akan sampai ke tempatku?',
-    sfx: 'soft pops as detections appear, whoosh on bubbles',
+    id: 'problem',
+    seconds: 15,
+    vo: 'Warga di sekitar hutan dan gambut sering baru tahu ada titik api ketika asapnya sudah datang. Datanya sebenarnya ada, satelit mendeteksi titik panas setiap hari, tapi tersebar, teknis, dan sulit dipantau sejak dini.',
+    sfx: 'pops as detections appear, whoosh on bubbles',
   },
   {
-    id: 'vo-03',
+    id: 'reveal',
     seconds: 8,
-    vo: 'Kenalkan Pavana. Seperti aplikasi prakiraan cuaca, tapi untuk asap.',
-    sfx: 'riser into the smoke wipe, chime on the logo',
+    vo: 'Kenalkan Pavana: cara mudah memantau titik api dan dampaknya, berdasarkan lokasimu.',
+    sfx: 'riser into the smoke wipe, impact on the logo',
   },
   {
-    id: 'vo-04',
+    id: 'peta',
     seconds: 12,
-    vo: 'Pavana menggabungkan tiga sinyal, titik panas satelit, arah angin, dan prakiraan PM2.5, menjadi satu jawaban untuk lokasimu.',
-    sfx: 'three soft clicks as layers lock in',
+    vo: 'Di peta, setiap deteksi titik panas dari satelit diberi warna sesuai umurnya, jadi titik api yang baru langsung terlihat. Arah angin dan jejak asap menunjukkan ke mana dampaknya bergerak.',
+    sfx: 'zoom whoosh',
   },
   {
-    id: 'vo-05',
-    seconds: 10,
-    vo: 'Buka aplikasinya, langsung terlihat: potensi paparan hari ini, PM2.5 saat ini, dan kapan puncaknya, misalnya pukul tujuh malam.',
-    sfx: 'UI ticks on the count-up',
+    id: 'model',
+    seconds: 14,
+    vo: 'Untuk memantau sejak dini, model pembelajaran mesin Pavana memperkirakan wilayah yang berisiko muncul titik panas besok, dari pola cuaca kering dan deteksi sebelumnya, lengkap dengan alasannya.',
+    sfx: 'scan sweep as the grid fills',
   },
   {
-    id: 'vo-06',
+    id: 'beranda',
     seconds: 12,
-    vo: 'Di peta, titik panas diberi warna sesuai umurnya, aliran angin dari prakiraan bergerak, dan jejak arah asap memperlihatkan ke mana udara itu terbawa.',
-    sfx: 'zoom whoosh, airy wind bed',
+    vo: 'Lalu Pavana menggabungkan titik panas, arah angin, dan prakiraan PM2.5 menjadi satu jawaban: apakah asap akan sampai ke tempatmu, dan kapan puncaknya.',
+    sfx: 'three clicks as layers lock in',
   },
   {
-    id: 'vo-07',
-    seconds: 12,
-    vo: 'Model pembelajaran mesin Pavana, dilatih dari deteksi satelit dan jarak pandang di bandara, memperkirakan risiko titik panas dan asap tebal, lengkap dengan alasannya.',
-    sfx: 'data sweep as the grid fills',
-  },
-  {
-    id: 'vo-08',
-    seconds: 13,
+    id: 'chat',
+    seconds: 7,
     vo: 'Masih bingung? Tanya Pavi. Pavi mengecek data dulu, lalu menjelaskan dengan bahasa sehari-hari.',
-    sfx: 'message pop, tool tick',
+    sfx: 'message pop',
   },
   {
-    id: 'vo-09',
-    seconds: 8,
-    vo: 'Pavana juga memberi tanda saat potensi asap meningkat, di web dan di Android.',
-    sfx: 'notification chime',
+    id: 'alerts',
+    seconds: 7,
+    vo: 'Pavana memberi tanda saat titik panas dan asap di sekitarmu meningkat, di web dan di Android.',
+    sfx: 'notification pop',
   },
   {
-    id: 'vo-10',
+    id: 'principles',
     seconds: 9,
-    vo: 'Dan Pavana jujur soal data: titik panas adalah deteksi, data kosong bukan berarti aman, dan setiap angka punya sumber.',
+    vo: 'Kami jujur soal data: titik panas adalah deteksi satelit, bukan kebakaran yang pasti, dan data kosong bukan berarti aman.',
     sfx: 'three stamps',
   },
   {
-    id: 'vo-11',
-    seconds: 8,
-    vo: 'Asap tidak bisa kita hentikan sendiri. Tapi kita bisa bersiap lebih awal. Pavana.',
+    id: 'close',
+    seconds: 11,
+    vo: 'Hutan dan gambut tidak bisa dijaga sendirian. Tapi dengan memantau sejak dini, kita bisa bersiap lebih awal. Pavana.',
     sfx: 'music resolves',
   },
 ] as const satisfies readonly ScriptScene[];

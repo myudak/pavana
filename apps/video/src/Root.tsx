@@ -1,7 +1,7 @@
 import { Composition } from 'remotion';
 import { Pavana, TOTAL_DURATION } from './Pavana';
 import { FPS, HEIGHT, WIDTH } from './theme';
-import { calculateV2Metadata, PavanaV2, V2_DEFAULTS } from './v2/PavanaV2';
+import { PavanaV2, V2_DURATION } from './v2/PavanaV2';
 
 export function Root() {
   return (
@@ -9,12 +9,10 @@ export function Root() {
       <Composition
         id="PavanaV2"
         component={PavanaV2}
-        durationInFrames={V2_DEFAULTS.frames.reduce((a, b) => a + b, 0)}
+        durationInFrames={V2_DURATION}
         fps={FPS}
         width={WIDTH}
         height={HEIGHT}
-        defaultProps={V2_DEFAULTS}
-        calculateMetadata={calculateV2Metadata}
       />
       {/* First cut (text only, screenshots in a phone). */}
       <Composition

@@ -89,3 +89,78 @@ export function Subtitles({ text }: { text: string }) {
     </div>
   );
 }
+
+interface TimedWord {
+  text: string;
+  start: number;
+  end: number;
+}
+interface TimedScene {
+  id: string;
+  words: TimedWord[];
+}
+
+/**
+ * Subtitles timed to the recorded voice-over: the script text (correct spelling) is chunked as
+ * above, and each chunk shows from its first word until the next chunk starts (or its last word
+ * ends + 0.4 s). Times are seconds on the whole-video timeline.
+ */
+export function TimedSubtitles({ scenes }: { scenes: TimedScene[] }) {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const spans: { text: string; from: number; to: number }[] = [];
+  for (const sc of scenes) {
+    let i = 0;
+    for (const c of chunk(sc.words.map((w) => w.text).join(' '))) {
+      const n = c.split(' ').length;
+      const first = sc.words[i]!;
+      const last = sc.words[i + n - 1]!;
+      spans.push({ text: c, from: (first.start - 0.12) * fps, to: (last.end + 0.4) * fps });
+      i += n;
+    }
+  }
+  for (let k = 0; k < spans.length - 1; k++) {
+    spans[k]!.to = Math.min(spans[k]!.to + 0.6 * fps, spans[k + 1]!.from);
+  }
+  const cur = spans.find((s) => frame >= s.from && frame < s.to);
+  if (!cur) return null;
+  const o =
+    interpolate(frame, [cur.from, cur.from + 4], [0, 1], clamp) *
+    interpolate(frame, [cur.to - 4, cur.to], [1, 0], clamp);
+  return <SubtitleBox text={cur.text} opacity={o} />;
+}
+
+function SubtitleBox({ text, opacity }: { text: string; opacity: number }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 48,
+        display: 'flex',
+        justifyContent: 'center',
+        pointerEvents: 'none',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1500,
+          padding: '12px 28px',
+          borderRadius: 16,
+          background: 'rgba(7, 9, 15, 0.72)',
+          color: '#F5F1EB',
+          fontFamily: font.heading,
+          fontWeight: 600,
+          fontSize: 38,
+          lineHeight: 1.3,
+          textAlign: 'center',
+          opacity,
+          textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}

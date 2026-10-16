@@ -19,8 +19,8 @@ const CALLOUTS = [
 ];
 
 /** 0:48 — the Beranda screen builds itself, with callouts for what each part answers. */
-export function S05Beranda() {
-  const frame = useCurrentFrame();
+export function S05Beranda({ speed = 1 }: { speed?: number }) {
+  const frame = useCurrentFrame() * speed;
   const fade = useSceneFade(10, 10);
   const enter = ramp(frame, 0, 24);
   const rotY = interpolate(frame, [0, s(10)], [-26, -10], clamp);

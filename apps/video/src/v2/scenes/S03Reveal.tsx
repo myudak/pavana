@@ -58,9 +58,9 @@ export function S03Reveal() {
           })}
         </div>
         <RiseWords
-          text="Seperti prakiraan cuaca, tapi untuk asap."
+          text="Pantau titik api dan dampaknya, dari lokasimu."
           from={52}
-          accent={['asap']}
+          accent={['titik', 'api']}
           style={{
             justifyContent: 'center',
             marginTop: 18,

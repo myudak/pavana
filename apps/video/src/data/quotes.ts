@@ -80,3 +80,11 @@ export const ISPA_STAT = {
   asOf: 'kumulatif hingga 13 September 2026',
   source: 'Sumber: Kementerian Kesehatan, via Tirto.id (26 Sep 2026)',
 } as const;
+
+/** BNPB burned-area figure as reported by Tirto (26 Sep 2026). */
+export const BURNED_STAT = {
+  value: 32896.67,
+  label: 'hektare lahan terbakar di Kalimantan',
+  asOf: 'Kalbar, Kalsel, Kalteng, Kaltim · 1 Agustus – 14 September 2026',
+  source: 'Sumber: BNPB, via Tirto.id (26 Sep 2026)',
+} as const;

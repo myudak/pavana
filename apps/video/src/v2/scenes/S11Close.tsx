@@ -8,8 +8,9 @@ import { clamp, ramp, RiseWords, useSpring } from '../kit';
 export function S11Close() {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
-  const pop = useSpring(s(2.6), 10);
-  const lines = 1 - ramp(frame, s(2.4), s(2.9));
+  const LOCK = s(8.5);
+  const pop = useSpring(LOCK + 2, 10);
+  const lines = 1 - ramp(frame, LOCK - 10, LOCK + 2);
   const end = interpolate(frame, [durationInFrames - 20, durationInFrames], [0, 1], clamp);
 
   return (
@@ -26,21 +27,22 @@ export function S11Close() {
           style={{ alignItems: 'center', justifyContent: 'center', opacity: lines, gap: 10 }}
         >
           <RiseWords
-            text="Asap tidak bisa kita hentikan sendiri."
+            text="Hutan dan gambut tidak bisa dijaga sendirian."
             from={4}
             style={{
               justifyContent: 'center',
-              fontSize: 80,
+              fontSize: 66,
               fontWeight: 800,
               letterSpacing: '-0.03em',
             }}
           />
           <RiseWords
-            text="Tapi kita bisa bersiap lebih awal."
-            from={30}
+            text="Tapi dengan memantau sejak dini, kita bisa bersiap lebih awal."
+            from={s(3.3)}
             style={{
               justifyContent: 'center',
-              fontSize: 80,
+              width: 1500,
+              fontSize: 66,
               fontWeight: 800,
               letterSpacing: '-0.03em',
               color: color.amber,
@@ -49,14 +51,14 @@ export function S11Close() {
         </AbsoluteFill>
       )}
 
-      {frame >= s(2.5) && (
+      {frame >= LOCK && (
         <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
           <Pavi
             pose="joy"
             size={280}
             style={{ transform: `scale(${pop}) translateY(${Math.sin(frame / 12) * 8}px)` }}
           />
-          <div style={{ marginTop: 6, opacity: ramp(frame, s(2.8), s(3.3)) }}>
+          <div style={{ marginTop: 6, opacity: ramp(frame, LOCK + 8, LOCK + 20) }}>
             <Wordmark size={180} />
           </div>
           <div
@@ -67,10 +69,10 @@ export function S11Close() {
               gap: 20,
               fontSize: 36,
               fontWeight: 700,
-              opacity: ramp(frame, s(3.4), s(3.9)),
+              opacity: ramp(frame, LOCK + 20, LOCK + 34),
             }}
           >
-            Tahu lebih awal kapan asap datang.
+            Pantau titik api sejak dini.
             <span
               style={{
                 padding: '8px 22px',
@@ -96,14 +98,14 @@ export function S11Close() {
           fontSize: 20,
           lineHeight: 1.6,
           color: 'rgba(245,241,235,0.7)',
-          opacity: ramp(frame, s(4.2), s(4.8)),
+          opacity: ramp(frame, LOCK + 30, LOCK + 44),
         }}
       >
         Prototipe · angka aplikasi adalah data demo (skenario Sungai Raya); model eksperimental
         memakai input arsip nyata.
         <br />
-        Kutipan: Tirto.id, r/indonesia · Data ISPA: Kemenkes via Tirto.id · Peta © OpenStreetMap ©
-        CARTO
+        Kutipan: r/indonesia · Data lahan terbakar: BNPB via Tirto.id · Peta © OpenStreetMap © CARTO
+        · Musik: Soundridemusic
       </div>
       <AbsoluteFill style={{ background: '#000', opacity: end }} />
     </AbsoluteFill>

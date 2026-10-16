@@ -43,7 +43,7 @@ export function S10Principles() {
       <div style={{ marginTop: 70, display: 'flex', gap: 40 }}>
         {CARDS.map((c, i) => {
           const st = spring({
-            frame: frame - s(0.9 + i * 1.3),
+            frame: frame - s([2.0, 6.2, 7.4][i]!),
             fps,
             config: { damping: 9, mass: 0.6 },
           });

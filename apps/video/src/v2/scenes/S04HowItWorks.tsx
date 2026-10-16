@@ -7,10 +7,10 @@ const LAYERS = [
   { key: 'wind', title: 'Arah angin', sub: 'Prakiraan per jam', tint: '#c4b5fd' },
   { key: 'fire', title: 'Titik panas satelit', sub: 'NASA FIRMS · VIIRS', tint: '#ff8c42' },
 ] as const;
-const MERGE = s(6.6);
 
 /** 0:36 — three data layers float in 3D, stack, and collapse into one answer card. */
-export function S04HowItWorks() {
+export function S04HowItWorks({ mergeAt = 6.6 }: { mergeAt?: number }) {
+  const MERGE = s(mergeAt);
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;

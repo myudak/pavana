@@ -18,7 +18,8 @@ export function S06Peta() {
   const z = ramp(frame, 6, ZOOM_END);
   const k = Math.pow(K, z);
   const cross = interpolate(z, [0.72, 0.98], [0, 1], clamp);
-  const trails = ramp(frame, s(6.2), s(10.5));
+  const trails = ramp(frame, s(9.8), s(13));
+  const fresh = ramp(frame, s(5.9), s(6.5)) * (1 - ramp(frame, s(9.2), s(9.8)));
   const hours = Math.round(6 * trails);
 
   return (
@@ -39,7 +40,7 @@ export function S06Peta() {
           t={t}
           hotspots={1}
           pulse
-          wind={ramp(frame, s(3.2), s(4.4))}
+          wind={ramp(frame, s(9.2), s(10.2))}
           trails={trails}
           dim={0.1}
         />
@@ -88,7 +89,7 @@ export function S06Peta() {
           right: 64,
           bottom: 130,
           padding: '22px 32px',
-          opacity: ramp(frame, s(5.6), s(6.2)),
+          opacity: ramp(frame, s(9.4), s(10)),
         }}
         radius={26}
       >
@@ -143,7 +144,7 @@ export function S06Peta() {
           position: 'absolute',
           right: 80,
           top: 150,
-          opacity: ramp(frame, s(3.4), s(4)),
+          opacity: ramp(frame, s(9.4), s(10)),
           fontFamily: font.heading,
           color: color.ink,
           textAlign: 'right',
@@ -152,6 +153,27 @@ export function S06Peta() {
         <div style={{ fontSize: 30, fontWeight: 800 }}>Angin dari tenggara</div>
         <div style={{ fontSize: 24, color: '#bfc3d0' }}>10 km/j · bertiup ke barat laut</div>
       </div>
+      {fresh > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 64,
+            top: 190,
+            padding: '16px 26px',
+            borderRadius: 22,
+            background: 'rgba(255,75,62,0.16)',
+            border: '2px solid #ff4b3e',
+            color: '#ffd1cc',
+            fontFamily: font.heading,
+            fontSize: 34,
+            fontWeight: 800,
+            opacity: fresh,
+            transform: `scale(${0.9 + 0.1 * fresh})`,
+          }}
+        >
+          Titik api baru (&lt; 6 jam) berdenyut merah
+        </div>
+      )}
       <Label>Data demo · skenario Sungai Raya</Label>
     </AbsoluteFill>
   );
