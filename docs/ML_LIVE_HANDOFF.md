@@ -126,7 +126,7 @@ Kaggle environment and completion of all six boosters.
 From the repo root, after the single weather fetch finishes:
 
 ```sh
-uv run --project ml python ml/scripts/fetch_weather_cache.py --source-stage <completed-Claude-weather-stage> --upload-only --upload
+uv run --project ml python ml/scripts/fetch_weather_cache.py --source-stage <completed-weather-stage> --upload-only --upload
 # Record the resulting weather version and manifest hash in input-lock.json.
 uv run --project ml python ml/kaggle/build.py observed-data --push
 kaggle kernels output myudak/pavana-observed-data -p ml/artifacts/live-data
@@ -157,6 +157,16 @@ The shared TS tests compare every booster and TreeSHAP output against Python Lig
 
 Run `pnpm check`, `pnpm build`, ML pytest, ruff lint/format, and nbstripout verification before
 handing over. See the run report and PR for the actual trained versions, metrics, and check results.
+
+Review: [PR #12](https://github.com/myudak/pavana/pull/12). The completed weather stage on the
+implementation machine is this worktree's `ml/data/processed/kaggle-weather`, while the raw
+per-point resume cache remains in Claude's checkout. The original tracked changes remain intact.
+Local verification passed `pnpm check` (206 JS/TS tests), full build, 170 ML tests, ruff lint/format,
+and notebook stripping. CI repeats these checks on Linux; the arithmetic fixture comparison uses
+1e-12 tolerance for platform libm rounding, with exact timestamps/structure/missingness.
+Live HTTP and browser checks computed all four outputs, and the risk overlay rendered its 943
+eligible cells with actual UTC target, source mode, input day and version. Replay uses original
+archived inputs with visibly different reference dates, not synthetic model predictions.
 
 ## Completed training and held-out results
 
