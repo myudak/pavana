@@ -85,7 +85,7 @@ function ChatHeader() {
   const aui = useAui();
   const empty = useAuiState((s) => s.thread.isEmpty);
   return (
-    <header className="glass flex items-center gap-3 rounded-3xl p-2 pr-3">
+    <header className="glass hidden items-center gap-3 rounded-3xl p-2 pr-3 sm:flex">
       <span className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-200/70 to-emerald-200/60 dark:from-sky-400/20 dark:to-emerald-400/15">
         <Mascot pose="idle" size={40} decorative />
       </span>
