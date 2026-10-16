@@ -272,7 +272,7 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
               {hs?.p6h == null && <Missing codes={hs?.missing ?? h?.missing} />}
               {!compact && (
                 <RunDetails
-                  version={h ? `${h.models.h6.version} · ${h.models.h24.version}` : undefined}
+                  version={h?.models.h6.version}
                   input={hs?.issueAt}
                   report={hs?.reportAt}
                   source={hs?.inputProvider}
