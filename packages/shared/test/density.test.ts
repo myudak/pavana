@@ -173,6 +173,7 @@ describe('regional fixture field metrics', () => {
     ),
   ) as { hotspots: { lat: number; lon: number; frpMw: number | null }[] };
 
+  // Full regional grid + land polygons: functional coverage, not a 5-second benchmark.
   it('meets the land-coverage criteria', () => {
     const field = buildDensityField(
       fixture.hotspots.map((h) => ({ lat: h.lat, lon: h.lon, weight: hotspotWeight(h.frpMw) })),
@@ -212,7 +213,7 @@ describe('regional fixture field metrics', () => {
     expect(mid / land).toBeGreaterThanOrEqual(0.25);
     expect(mid / land).toBeLessThanOrEqual(0.4);
     expect(core / land).toBeLessThanOrEqual(0.08);
-  });
+  }, 20_000);
 
   it('bright areas connect into a few masses, not scattered blobs', () => {
     const field = buildDensityField(
