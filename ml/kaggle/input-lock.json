@@ -1,0 +1,7 @@
+{
+  "weather": {
+    "dataset": "myudak/pavana-weather-cache",
+    "version": 1,
+    "sha256": "3ed7b5ba669baeb676ca14d4f0a1ad90e0b570952bdaadf8c2b7433cd525d0d1"
+  }
+}
