@@ -22,7 +22,7 @@ export function ScrollScrim() {
       aria-hidden
       data-testid="scroll-scrim"
       className={cn(
-        'pointer-events-none fixed inset-x-0 top-0 z-30 h-[calc(3.25rem+env(safe-area-inset-top)+1rem)] bg-gradient-to-b from-background/85 to-transparent backdrop-blur-xl transition-opacity duration-200 [mask-image:linear-gradient(to_bottom,black_72%,transparent)] lg:h-[calc(var(--topbar-h)+1rem)]',
+        'pointer-events-none fixed inset-x-0 top-0 z-30 h-[calc(3.25rem+env(safe-area-inset-top)+1rem)] bg-gradient-to-b from-background/85 to-transparent backdrop-blur-xl transition-opacity duration-500 ease-in-out [mask-image:linear-gradient(to_bottom,black_72%,transparent)] lg:h-[calc(var(--topbar-h)+1rem)]',
         scrolled ? 'opacity-100' : 'opacity-0',
       )}
     />
