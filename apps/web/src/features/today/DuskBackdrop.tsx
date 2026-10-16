@@ -19,7 +19,26 @@ import { useDarkMode } from '@/lib/theme-context';
  * the same name (see the README in that folder); each component below adds the scrims
  * that keep the hero readable.
  */
-export function DuskBackdrop({ className }: { className?: string }) {
+export type BackdropTint = 'none' | 'low' | 'moderate' | 'high' | 'unknown';
+
+/** Ambient wash opacity per exposure level (unknown renders no tint). */
+const TINT_OPACITY: Record<BackdropTint, number> = {
+  none: 0,
+  low: 0.06,
+  moderate: 0.12,
+  high: 0.18,
+  unknown: 0,
+};
+
+const TINT_COLOR: Record<BackdropTint, string> = {
+  none: 'var(--pv-exp-none)',
+  low: 'var(--pv-exp-low)',
+  moderate: 'var(--pv-exp-moderate)',
+  high: 'var(--pv-exp-high)',
+  unknown: 'var(--pv-exp-unknown)',
+};
+
+export function DuskBackdrop({ className, tint = 'none' }: { className?: string; tint?: BackdropTint }) {
   const dark = useDarkMode();
   return (
     <div aria-hidden className={className}>
@@ -201,6 +220,16 @@ export function DuskBackdrop({ className }: { className?: string }) {
             }}
           />
         </>
+      )}
+      {/* Ambient exposure tint: flat color wash only (no smoke imagery,
+          no animation). Rendered above the photo, below the hero text. */}
+      {TINT_OPACITY[tint] > 0 && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(180deg, color-mix(in srgb, ${TINT_COLOR[tint]} ${Math.round(TINT_OPACITY[tint] * 100)}%, transparent), transparent 70%)`,
+          }}
+        />
       )}
     </div>
   );
