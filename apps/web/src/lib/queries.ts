@@ -42,3 +42,30 @@ export function useOfficialLinks() {
     queryFn: ({ signal }) => api.officialLinks(signal),
   });
 }
+
+/** Experimental Pavana models (observed targets). Cached for 15 min; inputs refresh slowly. */
+export function useHotspotRisk() {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['model', 'hotspot-risk', location.lat, location.lon],
+    queryFn: ({ signal }) => api.hotspotRisk(location, signal),
+    staleTime: 15 * 60_000,
+  });
+}
+
+export function useHaze() {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['model', 'haze', location.lat, location.lon],
+    queryFn: ({ signal }) => api.haze(location, signal),
+    staleTime: 10 * 60_000,
+  });
+}
+
+export function useModelEvaluation() {
+  return useQuery({
+    queryKey: ['model', 'evaluation'],
+    queryFn: ({ signal }) => api.modelEvaluation(signal),
+    staleTime: Infinity,
+  });
+}

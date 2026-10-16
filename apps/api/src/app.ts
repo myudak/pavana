@@ -4,6 +4,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config/env';
 import { AppError, UpstreamError } from './domain/errors';
 import { createDemoBundle, createProviders, type LiveDeps } from './providers';
+import { createModelInputs } from './providers/model-inputs';
 import type { ProviderBundle } from './providers/types';
 import { routes } from './routes';
 
@@ -31,6 +32,9 @@ const CDN_TTL: Record<string, number> = {
   '/api/locations/search': 86400,
   '/api/official-links': 86400,
   '/api/sources': 300,
+  '/api/model/hotspot-risk': 1800,
+  '/api/model/haze': 600,
+  '/api/model/evaluation': 86400,
 };
 const DEMO_TTL = 3600;
 
@@ -85,6 +89,7 @@ export async function buildApp({
     providers: providers ?? createProviders(config, liveDeps),
     demo: demoProviders ?? createDemoBundle(),
     version: API_VERSION,
+    modelInputs: createModelInputs({ fetch: liveDeps?.fetch, now: liveDeps?.now }),
   });
   return app;
 }

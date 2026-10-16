@@ -4,6 +4,9 @@
  * The browser never talks to upstream providers or holds provider keys.
  */
 import {
+  HazeResponseSchema,
+  HotspotRiskResponseSchema,
+  ModelEvaluationsResponseSchema,
   ApiErrorSchema,
   ConditionsResponseSchema,
   ExposureResponseSchema,
@@ -61,6 +64,12 @@ async function getJson<S extends z.ZodType>(
 }
 
 export const api = {
+  hotspotRisk: (p: LatLon, signal?: AbortSignal) =>
+    getJson('/api/model/hotspot-risk', { lat: p.lat, lon: p.lon }, HotspotRiskResponseSchema, signal),
+  haze: (p: LatLon, signal?: AbortSignal) =>
+    getJson('/api/model/haze', { lat: p.lat, lon: p.lon }, HazeResponseSchema, signal),
+  modelEvaluation: (signal?: AbortSignal) =>
+    getJson('/api/model/evaluation', {}, ModelEvaluationsResponseSchema, signal),
   conditions: (p: LatLon, signal?: AbortSignal) =>
     getJson('/api/conditions', { lat: p.lat, lon: p.lon }, ConditionsResponseSchema, signal),
   forecast: (p: LatLon, hours = 24, signal?: AbortSignal) =>

@@ -11,7 +11,11 @@ import {
   ExposureResponseSchema,
   ForecastQuerySchema,
   ForecastResponseSchema,
+  HazeResponseSchema,
   HealthResponseSchema,
+  HotspotRiskQuerySchema,
+  HotspotRiskResponseSchema,
+  ModelEvaluationsResponseSchema,
   HotspotsQuerySchema,
   HotspotsResponseSchema,
   InsightsResponseSchema,
@@ -26,11 +30,13 @@ import {
 } from '@pavana/shared';
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { OFFICIAL_LINKS } from '../data/official-links';
+import type { ModelInputs } from '../providers/model-inputs';
 import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
 import { getExposure } from '../services/exposure';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
+import { getHaze, getHotspotRisk, getModelEvaluations } from '../services/models';
 import { getSources } from '../services/sources';
 import { getWeatherReference } from '../services/weather-reference';
 import { getWindField } from '../services/wind-field';
@@ -42,11 +48,13 @@ export interface RoutesOptions {
   /** Fixture bundle served for `?demo=1`. */
   demo: ProviderBundle;
   version: string;
+  /** Keyless inputs for the experimental models; live unless `?demo=1`, whatever PAVANA_MODE is. */
+  modelInputs: ModelInputs;
 }
 
 export const routes: FastifyPluginAsync<RoutesOptions> = async (
   app,
-  { providers, demo, version },
+  { providers, demo, version, modelInputs },
 ) => {
   const pick = (req: FastifyRequest): ProviderBundle =>
     (req.query as Record<string, unknown> | undefined)?.['demo'] === '1' ? demo : providers;
@@ -108,6 +116,26 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (
     const point = parseInput(LatLonQuerySchema, req.query);
     return WeatherReferenceResponseSchema.parse(await getWeatherReference(pick(req), point));
   });
+
+  // Experimental models: inputs need no keys, so they run live even when PAVANA_MODE=demo.
+  const modelPick = (req: FastifyRequest) =>
+    (req.query as Record<string, unknown> | undefined)?.['demo'] === '1' ? null : modelInputs;
+  const modelNow = (req: FastifyRequest) =>
+    modelPick(req) ? (providers.isDemo ? new Date() : providers.now()) : demo.now();
+
+  app.get('/api/model/hotspot-risk', async (req) => {
+    const point = parseInput(HotspotRiskQuerySchema, req.query);
+    return HotspotRiskResponseSchema.parse(await getHotspotRisk(modelPick(req), point, modelNow(req)));
+  });
+
+  app.get('/api/model/haze', async (req) => {
+    const point = parseInput(HotspotRiskQuerySchema, req.query);
+    return HazeResponseSchema.parse(await getHaze(modelPick(req), point, modelNow(req)));
+  });
+
+  app.get('/api/model/evaluation', async () =>
+    ModelEvaluationsResponseSchema.parse({ models: getModelEvaluations() }),
+  );
 
   app.get('/api/official-links', async () =>
     OfficialLinksResponseSchema.parse({ links: OFFICIAL_LINKS }),

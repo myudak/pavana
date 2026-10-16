@@ -96,7 +96,7 @@ export const id = {
     scope:
       'Target adalah keluaran CAMS, bukan pengukuran stasiun. Hasil ini belum mengukur akurasi lapangan dan tidak digunakan sebagai prakiraan live.',
     liveNote:
-      'Prakiraan aplikasi menggunakan data penyedia. Eksperimen model dan SHAP dapat ditelusuri melalui Lab ML historis.',
+      'Eksperimen lama dengan target CAMS tetap riset saja (tidak disajikan live) dan dapat ditelusuri di Lab ML.',
     loadError: 'Hasil riset belum tersedia atau tidak lolos pemeriksaan konsistensi.',
     chooseHour: 'Pilih waktu target',
     caseTitle: 'Satu jam, tiga nilai',
@@ -1002,6 +1002,92 @@ export const id = {
 
   theme: {
     toggle: 'Ganti tema',
+  },
+
+  modelLab: {
+    title: 'Model yang disajikan (eksperimental)',
+    badge: 'eksperimental',
+    method: 'Metode',
+    model: 'Model LightGBM',
+    persistence: 'Persistence',
+    climatology: 'Klimatologi',
+    brierSkill: 'Skill Brier',
+    calibration: 'Kalibrasi (test): proporsi kejadian nyata per rentang peluang',
+    observed: (rate: number, n: number) => `${(rate * 100).toFixed(1)}% · n=${n.toLocaleString('id-ID')}`,
+    importance: 'Fitur paling berpengaruh (rerata |SHAP|, log-odds)',
+    windows: (tr?: [string, string], va?: [string, string], te?: [string, string]) =>
+      `Latih ${tr?.join('–') ?? '—'} · validasi ${va?.join('–') ?? '—'} · uji ${te?.join('–') ?? '—'}`,
+    counts: (n: number, pos: number) =>
+      `${n.toLocaleString('id-ID')} baris uji, ${pos.toLocaleString('id-ID')} kejadian teramati.`,
+    note: 'Target berupa pengamatan (deteksi satelit, laporan METAR bandara). Persistence dan klimatologi dihitung dari data latih saja. Angka ini hasil uji historis, bukan jaminan kinerja saat ini.',
+  },
+
+  model: {
+    title: 'Model Pavana',
+    badge: 'Eksperimental',
+    intro:
+      'Model belajar dari data pengamatan nyata (deteksi satelit dan laporan cuaca bandara), diuji pada periode yang tidak dipakai saat melatih. Bukan peringatan resmi.',
+    riskTitle: 'Peluang titik panas terdeteksi',
+    riskWhen: (day: string) => `di kotak grid ~28 km yang memuat lokasi, ${day} (UTC)`,
+    riskNote:
+      'Titik panas adalah deteksi satelit Suomi NPP, bukan kebakaran terkonfirmasi. Tidak terdeteksi bukan berarti tidak ada api.',
+    hazeTitle: 'Peluang jarak pandang < 3 km karena kabut asap',
+    hazeAt: (name: string, km: number | null) =>
+      km === null ? `Bandara ${name}` : `Bandara ${name} · ${Math.round(km)} km`,
+    in6h: '6 jam lagi',
+    in24h: '24 jam lagi',
+    visibilityNow: (km: number | null) =>
+      km === null ? 'Jarak pandang terkini: tidak tersedia' : `Jarak pandang terkini: ${km.toFixed(1)} km`,
+    unknown: 'Tidak tersedia',
+    unknownWhy: 'Sebagian data masukan belum tersedia, jadi peluang tidak dihitung (bukan berarti rendah).',
+    outsideGrid: 'Lokasi di luar wilayah model (Kalimantan).',
+    why: 'Faktor terbesar menurut model',
+    raises: 'menaikkan',
+    lowers: 'menurunkan',
+    metrics: (auc: number, aucPersist: number, from: string, to: string) =>
+      `Uji ${from}–${to}: ROC-AUC ${auc.toFixed(2)} (persistence ${aucPersist.toFixed(2)}).`,
+    demo: 'Demo: memutar ulang input arsip nyata, bukan kondisi saat ini.',
+    observedYes: 'Kenyataannya: terjadi',
+    observedNo: 'Kenyataannya: tidak terjadi',
+    open: 'Lihat evaluasi di Lab ML',
+    shapNote: 'Penjelasan SHAP menguraikan keluaran model, bukan bukti sebab-akibat.',
+    factor: {
+      det_cell_1d: (v: number) => `${v} deteksi titik panas kemarin di sel ini`,
+      det_cell_3d: (v: number) => `${v} deteksi titik panas di sel ini dalam 3 hari`,
+      det_cell_7d: (v: number) => `${v} deteksi titik panas di sel ini dalam 7 hari`,
+      det_nbr_1d: (v: number) => `${v} deteksi titik panas kemarin di sekitar (±40 km)`,
+      det_nbr_7d: (v: number) => `${v} deteksi titik panas di sekitar dalam 7 hari`,
+      det_wide_7d: (v: number) => `${v} deteksi titik panas di wilayah ±90 km dalam 7 hari`,
+      days_since_det: (v: number) =>
+        v >= 7 ? 'Tidak ada deteksi di sel ini 7 hari terakhir' : v === 0 ? 'Ada deteksi di sel ini kemarin' : `Deteksi terakhir di sel ini ${v} hari lalu`,
+      precip_1d_mm: (v: number) => `Hujan kemarin ${v.toFixed(1)} mm`,
+      precip_7d_mm: (v: number) => `Hujan 7 hari terakhir ${Math.round(v)} mm`,
+      precip_30d_mm: (v: number) => `Hujan 30 hari terakhir ${Math.round(v)} mm`,
+      precip_60d_mm: (v: number) => `Hujan 60 hari terakhir ${Math.round(v)} mm`,
+      dry_days: (v: number) => `${v} hari berturut-turut tanpa hujan berarti`,
+      rh_min_pct: (v: number) => `Kelembapan terendah kemarin ${Math.round(v)}%`,
+      tmax_c: (v: number) => `Suhu tertinggi kemarin ${v.toFixed(1)}°C`,
+      wind_max_ms: (v: number) => `Angin terkencang kemarin ${v.toFixed(1)} m/s`,
+      vpd_max_kpa: (v: number) => `Udara kering kemarin (VPD ${v.toFixed(1)} kPa)`,
+      vpd_7d_mean_kpa: (v: number) => `Udara kering seminggu (VPD rata-rata ${v.toFixed(1)} kPa)`,
+      doy: () => 'Waktu dalam tahun (musim)',
+      cell_hist_rate: (v: number) => `Sel ini punya deteksi pada ${(v * 100).toFixed(1)}% hari di 2015–2021`,
+      vsby_km: (v: number) => `Jarak pandang terkini ${v.toFixed(1)} km`,
+      vsby_min_6h_km: (v: number) => `Jarak pandang terendah 6 jam terakhir ${v.toFixed(1)} km`,
+      vsby_min_24h_km: (v: number) => `Jarak pandang terendah 24 jam terakhir ${v.toFixed(1)} km`,
+      haze_now: (v: number) => (v ? 'Laporan terkini mencatat kabut asap (HZ/FU)' : 'Laporan terkini tanpa kabut asap'),
+      haze_frac_24h: (v: number) => `Kabut asap di ${Math.round(v * 100)}% laporan 24 jam terakhir`,
+      haze_frac_72h: (v: number) => `Kabut asap di ${Math.round(v * 100)}% laporan 3 hari terakhir`,
+      precip_frac_24h: (v: number) => `Hujan di ${Math.round(v * 100)}% laporan 24 jam terakhir`,
+      rh_pct: (v: number) => `Kelembapan ${Math.round(v)}%`,
+      tmpc: (v: number) => `Suhu ${v.toFixed(1)}°C`,
+      wind_speed_ms: (v: number) => `Angin ${v.toFixed(1)} m/s`,
+      hour_local: (v: number) => `Jam ${String(v).padStart(2, '0')}.00 waktu setempat`,
+      det_100km_24h: (v: number) => `${v} deteksi titik panas dalam 100 km (24 jam)`,
+      det_300km_72h: (v: number) => `${v} deteksi titik panas dalam 300 km (3 hari)`,
+      upwind_72h: (v: number) => (v > 0 ? `Titik panas di arah datangnya angin (skor ${v.toFixed(0)})` : 'Tidak ada titik panas di arah datangnya angin'),
+      station_month_rate: (v: number) => `Kabut asap biasa tercatat di ${Math.round(v * 100)}% laporan bulan ini (2015–2021)`,
+    } as Record<string, (v: number) => string>,
   },
 
   common: {

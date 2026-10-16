@@ -1,3 +1,4 @@
+import { ServedModelsEvaluation } from '@/features/models/ServedModelsEvaluation';
 import { ResearchBundleSchema, type ResearchBundle } from '@pavana/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -318,5 +319,15 @@ export default function LabPage() {
       return parsed.data;
     },
   });
-  return <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>;
+  return (
+    <div className="space-y-6">
+      <section className="space-y-3">
+        <h2 className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          {t.modelLab.title}
+        </h2>
+        <ServedModelsEvaluation />
+      </section>
+      <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>
+    </div>
+  );
 }

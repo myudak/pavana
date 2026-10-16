@@ -11,6 +11,7 @@ import { InsightMetricCards } from '@/features/insights/InsightMetricCards';
 import { InsightNotifications } from '@/features/insights/InsightNotifications';
 import { PM25TimeSeries } from '@/features/insights/PM25TimeSeries';
 import { LocationPicker } from '@/features/location/LocationPicker';
+import { ModelCard } from '@/features/models/ModelCard';
 import { useCopy } from '@/lib/i18n';
 import {
   useConditions,
@@ -129,6 +130,10 @@ export default function ForecastPage() {
           </section>
         </>
       )}
+
+      <div className="[&>*]:min-w-0">
+        <ModelCard />
+      </div>
 
       <div className="[&>*]:min-w-0">
         <Panel>
