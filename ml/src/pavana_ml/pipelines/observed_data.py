@@ -157,9 +157,9 @@ def run(
 ) -> dict:
     """Fetch everything and write `snapshot.json`. `end` defaults to yesterday (UTC).
 
-    `weather_cache` = the staged Kaggle dataset `myudak/pavana-weather-cache` (land mask + ERA5
-    daily, fetched once by `ml/scripts/fetch_weather_cache.py`). Without it the archive API is
-    called directly, which shared cloud IPs usually cannot do within Open-Meteo's free limits.
+    `weather_cache` = the validated Kaggle dataset `myudak/pavana-weather-cache` (land mask +
+    daily historical blend, fetched once by `ml/scripts/fetch_weather_cache.py`). It is required;
+    this pipeline never fetches historical weather from shared cloud IPs.
     """
     import shutil
 
