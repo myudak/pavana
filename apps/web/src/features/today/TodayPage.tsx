@@ -186,7 +186,7 @@ export function TodayPage() {
                     </p>
                     <h1
                       className={cn(
-                        'mb-[-0.12em] mt-1 lg:mt-0.5 line-clamp-2 max-w-full bg-clip-text pb-[0.12em] font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))] md:mt-1.5 md:line-clamp-none',
+                        'mb-[-0.12em] mt-1 lg:mb-[-0.02em] lg:mt-1 line-clamp-2 max-w-full bg-clip-text pb-[0.12em] font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))] md:mt-1.5 md:line-clamp-none',
                         'text-[clamp(1.625rem,4svh,2.125rem)] leading-[1.15] lg:leading-[1.05]',
                         heroLabelLong
                           ? 'md:text-[clamp(1.7rem,3.2vw,2.8rem)] md:leading-[1.12] lg:text-[clamp(1.875rem,4.6svh,2.75rem)] lg:leading-[1.05]'
@@ -209,7 +209,7 @@ export function TodayPage() {
                       <section
                         aria-label={t.today.pm25Label}
                         className={cn(
-                          'relative mt-[clamp(0.5rem,1.5svh,1rem)] grid rounded-[1.375rem] md:mt-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:rounded-[1.25rem] lg:mt-[clamp(0.5rem,1.4svh,0.875rem)] lg:overflow-visible',
+                          'relative mt-[clamp(0.5rem,1.5svh,1rem)] grid rounded-[1.375rem] md:mt-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:rounded-[1.25rem] lg:mt-[clamp(1rem,2svh,1.25rem)] lg:overflow-visible',
                           panelFill,
                         )}
                       >
@@ -217,7 +217,7 @@ export function TodayPage() {
                           aria-hidden
                           className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] shadow-[inset_0_0_0_1px_var(--panel-border)]"
                         />
-                        <div className="min-w-0 p-[clamp(0.875rem,2svh,1.25rem)] md:p-3 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center lg:px-5 lg:pb-[0.875rem] lg:pt-[clamp(0.625rem,1.6svh,0.875rem)]">
+                        <div className="min-w-0 p-[clamp(0.875rem,2svh,1.25rem)] md:p-3 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center lg:px-6 lg:pb-4 lg:pt-[clamp(0.875rem,1.8svh,1.125rem)]">
                           <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted dark:text-white/60 md:text-sm">
                             {t.today.pm25Label}
                           </p>
@@ -225,7 +225,7 @@ export function TodayPage() {
                             <p className="mt-2 text-ink-muted">{t.today.noData}</p>
                           ) : (
                             <>
-                              <div className="mt-1 flex items-center justify-between gap-3 md:mt-1.5 md:flex-wrap md:justify-start md:gap-x-5 md:gap-y-2">
+                              <div className="mt-1 flex items-center justify-between gap-3 md:mt-1.5 md:flex-wrap md:justify-start md:gap-x-5 md:gap-y-2 lg:mt-2">
                                 <p className="flex items-baseline gap-2">
                                   <span className="text-[clamp(2.5rem,6svh,3.25rem)] font-bold leading-none tabular-nums text-ink dark:text-white md:text-[clamp(1.85rem,2.3vw,2.35rem)] md:font-semibold lg:text-[clamp(2rem,4.6svh,2.625rem)] [@media((max-width:767px)_and_(max-height:760px))]:text-[2.5rem]">
                                     {formatNumber(pm)}
@@ -252,7 +252,7 @@ export function TodayPage() {
                                   )}
                                 </QueryState>
                               </div>
-                              <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.9375rem]">
+                              <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.9375rem] lg:mt-2">
                                 <Leaf className="size-4 shrink-0 text-accent-strong" aria-hidden />
                                 <span className="font-medium text-accent-strong">
                                   {t.aqCategory[cat]}
@@ -269,7 +269,7 @@ export function TodayPage() {
                             </>
                           )}
                         </div>
-                        <div className="hidden min-w-0 border-t border-hairline p-3 dark:border-white/10 md:block md:border-l md:border-t-0 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center">
+                        <div className="hidden min-w-0 border-t border-hairline p-3 dark:border-white/10 md:block md:border-l md:border-t-0 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center lg:py-4">
                           <Link
                             to="/prakiraan"
                             className="flex items-center gap-2 text-sm text-ink hover:opacity-80"
@@ -313,7 +313,7 @@ export function TodayPage() {
                         />
                       </div>
 
-                      <div className="mb-1 mt-[clamp(0.5rem,1.5svh,1rem)] flex items-center justify-between gap-3 md:mt-2 lg:mb-2 lg:mt-1.5">
+                      <div className="mb-1 mt-[clamp(0.5rem,1.5svh,1rem)] flex items-center justify-between gap-3 md:mt-2 lg:mb-3 lg:mt-3">
                         <p className="text-[0.6875rem] font-medium tracking-[0.2em] text-ink-muted md:text-[0.8125rem] md:tracking-[0.25em] lg:text-xs">
                           {t.today.hourlyLabel}
                         </p>
@@ -345,7 +345,7 @@ export function TodayPage() {
                       <Link
                         to="/prakiraan"
                         className={cn(
-                          'mt-[clamp(0.5rem,1.5svh,1rem)] flex max-h-[4.75rem] min-h-[3rem] items-center gap-3 rounded-[1.125rem] border p-3 md:mt-2 md:px-4 md:py-1 lg:mt-2 lg:h-[3.25rem] lg:min-h-0 lg:max-h-none lg:py-2',
+                          'mt-[clamp(0.5rem,1.5svh,1rem)] flex max-h-[4.75rem] min-h-[3rem] items-center gap-3 rounded-[1.125rem] border p-3 md:mt-2 md:px-4 md:py-1 lg:mt-3 lg:h-[3.25rem] lg:min-h-0 lg:max-h-none lg:py-2',
                           panelSurface,
                         )}
                       >
@@ -376,10 +376,10 @@ export function TodayPage() {
                         />
                         <div className="min-w-0 flex-1">
                           <Mountain className="size-8 text-accent-strong" aria-hidden />
-                          <p className="mt-2 text-[0.625rem] font-medium tracking-[0.2em] text-ink-muted">
+                          <p className="mt-2 text-[0.625rem] font-medium tracking-[0.2em] text-ink-muted lg:mt-3">
                             {t.today.hotspotEyebrow}
                           </p>
-                          <p className="mt-1.5 flex items-center gap-2 text-base">
+                          <p className="mt-1.5 flex items-center gap-2 text-base lg:mt-2">
                             {hotspotQuery.isPending ? (
                               <span
                                 className="inline-block h-[1.125rem] w-32 animate-pulse rounded bg-surface-muted"
@@ -398,12 +398,12 @@ export function TodayPage() {
                               </>
                             )}
                           </p>
-                          <p className="mt-1.5 max-w-[15rem] text-sm leading-[1.3125rem] text-ink-muted">
+                          <p className="mt-1.5 max-w-[15rem] text-sm leading-[1.3125rem] text-ink-muted lg:mt-2">
                             {t.map.hotspotDisclaimer}
                           </p>
                           <Link
                             to="/peta"
-                            className="mt-3 inline-flex h-9 w-[8.25rem] items-center justify-center gap-2 rounded-full border border-accent/50 text-sm font-medium hover:[box-shadow:var(--pv-glow-accent)]"
+                            className="mt-3 inline-flex h-9 w-[8.25rem] items-center justify-center gap-2 rounded-full border border-accent/50 text-sm font-medium hover:[box-shadow:var(--pv-glow-accent)] lg:mt-4"
                           >
                             {t.map.openFull} <ArrowRight className="size-4" aria-hidden />
                           </Link>

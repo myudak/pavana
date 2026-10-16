@@ -50,7 +50,7 @@ export function HourlyTimeline({
       <ol
         className={cn(
           panelSurface,
-          'grid grid-cols-6 gap-1 overflow-hidden rounded-[1.125rem] p-1.5 [scrollbar-width:none] max-[359px]:flex max-[359px]:snap-x max-[359px]:snap-mandatory max-[359px]:gap-2.5 max-[359px]:overflow-x-auto md:gap-2.5 md:overflow-x-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:pb-0 md:backdrop-blur-none md:dark:[box-shadow:none] lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden',
+          'grid grid-cols-6 gap-1 overflow-hidden rounded-[1.125rem] p-1.5 [scrollbar-width:none] max-[359px]:flex max-[359px]:snap-x max-[359px]:snap-mandatory max-[359px]:gap-2.5 max-[359px]:overflow-x-auto md:gap-2.5 md:overflow-x-auto md:rounded-none md:border-0 md:bg-transparent md:p-0 md:pb-0 md:backdrop-blur-none md:dark:[box-shadow:none] lg:gap-3 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden',
         )}
       >
         {slots.map((h, i) => {
@@ -60,7 +60,7 @@ export function HourlyTimeline({
             <li
               key={h.validAt}
               className={cn(
-                'relative flex min-h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 snap-start flex-col items-center justify-center gap-1.5 rounded-xl border border-transparent bg-transparent p-2 text-center max-[359px]:min-w-[3.5rem] md:min-h-[5.625rem] md:rounded-2xl md:border-glass-border md:bg-glass-hero md:px-2 md:py-0.5 md:backdrop-blur-xl md:dark:[box-shadow:var(--pv-shadow-soft)] lg:min-h-[clamp(4.125rem,9svh,5.125rem)] [@media((max-width:767px)_and_(max-height:760px))]:p-1',
+                'relative flex min-h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 snap-start flex-col items-center justify-center gap-1.5 rounded-xl border border-transparent bg-transparent p-2 text-center max-[359px]:min-w-[3.5rem] md:min-h-[5.625rem] md:rounded-2xl md:border-glass-border md:bg-glass-hero md:px-2 md:py-0.5 md:backdrop-blur-xl md:dark:[box-shadow:var(--pv-shadow-soft)] lg:min-h-[clamp(4.125rem,9svh,5.125rem)] lg:gap-2 lg:py-1.5 [@media((max-width:767px)_and_(max-height:760px))]:p-1',
                 i === 0 && 'bg-accent/[0.16] font-bold dark:[box-shadow:var(--pv-glow-accent)]',
               )}
             >
