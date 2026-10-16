@@ -22,8 +22,8 @@ come from the demo fixtures and from the real model outputs (`src/data/model-dem
 - **Map scenes:** `public/map/*.jpg` are CARTO Dark Matter captures
   (`node scripts/capture-basemap.mjs`); overlays are projected with Web Mercator in
   `src/v2/map/projection.ts`. Credit: © OpenStreetMap contributors © CARTO.
-- **Model scene:** `src/data/model-demo.json` is the PR #12 boosters evaluated on their archived
-  demo inputs (hotspot risk 14 Sep 2026, haze 24 Jul 2025). Regenerate it when the models change.
+- **Model scene:** `src/data/model-demo.json` is the served boosters (apps/api/src/models) evaluated on their archived
+  demo inputs (hotspot risk 14 Sep 2026, haze 5 Sep 2023). Regenerate it with `node scripts/build-model-demo.ts` when the models change.
 - **Sound effects:** each scene's `sfx` field marks where they go; music and SFX come later.
 
 | Scene | Planned | What happens                                                         |

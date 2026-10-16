@@ -8,8 +8,8 @@ import { project } from '../map/projection';
 // Real model output (PR #12 boosters evaluated on their archived demo inputs; see
 // src/data/model-demo.json). Factor wording mirrors apps/web i18n `models.factor`.
 const FACTOR_TEXT: Record<string, (v: number) => string> = {
-  det_cell_7d: (v) => `${v} deteksi titik panas di sel ini dalam 7 hari`,
-  det_nbr_7d: (v) => `${v} deteksi titik panas di sekitar dalam 7 hari`,
+  det_cell_6d: (v) => `${v} deteksi titik panas di sel ini dalam 6 hari`,
+  det_nbr_6d: (v) => `${v} deteksi titik panas di sekitar dalam 6 hari`,
   cell_hist_rate: (v) => `Sel ini punya deteksi pada ${(v * 100).toFixed(1)}% hari di 2015–2021`,
   det_cell_1d: (v) => `${v} deteksi titik panas kemarin di sel ini`,
   dry_days: (v) => `${v} hari berturut-turut tanpa hujan berarti`,
@@ -19,6 +19,9 @@ const top = model.risk.top;
 const topObserved = model.risk.cells.find((c) => c.id === top.id)?.observed;
 const test = model.risk.test;
 const pontianak = model.haze.stations.find((st) => st.icao === 'WIOO')!;
+const year = (iso: string) => iso.slice(0, 4);
+const hw = model.haze.windows24h;
+const HAZE_NOTE = `Dilatih dari laporan METAR bandara ${year(hw.train[0]!)}–${year(hw.train[1]!)}, diuji ${year(hw.test[0]!)}–${year(hw.test[1]!)} · replay ${new Date(model.haze.issueAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}`;
 const CARD = s(4.2);
 
 /** 1:10 — the hotspot-risk grid fills Kalimantan; one cell is explained with SHAP. */
@@ -172,9 +175,7 @@ export function S07Model() {
           </span>
           <span style={{ fontSize: 24 }}>{pontianak.name}</span>
         </div>
-        <div style={{ fontSize: 18, color: '#9ca3af' }}>
-          Dilatih dari laporan METAR bandara 2015–2021, diuji 2024–2025 · replay 24 Jul 2025
-        </div>
+        <div style={{ fontSize: 18, color: '#9ca3af' }}>{HAZE_NOTE}</div>
       </Glass>
 
       <Label tone="warn">Model eksperimental · replay input arsip nyata 14 Sep 2026</Label>
