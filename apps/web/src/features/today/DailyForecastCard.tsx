@@ -116,9 +116,9 @@ function DayRow({
       className={cn(
         'grid h-11 grid-cols-[4.75rem_2.75rem_2rem_minmax(0,1fr)_2.25rem] items-center gap-1 rounded-lg border-t first:border-t-0 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] lg:h-auto lg:min-h-0 lg:flex-1 lg:grid-cols-[6rem_7rem_2.5rem_minmax(0,1fr)_3rem]',
         warmHairline,
-        // Desktop "today" marker: thin accent-soft wash bleeding 8px into the
-        // card padding, 12px radius.
-        isToday && 'lg:-mx-3 lg:rounded-xl lg:bg-accent-soft/70 lg:px-3',
+        // Desktop "today" marker: full-width accent-soft wash across the card
+        // padding, with inset content and a 12px radius.
+        isToday && 'lg:-mx-5 lg:rounded-xl lg:bg-accent-soft/70 lg:px-5',
       )}
     >
       <span className="truncate text-[0.9375rem] font-medium text-ink lg:text-base">
@@ -241,7 +241,7 @@ export function DailyForecastCard({
               aria-hidden
               className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] shadow-[inset_0_0_0_1px_var(--panel-border)]"
             />
-            <div className="overflow-hidden lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+            <div className="overflow-hidden lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-visible">
               <div className="flex items-center gap-1.5">
                 <Calendar className="size-3.5 text-ink-muted" aria-hidden />
                 <h2 className="text-[0.6875rem] font-medium tracking-[0.2em] text-ink-muted lg:text-xs">
