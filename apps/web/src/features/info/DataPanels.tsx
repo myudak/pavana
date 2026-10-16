@@ -11,11 +11,11 @@ import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 /** Live ↔ demo switch. Demo is the synthetic September scenario, always labelled. */
-export function DataModePanel() {
+export function DataModePanel({ className }: { className?: string }) {
   const t = useCopy();
   const { demo, setDemo } = useDemoMode();
   return (
-    <Panel title={t.mode.title}>
+    <Panel title={t.mode.title} className={className}>
       <ToggleGroup
         type="single"
         value={demo ? 'demo' : 'live'}
@@ -27,7 +27,7 @@ export function DataModePanel() {
           <ToggleGroupItem
             key={m}
             value={m}
-            className="h-9 flex-1 rounded-full data-[state=on]:bg-card data-[state=on]:shadow-sm"
+            className="h-9 flex-1 rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
           >
             {t.mode[m]}
           </ToggleGroupItem>
@@ -48,11 +48,11 @@ const STATUS_CLASS: Record<SourceStatus, string> = {
 };
 
 /** Each upstream source with its current status (from /api/sources). */
-export function SourcesPanel() {
+export function SourcesPanel({ className }: { className?: string }) {
   const t = useCopy();
   const sources = useQuery({ queryKey: ['sources'], queryFn: ({ signal }) => api.sources(signal) });
   return (
-    <Panel title={t.sources.title}>
+    <Panel title={t.sources.title} className={className}>
       <QueryState query={sources} inline>
         {(d) => (
           <ul className="divide-y divide-foreground/10">
