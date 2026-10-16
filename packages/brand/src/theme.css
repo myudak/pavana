@@ -69,6 +69,39 @@
     outline-offset: 2px;
   }
 
+  a[href]:not([aria-disabled='true']),
+  area[href]:not([aria-disabled='true']),
+  button:not(:disabled):not([aria-disabled='true']),
+  input[type='button']:not(:disabled):not([aria-disabled='true']),
+  input[type='checkbox']:not(:disabled):not([aria-disabled='true']),
+  input[type='color']:not(:disabled):not([aria-disabled='true']),
+  input[type='date']:not(:disabled):not([aria-disabled='true']),
+  input[type='datetime-local']:not(:disabled):not([aria-disabled='true']),
+  input[type='file']:not(:disabled):not([aria-disabled='true']),
+  input[type='image']:not(:disabled):not([aria-disabled='true']),
+  input[type='month']:not(:disabled):not([aria-disabled='true']),
+  input[type='radio']:not(:disabled):not([aria-disabled='true']),
+  input[type='reset']:not(:disabled):not([aria-disabled='true']),
+  input[type='range']:not(:disabled):not([aria-disabled='true']),
+  input[type='submit']:not(:disabled):not([aria-disabled='true']),
+  input[type='time']:not(:disabled):not([aria-disabled='true']),
+  input[type='week']:not(:disabled):not([aria-disabled='true']),
+  label[for],
+  select:not(:disabled):not([aria-disabled='true']),
+  summary:not([aria-disabled='true']),
+  [role='button']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='checkbox']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='link']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='menuitem']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='menuitemcheckbox']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='menuitemradio']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='option']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='radio']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='switch']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']),
+  [role='tab']:not(:disabled):not([aria-disabled='true']):not([data-disabled='true']) {
+    cursor: pointer;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
