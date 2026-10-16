@@ -21,13 +21,14 @@ export function DataModePanel({ className }: { className?: string }) {
         value={demo ? 'demo' : 'live'}
         onValueChange={(v) => v && setDemo(v === 'demo')}
         className="w-full rounded-full bg-foreground/5 p-1"
+        indicatorClassName="bg-primary shadow-sm"
         aria-label={t.mode.title}
       >
         {(['live', 'demo'] as const).map((m) => (
           <ToggleGroupItem
             key={m}
             value={m}
-            className="h-9 flex-1 rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm"
+            className="h-9 flex-1 rounded-full data-[state=on]:text-primary-foreground"
           >
             {t.mode[m]}
           </ToggleGroupItem>

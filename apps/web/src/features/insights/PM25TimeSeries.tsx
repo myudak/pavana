@@ -15,6 +15,7 @@ import {
 import { ProvenanceChip } from '@/components/ProvenanceChip';
 import { formatDateTime, formatNumber, formatTime } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
+import { SlidingIndicator } from '@/components/ui/sliding-indicator';
 import { cn } from '@/lib/utils';
 import {
   availableRanges,
@@ -185,8 +186,9 @@ export function PM25TimeSeries({
           <div
             role="group"
             aria-label={t.insights.chart.rangesLabel}
-            className="flex rounded-full bg-surface-muted p-1"
+            className="relative isolate flex rounded-full bg-surface-muted p-1"
           >
+            <SlidingIndicator selector='[aria-pressed="true"]' className="bg-surface shadow-sm" />
             {available.map((r) => (
               <button
                 key={r}
@@ -194,10 +196,8 @@ export function PM25TimeSeries({
                 aria-pressed={activeRange === r}
                 onClick={() => setRange(r)}
                 className={cn(
-                  'min-h-11 rounded-full px-4 text-sm font-medium transition-colors',
-                  activeRange === r
-                    ? 'bg-surface text-ink shadow-sm'
-                    : 'text-ink-muted hover:text-ink',
+                  'relative z-10 min-h-11 rounded-full px-4 text-sm font-medium transition-colors',
+                  activeRange === r ? 'bg-transparent text-ink' : 'text-ink-muted hover:text-ink',
                 )}
               >
                 {t.insights.chart.ranges[r]}

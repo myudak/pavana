@@ -4,17 +4,20 @@ import * as React from 'react';
 import { type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
+import { SlidingIndicator } from './sliding-indicator';
 
 import { toggleVariants } from '@/components/ui/toggle';
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants> & {
     spacing?: number;
+    sliding?: boolean;
   }
 >({
   size: 'default',
   variant: 'default',
   spacing: 0,
+  sliding: false,
 });
 
 function ToggleGroup({
@@ -22,12 +25,15 @@ function ToggleGroup({
   variant,
   size,
   spacing = 0,
+  indicatorClassName,
   children,
   ...props
 }: React.ComponentProps<typeof ToggleGroupPrimitive.Root> &
   VariantProps<typeof toggleVariants> & {
     spacing?: number;
+    indicatorClassName?: string;
   }) {
+  const sliding = props.type === 'single';
   return (
     <ToggleGroupPrimitive.Root
       data-slot="toggle-group"
@@ -37,11 +43,18 @@ function ToggleGroup({
       style={{ '--gap': spacing } as React.CSSProperties}
       className={cn(
         'group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs',
+        sliding && 'relative isolate',
         className,
       )}
       {...props}
     >
-      <ToggleGroupContext.Provider value={{ variant, size, spacing }}>
+      <ToggleGroupContext.Provider value={{ variant, size, spacing, sliding }}>
+        {sliding && (
+          <SlidingIndicator
+            selector='[data-slot="toggle-group-item"][data-state="on"]'
+            className={cn('bg-background shadow-sm dark:bg-input/30', indicatorClassName)}
+          />
+        )}
         {children}
       </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive.Root>
@@ -69,6 +82,7 @@ function ToggleGroupItem({
           size: context.size || size,
         }),
         'w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10',
+        context.sliding && 'relative z-10 data-[state=on]:bg-transparent',
         'data-[spacing=0]:rounded-none data-[spacing=0]:shadow-none data-[spacing=0]:first:rounded-l-md data-[spacing=0]:last:rounded-r-md data-[spacing=0]:data-[variant=outline]:border-l-0 data-[spacing=0]:data-[variant=outline]:first:border-l',
         className,
       )}

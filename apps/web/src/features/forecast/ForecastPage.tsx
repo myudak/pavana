@@ -26,7 +26,7 @@ import { WeatherTable } from './WeatherTable';
 import { BmkgReference } from './BmkgReference';
 
 const TAB =
-  'h-9 flex-1 rounded-full border-0 text-[13px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent';
+  'h-9 flex-1 rounded-full border-0 text-[13px] data-[state=active]:text-primary-foreground dark:data-[state=active]:text-primary-foreground';
 
 const TAB_VALUES = ['air', 'fire', 'smoke', 'weather'] as const;
 type TabValue = (typeof TAB_VALUES)[number];
@@ -107,7 +107,10 @@ export default function ForecastPage() {
           }
           className="gap-4"
         >
-          <TabsList className="glass h-11 w-full rounded-full py-1 pr-1 pl-0">
+          <TabsList
+            indicatorClassName="bg-primary shadow-sm"
+            className="glass h-11 w-full rounded-full py-1 pr-1 pl-0"
+          >
             <TabsTrigger value="air" className={TAB}>
               {t.forecast.tabs.air}
             </TabsTrigger>

@@ -14,6 +14,7 @@ import { Icon } from '@/components/Icon';
 import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { SlidingIndicator } from '@/components/ui/sliding-indicator';
 import { factorNumber } from '@/features/insights/insight-derive';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { useCopy } from '@/lib/i18n';
@@ -101,8 +102,12 @@ export function InfoPage() {
           <div
             role="group"
             aria-label={t.info.filtersLabel}
-            className="flex snap-x gap-1 overflow-x-auto rounded-full bg-foreground/5 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="relative isolate flex snap-x gap-1 overflow-x-auto rounded-full bg-foreground/5 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
+            <SlidingIndicator
+              selector='[aria-pressed="true"]'
+              className="bg-primary-strong shadow-sm"
+            />
             {INFO_FILTERS.map((f) => (
               <button
                 key={f}
@@ -110,9 +115,9 @@ export function InfoPage() {
                 aria-pressed={filter === f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  'h-10 shrink-0 snap-start rounded-full px-3 text-[13px] font-medium transition-colors',
+                  'relative z-10 h-10 shrink-0 snap-start rounded-full px-3 text-[13px] font-medium transition-colors',
                   filter === f
-                    ? 'bg-primary-strong text-on-primary shadow-sm dark:text-canvas'
+                    ? 'bg-transparent text-on-primary dark:text-canvas'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >
@@ -214,14 +219,11 @@ export function InfoPage() {
               value={pref}
               onValueChange={(v) => v && setPref(v as ThemePref)}
               className="w-full rounded-full bg-foreground/5 p-1"
+              indicatorClassName="bg-card shadow-sm"
               aria-label={t.info.theme}
             >
               {(['light', 'dark', 'system'] as ThemePref[]).map((p) => (
-                <ToggleGroupItem
-                  key={p}
-                  value={p}
-                  className="h-9 flex-1 gap-1.5 rounded-full data-[state=on]:bg-card data-[state=on]:shadow-sm"
-                >
+                <ToggleGroupItem key={p} value={p} className="h-9 flex-1 gap-1.5 rounded-full">
                   <Icon icon={THEME_ICON[p]} className="size-4" />
                   {t.info.themeOptions[p]}
                 </ToggleGroupItem>
