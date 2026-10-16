@@ -73,7 +73,7 @@ def test_fire_features_windows_and_gaps():
     assert np.isnan(f["det_cell_3d"][5, 5, 5])  # window touches the gap
     assert f["det_cell_3d"][7, 5, 5] == 0
     assert f["det_nbr_1d"][8, 5, 5] == 1  # neighbour counted
-    assert np.isnan(f["det_cell_7d"][9, 5, 5])  # 7-day window still includes day 4
+    assert np.isnan(f["det_cell_6d"][9, 5, 5])  # 6-day window still includes day 4
     assert f["days_since_det"][3, 5, 5] == 1  # detection found before reaching the record start
     assert np.isnan(f["days_since_det"][1, 5, 5])  # record start reached first: unknown
     assert np.isnan(f["days_since_det"][9, 5, 5])  # gap on day 4 reached first

@@ -28,15 +28,18 @@ WEATHER_DEG = 2.0
 
 DRY_DAY_MM = 1.0
 DRY_DAYS_CAP = 60
-DAYS_SINCE_CAP = 7  # lags 0..6; 7 = none in the last 7 days (live inputs reach back 7 days)
+# Detection windows span 6 days (lags 0..5). The keyless live file covers the last 7×24 h, so
+# its oldest calendar day is usually cut; 6 complete days are always inside it.
+DET_DAYS = 6
+DAYS_SINCE_CAP = DET_DAYS  # lags 0..5; 6 = none in the last 6 days
 
 FEATURES = (
     "det_cell_1d",
     "det_cell_3d",
-    "det_cell_7d",
+    "det_cell_6d",
     "det_nbr_1d",
-    "det_nbr_7d",
-    "det_wide_7d",
+    "det_nbr_6d",
+    "det_wide_6d",
     "days_since_det",
     "precip_1d_mm",
     "precip_7d_mm",
@@ -126,7 +129,7 @@ def _days_since(counts: np.ndarray) -> np.ndarray:
     for t in range(n):
         val = np.full(counts.shape[1:], np.nan, dtype=np.float32)
         undecided = np.ones(counts.shape[1:], dtype=bool)
-        for lag in range(DAYS_SINCE_CAP):  # 0 .. 6
+        for lag in range(DAYS_SINCE_CAP):  # 0 .. 5
             if t - lag < 0 or np.isnan(counts[t - lag]).all():
                 undecided[:] = False  # stays NaN
                 break
@@ -149,10 +152,10 @@ def fire_features(counts: np.ndarray, sensor_ok: np.ndarray) -> dict[str, np.nda
     return {
         "det_cell_1d": c,
         "det_cell_3d": _window_sum(c, 3),
-        "det_cell_7d": _window_sum(c, 7),
+        "det_cell_6d": _window_sum(c, DET_DAYS),
         "det_nbr_1d": nbr,
-        "det_nbr_7d": _window_sum(nbr, 7),
-        "det_wide_7d": _window_sum(wide, 7),
+        "det_nbr_6d": _window_sum(nbr, DET_DAYS),
+        "det_wide_6d": _window_sum(wide, DET_DAYS),
         "days_since_det": _days_since(c),
     }
 

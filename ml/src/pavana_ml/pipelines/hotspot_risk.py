@@ -170,7 +170,19 @@ def baselines(train: pd.DataFrame, test: pd.DataFrame) -> dict[str, np.ndarray]:
     tm = pd.to_datetime(test["issue_day"]).dt.month
     climatology = clim.reindex(pd.MultiIndex.from_arrays([test["cell"], tm])).to_numpy()
     climatology = np.where(np.isnan(climatology), float(train["y"].mean()), climatology)
-    return {"persistence": persistence, "climatology": climatology}
+    # Recent activity: train rate per (cell detections, neighbourhood detections) over the last
+    # DET_DAYS days, binned. A stronger, still model-free reference than one-day persistence: it
+    # ranks cells by how active they and their surroundings have been.
+    def bins(df: pd.DataFrame) -> pd.MultiIndex:
+        cell = np.minimum(df["det_cell_6d"].to_numpy(), 5)
+        nbr = np.digitize(df["det_nbr_6d"].to_numpy(), [1, 3, 6, 11, 21, 41])
+        return pd.MultiIndex.from_arrays([cell, nbr])
+
+    rate = train["y"].groupby(bins(train)).mean()
+    recent = rate.reindex(bins(test)).to_numpy()
+    recent = np.where(np.isnan(recent), float(train["y"].mean()), recent)
+    recent = np.where(test[["det_cell_6d", "det_nbr_6d"]].isna().any(axis=1), np.nan, recent)
+    return {"persistence": persistence, "climatology": climatology, "recentActivity": recent}
 
 
 def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[str, Any]:

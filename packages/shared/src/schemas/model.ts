@@ -32,6 +32,8 @@ export const ModelInfoSchema = z.object({
     model: BinaryMetricsSchema,
     persistence: BinaryMetricsSchema,
     climatology: BinaryMetricsSchema,
+    /** Hotspot only: train rate by recent cell/neighbourhood detections. */
+    recentActivity: BinaryMetricsSchema.optional(),
   }),
 });
 export type ModelInfo = z.infer<typeof ModelInfoSchema>;
@@ -130,6 +132,8 @@ export const ModelEvaluationSchema = z.object({
     model: BinaryMetricsSchema,
     persistence: BinaryMetricsSchema,
     climatology: BinaryMetricsSchema,
+    /** Hotspot only: train rate by recent cell/neighbourhood detections. */
+    recentActivity: BinaryMetricsSchema.optional(),
   }),
   calibration: z.array(CalibrationBinSchema),
   importance: z.array(z.object({ feature: z.string(), meanAbsShap: z.number() })),

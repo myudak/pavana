@@ -6,10 +6,10 @@
 export const HOTSPOT_FEATURES = [
   'det_cell_1d',
   'det_cell_3d',
-  'det_cell_7d',
+  'det_cell_6d',
   'det_nbr_1d',
-  'det_nbr_7d',
-  'det_wide_7d',
+  'det_nbr_6d',
+  'det_wide_6d',
   'days_since_det',
   'precip_1d_mm',
   'precip_7d_mm',
@@ -51,7 +51,9 @@ export interface DailyWeather {
 
 const DRY_DAY_MM = 1;
 const DRY_DAYS_CAP = 60;
-const DAYS_SINCE_CAP = 7;
+/** Detection windows: lags 0..5, all inside the keyless 7×24 h FIRMS file. */
+const DET_DAYS = 6;
+const DAYS_SINCE_CAP = DET_DAYS;
 
 const isNum = (v: number | null | undefined): v is number =>
   typeof v === 'number' && Number.isFinite(v);
@@ -86,8 +88,9 @@ export function cellIndex(grid: HotspotGridMeta, lat: number, lon: number): numb
 }
 
 /**
- * Daily detection counts per cell: `counts[lag][cell]`, lag 0 = issue day … 6.
- * `dayOk[lag]` false = the sensor delivered nothing that day (unknown, not zero).
+ * Daily detection counts per cell: `counts[lag][cell]`, lag 0 = issue day … 5.
+ * `dayOk[lag]` false = the sensor delivered nothing that day, or the day starts before the
+ * file's coverage (`coverageStartMs`) and may be cut — unknown, not zero.
  */
 export interface DetectionWindow {
   counts: Float32Array[];
@@ -99,19 +102,22 @@ export function detectionWindow(
   detections: readonly { lat: number; lon: number; acquiredAt: string }[],
   issueDay: string,
   regionDaysSeen: ReadonlySet<string>,
+  coverageStartMs?: number,
 ): DetectionWindow {
   const n = grid.nCols * grid.nRows;
   const base = Date.parse(`${issueDay}T00:00:00Z`);
-  const counts = Array.from({ length: 7 }, () => new Float32Array(n));
+  const counts = Array.from({ length: DET_DAYS }, () => new Float32Array(n));
   const dayOk: boolean[] = [];
-  for (let lag = 0; lag < 7; lag++) {
-    dayOk.push(regionDaysSeen.has(new Date(base - lag * 86_400_000).toISOString().slice(0, 10)));
+  for (let lag = 0; lag < DET_DAYS; lag++) {
+    const start = base - lag * 86_400_000;
+    const covered = coverageStartMs === undefined || start >= coverageStartMs;
+    dayOk.push(covered && regionDaysSeen.has(new Date(start).toISOString().slice(0, 10)));
   }
   for (const d of detections) {
     const lag = Math.round(
       (base - Date.parse(`${d.acquiredAt.slice(0, 10)}T00:00:00Z`)) / 86_400_000,
     );
-    if (lag < 0 || lag > 6) continue;
+    if (lag < 0 || lag >= DET_DAYS) continue;
     const c = cellIndex(grid, d.lat, d.lon);
     if (c >= 0) counts[lag]![c]! += 1;
   }
@@ -168,10 +174,10 @@ export function hotspotFeatures(
   return [
     w.dayOk[0] ? at(0) : null,
     windowSum(w, 3, at),
-    windowSum(w, 7, at),
+    windowSum(w, DET_DAYS, at),
     w.dayOk[0] ? nbr(0) : null,
-    windowSum(w, 7, nbr),
-    windowSum(w, 7, wide),
+    windowSum(w, DET_DAYS, nbr),
+    windowSum(w, DET_DAYS, wide),
     daysSince,
     num(last(p)),
     tailSum(p, 7),

@@ -1024,6 +1024,7 @@ export const id = {
     model: 'Model LightGBM',
     persistence: 'Persistence',
     climatology: 'Klimatologi',
+    recentActivity: 'Aktivitas deteksi 6 hari',
     brierSkill: 'Skill Brier',
     brierDefinition:
       'PR-AUC dihitung sebagai average precision. Skill Brier memakai prediksi konstan sebesar proporsi kejadian data uji sebagai referensi.',
@@ -1127,10 +1128,10 @@ export const id = {
           station_lon: 'Bujur bandara',
           det_cell_1d: 'Deteksi di sel · 1 hari',
           det_cell_3d: 'Deteksi di sel · 3 hari',
-          det_cell_7d: 'Deteksi di sel · 7 hari',
+          det_cell_6d: 'Deteksi di sel · 6 hari',
           det_nbr_1d: 'Deteksi sekitar sel · 1 hari',
-          det_nbr_7d: 'Deteksi sekitar sel · 7 hari',
-          det_wide_7d: 'Deteksi wilayah luas · 7 hari',
+          det_nbr_6d: 'Deteksi sekitar sel · 6 hari',
+          det_wide_6d: 'Deteksi wilayah luas · 6 hari',
           days_since_det: 'Hari sejak deteksi terakhir',
           precip_1d_mm: 'Hujan · 1 hari',
           precip_7d_mm: 'Hujan · 7 hari',
@@ -1216,13 +1217,13 @@ export const id = {
     factor: {
       det_cell_1d: (v: number) => `${v} deteksi titik panas kemarin di sel ini`,
       det_cell_3d: (v: number) => `${v} deteksi titik panas di sel ini dalam 3 hari`,
-      det_cell_7d: (v: number) => `${v} deteksi titik panas di sel ini dalam 7 hari`,
+      det_cell_6d: (v: number) => `${v} deteksi titik panas di sel ini dalam 6 hari`,
       det_nbr_1d: (v: number) => `${v} deteksi titik panas kemarin di sekitar (±40 km)`,
-      det_nbr_7d: (v: number) => `${v} deteksi titik panas di sekitar dalam 7 hari`,
-      det_wide_7d: (v: number) => `${v} deteksi titik panas di wilayah ±90 km dalam 7 hari`,
+      det_nbr_6d: (v: number) => `${v} deteksi titik panas di sekitar dalam 6 hari`,
+      det_wide_6d: (v: number) => `${v} deteksi titik panas di wilayah ±90 km dalam 6 hari`,
       days_since_det: (v: number) =>
-        v >= 7
-          ? 'Tidak ada deteksi di sel ini 7 hari terakhir'
+        v >= 6
+          ? 'Tidak ada deteksi di sel ini 6 hari terakhir'
           : v === 0
             ? 'Ada deteksi di sel ini kemarin'
             : `Deteksi terakhir di sel ini ${v} hari lalu`,
@@ -1258,7 +1259,7 @@ export const id = {
           ? `Titik panas di arah datangnya angin (skor ${v.toFixed(0)})`
           : 'Tidak ada titik panas di arah datangnya angin',
       station_month_rate: (v: number) =>
-        `Kabut asap biasa tercatat di ${Math.round(v * 100)}% laporan bulan ini (2015–2021)`,
+        `Kabut asap biasa tercatat di ${Math.round(v * 100)}% laporan bulan ini (2015–2020)`,
     } as Record<string, (v: number) => string>,
   },
 

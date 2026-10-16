@@ -13,6 +13,7 @@ function MetricsTable({ m }: { m: ModelEvaluation['test'] }) {
     [t.model, m.model],
     [t.persistence, m.persistence],
     [t.climatology, m.climatology],
+    ...(m.recentActivity ? [[t.recentActivity, m.recentActivity] as [string, BinaryMetrics]] : []),
   ];
   return (
     <div className="overflow-x-auto">

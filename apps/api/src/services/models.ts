@@ -206,7 +206,7 @@ export async function getHotspotRisk(
     ]);
     if (!weather) missing.push('open-meteo');
     if (fires) fetchedAt = fires.fetchedAt;
-    const win = fires ? detectionWindow(GRID, fires.detections, issueDay, fires.daysSeen) : null;
+    const win = fires ? detectionWindow(GRID, fires.detections, issueDay, fires.daysSeen, fires.coverageStartMs) : null;
     rows = GRID.cells.map((c) => {
       const w = weather?.get(pointKey({ lat: c.weatherLat, lon: c.weatherLon })) ?? null;
       const x = win

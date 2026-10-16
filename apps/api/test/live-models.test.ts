@@ -29,6 +29,7 @@ function inputs(overrides: Partial<ModelInputs> = {}): ModelInputs {
     recentDetections: vi.fn(async () => ({
       detections: [],
       daysSeen: new Set<string>(),
+      coverageStartMs: undefined,
       fetchedAt: now.toISOString(),
     })),
     dailyWeather: vi.fn(async () => new Map()),
@@ -143,6 +144,7 @@ describe('experimental live model contracts', () => {
       recentDetections: vi.fn(async () => ({
         detections: [],
         daysSeen: new Set<string>(),
+      coverageStartMs: undefined,
         fetchedAt: new Date(now.getTime() - 2 * 3_600_000).toISOString(),
       })),
     });

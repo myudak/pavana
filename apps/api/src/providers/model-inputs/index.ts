@@ -35,6 +35,8 @@ export interface ModelInputs {
   recentDetections(): Promise<{
     detections: Detection[];
     daysSeen: Set<string>;
+    /** Earliest acquisition in the file: days starting before it may be cut, so are unknown. */
+    coverageStartMs: number | undefined;
     fetchedAt: string;
   }>;
   /** Daily weather (UTC days) for points, oldest first, the last element = `endDay`. */
@@ -194,6 +196,10 @@ export function createModelInputs(
         return {
           detections,
           daysSeen: new Set(detections.map((d) => d.acquiredAt.slice(0, 10))),
+          coverageStartMs: detections.reduce<number | undefined>((m, d) => {
+            const t = Date.parse(d.acquiredAt);
+            return m === undefined || t < m ? t : m;
+          }, undefined),
           fetchedAt: now()
             .toISOString()
             .replace(/\.\d{3}Z$/, 'Z'),

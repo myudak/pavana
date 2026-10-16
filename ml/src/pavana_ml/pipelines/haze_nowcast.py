@@ -1,8 +1,9 @@
 """Model B — "Asap / jarak pandang": P(haze-limited visibility at an airport at t+6 h / t+24 h).
 
 Target kind: **observation** (airport METAR visibility + present weather, IEM archive). One
-LightGBM model per horizon. Temporal split by issue time: train 2015–2021, validation 2022–2023,
-test 2024-01-01 → 2025-12-31 (the last complete year of the keyless FIRMS archive for Sumatra;
+LightGBM model per horizon. Temporal split by issue time: train 2015–2020, validation 2021–2022,
+test 2023-01-01 → 2025-12-31, so the 2023 El Niño haze season is scored (2025 = last complete
+year of the keyless FIRMS archive for Sumatra;
 2026 FIRMS in the snapshot covers Kalimantan only, so 2026 is not scored).
 """
 
@@ -23,8 +24,8 @@ from ..models.export import parity_vectors, to_compact
 from .contract import common_cohort, temporal_parts, windows, write_json
 
 MODEL_ID = "haze"
-TRAIN_END = pd.Timestamp("2021-12-31 23:00", tz="UTC")
-VALID_END = pd.Timestamp("2023-12-31 23:00", tz="UTC")
+TRAIN_END = pd.Timestamp("2020-12-31 23:00", tz="UTC")
+VALID_END = pd.Timestamp("2022-12-31 23:00", tz="UTC")
 TEST_END = pd.Timestamp("2025-12-31 23:00", tz="UTC")
 
 PARAMS: dict[str, Any] = {
@@ -95,7 +96,7 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
     for hz in hs.HORIZONS_H:
         ycol = f"y_{hz}h"
         purged = temporal_parts(
-            table, "issue_at", hz, "2021-12-31 23:00", "2023-12-31 23:00", "2025-12-31 23:00"
+            table, "issue_at", hz, "2020-12-31 23:00", "2022-12-31 23:00", "2025-12-31 23:00"
         )
         sp = {
             k: v.dropna(subset=[ycol, "current_event", "vsby_km", "haze_now", "rh_pct", "tmpc"])
@@ -233,9 +234,9 @@ def run(data_dir: Path, out_dir: Path, code_sha256: str | None = None) -> dict[s
             for r in rate_table.itertuples()
         ],
         "windows": {
-            "train": ["2015-01-01", "2021-12-31"],
-            "validation": ["2022-01-01", "2023-12-31"],
-            "test": ["2024-01-01", "2025-12-31"],
+            "train": ["2015-01-01", "2020-12-31"],
+            "validation": ["2021-01-01", "2022-12-31"],
+            "test": ["2023-01-01", "2025-12-31"],
         },
         "horizons": models,
         "params": PARAMS,

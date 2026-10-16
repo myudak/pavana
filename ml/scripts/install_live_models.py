@@ -60,8 +60,12 @@ def verify_predictions(source: Path) -> None:
             assert (
                 target - pd.to_datetime(df.issue_at, utc=True) == pd.Timedelta(hours=horizon)
             ).all()
-        assert target.max().year <= 2025 and target.min().year >= 2024
-        for method in ("model", "persistence", "climatology"):
+        # Hotspot tests 2024+; haze tests 2023+ so the 2023 El Niño haze season is scored.
+        assert target.max().year <= 2025 and target.min().year >= (2024 if name == "hotspot-risk" else 2023)
+        methods = ("model", "persistence", "climatology")
+        if name == "hotspot-risk":
+            methods += ("recentActivity",)
+        for method in methods:
             assert np.isfinite(df[method]).all()
             compare(classification.binary_metrics(y, df[method]), meta[method])
     for name in ("pm25", "wind"):
