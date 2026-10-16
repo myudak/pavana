@@ -222,7 +222,12 @@ def test_hotspot_pipeline_runs_on_synthetic_snapshot(tmp_path, monkeypatch):
     data = _synthetic_snapshot(tmp_path / "data")
     meta = hotspot_risk.run(data, tmp_path / "out")
     assert meta["targetKind"] == "observation" and meta["evaluated"] is True
-    assert set(meta["metrics"]["test"]) == {"model", "persistence", "climatology"}
+    assert set(meta["metrics"]["test"]) == {
+        "model",
+        "persistence",
+        "climatology",
+        "recentActivity",
+    }
     model = json.loads((tmp_path / "out" / "hotspot-risk.model.json").read_text())
     assert model["featureNames"] == list(g.FEATURES)
     demo = json.loads((tmp_path / "out" / "hotspot-risk.demo.json").read_text())
