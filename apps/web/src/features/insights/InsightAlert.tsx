@@ -89,7 +89,7 @@ export function InsightAlert({
           </p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="hidden shrink-0 items-center gap-2 md:flex">
         <Button asChild variant="outline" className="min-h-11">
           <Link to="/peta">{a.seeMap}</Link>
         </Button>
