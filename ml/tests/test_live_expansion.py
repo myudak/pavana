@@ -21,7 +21,22 @@ def test_python_feature_fixture_regenerates_without_drift():
     root = Path(__file__).resolve().parents[2]
     module = runpy.run_path(str(root / "ml/scripts/build_live_feature_vectors.py"))
     expected = json.loads((root / "fixtures/test-vectors/live-features.json").read_text())
-    assert _jsonable(module["build"]()) == expected
+    def same(actual, recorded):
+        if isinstance(recorded, dict):
+            assert actual.keys() == recorded.keys()
+            for key in recorded:
+                same(actual[key], recorded[key])
+        elif isinstance(recorded, list):
+            assert len(actual) == len(recorded)
+            for a, b in zip(actual, recorded, strict=True):
+                same(a, b)
+        elif isinstance(recorded, float):
+            # libm/NumPy may differ by a last bit between Windows and Linux.
+            assert actual == pytest.approx(recorded, rel=1e-12, abs=1e-12)
+        else:
+            assert actual == recorded
+
+    same(_jsonable(module["build"]()), expected)
 
 
 @pytest.mark.parametrize("horizon", [6, 24])
