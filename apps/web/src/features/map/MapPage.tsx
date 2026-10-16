@@ -420,7 +420,7 @@ export default function MapPage() {
       >
         <div className="pointer-events-auto flex items-center gap-2">
           <div className="glass flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full pl-4 pr-2">
-            <LocationPicker className="min-w-0 flex-1" />
+            <LocationPicker embedded className="min-w-0 flex-1" />
             {isDemo && <DemoPill />}
           </div>
           <DesktopNav className="shrink-0" />

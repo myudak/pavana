@@ -28,11 +28,14 @@ import { useSelectedLocation } from './location-context';
 export function LocationPicker({
   subtitle,
   compact = false,
+  embedded = false,
   variant = 'default',
   className,
 }: {
   subtitle?: string;
   compact?: boolean;
+  /** Use the surrounding surface instead of drawing another pill inside it. */
+  embedded?: boolean;
   /** Hero variant: bare location name as text (no pill), for photo heroes. */
   variant?: 'default' | 'hero';
   className?: string;
@@ -82,7 +85,9 @@ export function LocationPicker({
           className={cn(
             compact
               ? 'flex min-h-[2.5rem] items-center gap-1 text-sm font-medium text-ink'
-              : 'pill-glass group flex h-11 min-w-0 items-center gap-1.5 rounded-full px-4 py-1 text-left text-sm font-medium',
+              : embedded
+                ? 'group flex h-11 min-w-0 items-center gap-1.5 rounded-full py-1 text-left text-sm font-medium'
+                : 'pill-glass group flex h-11 min-w-0 items-center gap-1.5 rounded-full px-4 py-1 text-left text-sm font-medium',
             className,
           )}
         >
