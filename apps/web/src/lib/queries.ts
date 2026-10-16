@@ -51,6 +51,8 @@ export function useHotspotRisk(enabled = true) {
     queryKey: ['model', 'hotspot-risk', location.lat, location.lon],
     queryFn: ({ signal }) => api.hotspotRisk(location, signal),
     staleTime: 15 * 60_000,
+    refetchInterval: 15 * 60_000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -60,6 +62,8 @@ export function useHaze() {
     queryKey: ['model', 'haze', location.lat, location.lon],
     queryFn: ({ signal }) => api.haze(location, signal),
     staleTime: 10 * 60_000,
+    refetchInterval: 10 * 60_000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -68,5 +72,27 @@ export function useModelEvaluation() {
     queryKey: ['model', 'evaluation'],
     queryFn: ({ signal }) => api.modelEvaluation(signal),
     staleTime: Infinity,
+    refetchOnMount: 'always',
+  });
+}
+
+export function usePm25Model() {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['model', 'pm25', location.lat, location.lon],
+    queryFn: ({ signal }) => api.pm25Model(location, signal),
+    staleTime: 15 * 60_000,
+    refetchInterval: 15 * 60_000,
+    refetchOnWindowFocus: true,
+  });
+}
+export function useWindModel() {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['model', 'wind', location.lat, location.lon],
+    queryFn: ({ signal }) => api.windModel(location, signal),
+    staleTime: 10 * 60_000,
+    refetchInterval: 10 * 60_000,
+    refetchOnWindowFocus: true,
   });
 }

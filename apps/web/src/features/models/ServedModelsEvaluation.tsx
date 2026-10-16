@@ -1,7 +1,8 @@
-import type { BinaryMetrics, ModelEvaluation } from '@pavana/shared';
+import type { BinaryMetrics, ModelEvaluation, RegressionEvaluation } from '@pavana/shared';
 import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
 import { useCopy } from '@/lib/i18n';
+import { ApiRequestError } from '@/lib/api';
 import { useModelEvaluation } from '@/lib/queries';
 
 const f = (v: number | null, d = 3) => (v === null || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -68,19 +69,98 @@ function Calibration({ bins }: { bins: ModelEvaluation['calibration'] }) {
   );
 }
 
+function RegressionPanel({ m }: { m: RegressionEvaluation }) {
+  const copy = useCopy();
+  const t = copy.modelLab;
+  const rows = [
+    [t.model, m.test.model],
+    [t.persistence, m.test.persistence],
+    [t.climatology, m.test.climatology],
+  ] as const;
+  return (
+    <Panel title={`${m.title} · ${t.badge}`}>
+      <p className="text-sm font-medium text-primary-strong">
+        {m.targetKind === 'model' ? t.camsTarget : t.stationTarget}
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {t.windows(m.windows['train'], m.windows['validation'], m.windows['test'])} · {m.version}
+      </p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full text-left text-sm tabular-nums">
+          <thead className="text-xs text-muted-foreground">
+            <tr>
+              <th className="py-2 pr-3 font-medium">{t.method}</th>
+              <th className="py-2 pr-3 font-medium">
+                {m.id === 'wind' ? t.vectorRmse : t.mae} ({m.unit})
+              </th>
+              <th className="py-2 pr-3 font-medium">
+                {m.id === 'wind' ? t.speedMae : t.rmse} ({m.unit})
+              </th>
+              {m.id === 'wind' && <th className="py-2 font-medium">{t.directionMae}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([name, v]) => (
+              <tr key={name} className="border-t border-foreground/10">
+                <td className="py-2 pr-3">{name}</td>
+                <td className="py-2 pr-3">{f('vectorRmse' in v ? v.vectorRmse : v.mae)}</td>
+                <td className="py-2 pr-3">{f('speedMae' in v ? v.speedMae : v.rmse)}</td>
+                {'directionMaeDeg' in v && <td className="py-2">{f(v.directionMaeDeg, 1)}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">{t.regressionRows(m.test.model.n)}</p>
+      {m.id === 'wind' && <p className="mt-2 text-xs text-muted-foreground">{t.windShap}</p>}
+      {'directionN' in m.test.model && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t.directionRows(m.test.model.directionN)}
+        </p>
+      )}
+      <p className="mt-3 text-xs font-medium text-muted-foreground">
+        {t.scalarImportance} · {m.shapUnit}
+      </p>
+      <ol className="mt-1 space-y-1 text-xs">
+        {m.importance.slice(0, 8).map((r) => (
+          <li key={r.feature} className="flex justify-between gap-2 tabular-nums">
+            <span>
+              {r.feature.includes(':')
+                ? `${r.feature.split(':')[0]} · ${copy.model.factorLabel(r.feature.split(':')[1]!)}`
+                : copy.model.factorLabel(r.feature)}
+            </span>
+            <span>{f(r.meanAbsShap)}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {m.id === 'pm25' ? copy.model.pm25Note : copy.model.windNote}
+      </p>
+    </Panel>
+  );
+}
+
 /** Evaluation of the models the app serves (observed targets), beside the CAMS research. */
 export function ServedModelsEvaluation() {
   const t = useCopy().modelLab;
   const query = useModelEvaluation();
+  if (query.error instanceof ApiRequestError && query.error.status === 404) {
+    return (
+      <Panel title={t.notAvailableTitle}>
+        <p className="text-sm text-muted-foreground">{t.notAvailableBody}</p>
+      </Panel>
+    );
+  }
   return (
     <QueryState query={query}>
       {(d) => (
         <div className="space-y-4">
           {d.models.map((m) => (
             <Panel key={m.id} title={`${m.title} · ${t.badge}`}>
-              <p className="text-sm text-muted-foreground">{m.target}</p>
+              <p className="text-sm text-muted-foreground">{t.targetText(m.id)}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                {t.windows(m.windows['train'], m.windows['validation'], m.windows['test'])} · {m.version}
+                {t.windows(m.windows['train'], m.windows['validation'], m.windows['test'])} ·{' '}
+                {m.version}
               </p>
               <div className="mt-3">
                 <MetricsTable m={m.test} />
@@ -101,6 +181,9 @@ export function ServedModelsEvaluation() {
                 </ol>
               </div>
             </Panel>
+          ))}
+          {d.regressionModels.map((m) => (
+            <RegressionPanel key={m.id} m={m} />
           ))}
           <p className="px-1 text-xs text-muted-foreground">{t.note}</p>
         </div>

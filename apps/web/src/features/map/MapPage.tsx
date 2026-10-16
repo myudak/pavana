@@ -123,22 +123,24 @@ export default function MapPage() {
         opacity: 0.6,
         data: {
           type: 'FeatureCollection',
-          features: d.cells.map((c) => ({
-            type: 'Feature',
-            properties: { p: c.probability },
-            geometry: {
-              type: 'Polygon',
-              coordinates: [
-                [
-                  [c.lon - h, c.lat - h],
-                  [c.lon + h, c.lat - h],
-                  [c.lon + h, c.lat + h],
-                  [c.lon - h, c.lat + h],
-                  [c.lon - h, c.lat - h],
+          features: d.cells
+            .filter((c) => c.probability !== null)
+            .map((c) => ({
+              type: 'Feature',
+              properties: { p: c.probability },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [
+                  [
+                    [c.lon - h, c.lat - h],
+                    [c.lon + h, c.lat - h],
+                    [c.lon + h, c.lat + h],
+                    [c.lon - h, c.lat + h],
+                    [c.lon - h, c.lat - h],
+                  ],
                 ],
-              ],
-            },
-          })),
+              },
+            })),
         },
       },
     ];
@@ -358,7 +360,9 @@ export default function MapPage() {
         {on('risk') && (
           <p className="glass pointer-events-auto max-w-md rounded-2xl px-3 py-2 text-xs text-muted-foreground">
             {risk.data
-              ? t.map.riskLegend(risk.data.targetDay, risk.data.state === 'demo')
+              ? risk.data.state === 'unavailable'
+                ? t.model.unknownWhy
+                : t.map.riskLegend(risk.data.targetDay, risk.data.provenance.isDemo)
               : risk.isError
                 ? t.model.unknownWhy
                 : t.common.loading}

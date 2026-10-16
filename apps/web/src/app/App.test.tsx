@@ -105,12 +105,20 @@ describe('Forecast page', () => {
     await import('@/features/forecast/ForecastPage');
   }, 60_000);
 
-  it('marks the AI model as unfinished', async () => {
+  it('separates experimental model outputs from the historical CAMS research', async () => {
     renderAt('/prakiraan');
     expect(
       await screen.findByRole('heading', { name: 'Prakiraan', level: 1 }, { timeout: 10_000 }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Dalam pengembangan')).toBeInTheDocument();
+    expect(screen.getByText('Riset historis')).toBeInTheDocument();
+    for (const name of [
+      'Estimasi PM2.5 · CAMS t+6 jam',
+      'Angin bandara · t+6 jam',
+      'Peluang jarak pandang < 3 km karena kabut asap',
+      'Peluang titik panas terdeteksi',
+    ]) {
+      expect(screen.getByRole('heading', { name, level: 3 })).toBeInTheDocument();
+    }
   }, 20_000);
 });
 

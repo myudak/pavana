@@ -48,7 +48,11 @@ describe('historical research boundary', () => {
     expect(
       await screen.findByRole('heading', { name: id.lab.title, level: 1 }),
     ).toBeInTheDocument();
-    const select = screen.getByLabelText(id.lab.chooseHour) as HTMLSelectElement;
+    fireEvent.mouseDown(screen.getByRole('tab', { name: id.modelLab.historyTab }), {
+      button: 0,
+      ctrlKey: false,
+    });
+    const select = (await screen.findByLabelText(id.lab.chooseHour)) as HTMLSelectElement;
     expect(select.options).toHaveLength(168);
     fireEvent.change(select, { target: { value: '24' } });
     expect(select.value).toBe('24');

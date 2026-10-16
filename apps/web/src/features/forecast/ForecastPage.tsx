@@ -143,9 +143,9 @@ export default function ForecastPage() {
             </span>
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-medium">{t.forecast.modelTitle}</h2>
+                <h2 className="font-medium">{t.lab.historyTitle}</h2>
                 <span className="rounded-full bg-state-stale/15 px-2 py-0.5 text-[11px] font-semibold text-state-stale ring-1 ring-state-stale/30">
-                  {t.forecast.modelStatus}
+                  {t.lab.historyBadge}
                 </span>
               </div>
               {/* Historical explanations have their own research route; live serving stays gated. */}

@@ -1,5 +1,9 @@
 # ML research and daily forecasts — implementation handoff
 
+The newer, separately versioned live experimental models are documented in
+[ML live handoff](ML_LIVE_HANDOFF.md). The original H-1 ablation and its results below remain
+unchanged; its selected model is not the new CAMS-only proxy.
+
 Updated: 16 October 2026. This is the implementation context for Claude Code, Codex,
 and reviewers. Read `AGENTS.md` and `CONTRIBUTING.md` first. The older
 `PAVANA_HANDOFF.md` remains the product brief; its original scaffold status is historical.

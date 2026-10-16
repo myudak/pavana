@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { localContributions } from './research-derive';
@@ -46,19 +47,13 @@ function ResearchContent({ bundle }: { bundle: ResearchBundle }) {
   return (
     <div className="space-y-5">
       <header className="space-y-3 pt-6">
-        <Link
-          to="/prakiraan"
-          className="text-xs text-muted-foreground underline underline-offset-4"
-        >
-          {t.lab.back}
-        </Link>
         <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em]">
           <span>{t.lab.eyebrow}</span>
           <span className="rounded-full bg-state-demo/15 px-3 py-1 text-state-demo">
             {t.lab.status}
           </span>
         </div>
-        <h1 className="font-heading text-5xl font-semibold tracking-tight">{t.lab.title}</h1>
+        <h2 className="font-heading text-3xl font-semibold tracking-tight">{t.lab.historyTitle}</h2>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           {t.lab.introduction}
         </p>
@@ -307,10 +302,12 @@ function ResearchContent({ bundle }: { bundle: ResearchBundle }) {
 
 export default function LabPage() {
   const t = useCopy();
+  const [view, setView] = useState('models');
   const query = useQuery({
     queryKey: ['ml-research'],
     staleTime: Infinity,
     retry: false,
+    enabled: view === 'history',
     queryFn: async ({ signal }) => {
       const response = await fetch(`${import.meta.env.BASE_URL}ml/research.json`, { signal });
       if (!response.ok) throw new Error(t.lab.loadError);
@@ -320,14 +317,33 @@ export default function LabPage() {
     },
   });
   return (
-    <div className="space-y-6">
-      <section className="space-y-3">
-        <h2 className="px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {t.modelLab.title}
-        </h2>
-        <ServedModelsEvaluation />
-      </section>
-      <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>
+    <div className="space-y-6 pt-6">
+      <header className="space-y-3">
+        <Link
+          to="/prakiraan"
+          className="text-xs text-muted-foreground underline underline-offset-4"
+        >
+          {t.lab.back}
+        </Link>
+        <h1 className="font-heading text-5xl font-semibold tracking-tight">{t.lab.title}</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">{t.modelLab.introduction}</p>
+      </header>
+      <Tabs value={view} onValueChange={setView}>
+        <TabsList className="mb-4 w-full">
+          <TabsTrigger value="models" className="flex-1">
+            {t.modelLab.servedTab}
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex-1">
+            {t.modelLab.historyTab}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="models">
+          <ServedModelsEvaluation />
+        </TabsContent>
+        <TabsContent value="history">
+          <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

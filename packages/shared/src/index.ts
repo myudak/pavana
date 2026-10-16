@@ -27,5 +27,6 @@ export * from './aq/ispu';
 export * from './status/data-state';
 export * from './schemas/model';
 export * from './model/gbdt';
+export * from './model/regression-features';
 export * from './model/hotspot-features';
 export * from './model/haze-features';

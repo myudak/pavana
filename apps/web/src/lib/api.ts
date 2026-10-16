@@ -7,6 +7,8 @@ import {
   HazeResponseSchema,
   HotspotRiskResponseSchema,
   ModelEvaluationsResponseSchema,
+  Pm25ModelResponseSchema,
+  WindModelResponseSchema,
   ApiErrorSchema,
   ConditionsResponseSchema,
   ExposureResponseSchema,
@@ -64,8 +66,17 @@ async function getJson<S extends z.ZodType>(
 }
 
 export const api = {
+  pm25Model: (p: LatLon, signal?: AbortSignal) =>
+    getJson('/api/model/pm25', { lat: p.lat, lon: p.lon }, Pm25ModelResponseSchema, signal),
+  windModel: (p: LatLon, signal?: AbortSignal) =>
+    getJson('/api/model/wind', { lat: p.lat, lon: p.lon }, WindModelResponseSchema, signal),
   hotspotRisk: (p: LatLon, signal?: AbortSignal) =>
-    getJson('/api/model/hotspot-risk', { lat: p.lat, lon: p.lon }, HotspotRiskResponseSchema, signal),
+    getJson(
+      '/api/model/hotspot-risk',
+      { lat: p.lat, lon: p.lon },
+      HotspotRiskResponseSchema,
+      signal,
+    ),
   haze: (p: LatLon, signal?: AbortSignal) =>
     getJson('/api/model/haze', { lat: p.lat, lon: p.lon }, HazeResponseSchema, signal),
   modelEvaluation: (signal?: AbortSignal) =>

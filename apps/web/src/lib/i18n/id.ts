@@ -89,6 +89,8 @@ export const id = {
     datasetLink: 'Dataset dan provenance sumber',
     eyebrow: 'PAVANA / RISET',
     status: 'Eksperimen historis',
+    historyTitle: 'Riset PM2.5 historis · CAMS',
+    historyBadge: 'Riset historis',
     introduction:
       'Menelusuri prediksi PM2.5 CAMS dan perhitungan di baliknya, pada satu sel grid sekitar Kubu Raya.',
     open: 'Buka Lab ML',
@@ -926,7 +928,7 @@ export const id = {
     modelTitle: 'Model AI prakiraan PM2.5',
     modelStatus: 'Dalam pengembangan',
     modelBody:
-      'Model LightGBM dengan fitur titik panas berbasis arah angin sedang dikembangkan dan belum dievaluasi. Angka di sini berasal dari prakiraan PM2.5 dan indikator deterministik, bukan dari model tersebut.',
+      'Model Pavana eksperimental tersedia di web. Integrasi model di aplikasi mobile belum tersedia; angka di sini berasal dari prakiraan provider dan indikator deterministik.',
     windSpeed: 'Kecepatan',
     windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
     temperature: 'Suhu',
@@ -948,7 +950,8 @@ export const id = {
     demo: 'Demo',
     liveBody:
       'Prakiraan dan pengamatan terbaru dari Open-Meteo (CAMS), NASA FIRMS, OpenAQ, dan BMKG.',
-    demoBody: 'Skenario sintetis Kubu Raya (September) untuk demonstrasi. Semua angka ilustratif.',
+    demoBody:
+      'Kondisi dan prakiraan provider memakai skenario ilustratif Kubu Raya (September). Kartu Model Pavana memutar ulang input arsip nyata dan menampilkan waktu targetnya.',
     exitDemo: 'Lihat data langsung',
   },
 
@@ -1008,7 +1011,14 @@ export const id = {
   },
 
   modelLab: {
+    notAvailableTitle: 'Evaluasi model aplikasi belum tersedia',
+    notAvailableBody:
+      'Server ini belum menyediakan hasil model aplikasi. Hasil eksperimen sebelumnya tetap dapat dibuka pada tab Riset CAMS historis.',
     title: 'Model yang disajikan (eksperimental)',
+    introduction:
+      'Evaluasi pada data historis yang dipisahkan dari pelatihan, beserta pembanding dan penjelasan model. Hasil eksperimen belum siap dipakai sebagai prakiraan operasional.',
+    servedTab: 'Model aplikasi',
+    historyTab: 'Riset CAMS historis',
     badge: 'eksperimental',
     method: 'Metode',
     model: 'Model LightGBM',
@@ -1016,20 +1026,127 @@ export const id = {
     climatology: 'Klimatologi',
     brierSkill: 'Skill Brier',
     calibration: 'Kalibrasi (test): proporsi kejadian nyata per rentang peluang',
-    observed: (rate: number, n: number) => `${(rate * 100).toFixed(1)}% · n=${n.toLocaleString('id-ID')}`,
+    observed: (rate: number, n: number) =>
+      `${(rate * 100).toFixed(1)}% · n=${n.toLocaleString('id-ID')}`,
     importance: 'Fitur paling berpengaruh (rerata |SHAP|, log-odds)',
     windows: (tr?: [string, string], va?: [string, string], te?: [string, string]) =>
       `Latih ${tr?.join('–') ?? '—'} · validasi ${va?.join('–') ?? '—'} · uji ${te?.join('–') ?? '—'}`,
     counts: (n: number, pos: number) =>
       `${n.toLocaleString('id-ID')} baris uji, ${pos.toLocaleString('id-ID')} kejadian teramati.`,
-    note: 'Target berupa pengamatan (deteksi satelit, laporan METAR bandara). Persistence dan klimatologi dihitung dari data latih saja. Angka ini hasil uji historis, bukan jaminan kinerja saat ini.',
+    note: 'Hotspot, haze, dan angin memakai target pengamatan. PM2.5 menaksir keluaran model CAMS, bukan pengukuran stasiun. Semua pembanding memakai baris uji yang sama; klimatologi hanya dari data latih. Angka ini hasil uji historis, bukan jaminan kinerja saat ini.',
+    scalarImportance: 'Fitur paling berpengaruh (rerata |SHAP|)',
+    mae: 'MAE',
+    rmse: 'RMSE',
+    vectorRmse: 'RMSE vektor',
+    speedMae: 'MAE kecepatan',
+    directionMae: 'MAE arah (°)',
+    directionRows: (n: number) =>
+      `Evaluasi arah: ${n.toLocaleString('id-ID')} jam yang tidak tenang pada target dan semua metode.`,
+    targetText: (id: string) =>
+      (
+        ({
+          'hotspot-risk':
+            'Peluang ≥1 deteksi Suomi NPP VIIRS di sel pada hari UTC d+1. Deteksi bukan kebakaran terkonfirmasi.',
+          'haze-6h':
+            'Peluang laporan METAR bandara dengan jarak pandang <3 km dan HZ/FU tanpa hujan atau kabut, t+6 jam.',
+          'haze-24h':
+            'Peluang laporan METAR bandara dengan jarak pandang <3 km dan HZ/FU tanpa hujan atau kabut, t+24 jam.',
+        }) as Record<string, string>
+      )[id] ?? '',
+    regressionRows: (n: number) =>
+      `${n.toLocaleString('id-ID')} baris uji yang sama untuk semua metode.`,
+    camsTarget: 'Target: keluaran CAMS (model)',
+    stationTarget: 'Target: pengamatan METAR bandara',
+    windShap:
+      'SHAP angin menjelaskan komponen u/v (m/s), bukan sudut arah. Arah tidak dinilai saat angin tenang.',
   },
 
   model: {
     title: 'Model Pavana',
     badge: 'Eksperimental',
     intro:
-      'Model belajar dari data pengamatan nyata (deteksi satelit dan laporan cuaca bandara), diuji pada periode yang tidak dipakai saat melatih. Bukan peringatan resmi.',
+      'Empat keluaran LightGBM dari riwayat deteksi satelit, METAR bandara, dan model CAMS. Diuji pada periode terpisah. Bukan peringatan resmi.',
+    pm25Title: 'Estimasi PM2.5 · CAMS t+6 jam',
+    pm25Note: 'Estimasi terhadap keluaran CAMS, bukan pengukuran stasiun atau PM2.5 di rumahmu.',
+    windTitle: 'Angin bandara · t+6 jam',
+    windNote:
+      'Prediksi di bandara referensi, bukan angin di rumahmu. Arah menunjukkan asal angin (FROM).',
+    calmDirection: 'Arah tidak ditampilkan saat < 0,5 m/s',
+    windValue: (speed: number, from: number | null) =>
+      `${speed.toFixed(1)} m/s${from === null ? '' : ` · dari ${Math.round(from)}°`}`,
+    referenceAt: (name: string, km: number | null) =>
+      `${name}${km === null ? '' : ` · ${Math.round(km)} km dari lokasi`}`,
+    inputTime: 'Input hingga',
+    targetTime: 'Waktu target',
+    reportTime: 'Laporan METAR',
+    metarSource: (source: 'iem' | 'noaa-awc') =>
+      source === 'iem' ? 'Sumber METAR: IEM' : 'Sumber METAR: NOAA AWC',
+    live: 'Input langsung',
+    replay: 'Replay arsip',
+    unavailable: 'Input belum lengkap',
+    details: 'Detail model & SHAP',
+    logOdds: 'SHAP log-odds',
+    pm25Shap: 'SHAP µg/m³',
+    windShapU: 'SHAP komponen u · m/s',
+    windShapV: 'SHAP komponen v · m/s',
+    componentU: 'Komponen u',
+    componentV: 'Komponen v',
+    factorLabel: (name: string) =>
+      (
+        ({
+          pm25_now: 'CAMS saat ini',
+          pm25_lag_1h: 'CAMS 1 jam lalu',
+          pm25_lag_3h: 'CAMS 3 jam lalu',
+          pm25_lag_6h: 'CAMS 6 jam lalu',
+          pm25_lag_12h: 'CAMS 12 jam lalu',
+          pm25_lag_24h: 'CAMS 24 jam lalu',
+          pm25_lag_48h: 'CAMS 48 jam lalu',
+          pm25_mean_6h: 'Rerata CAMS 6 jam',
+          pm25_mean_24h: 'Rerata CAMS 24 jam',
+          pm25_change_3h: 'Perubahan CAMS 3 jam',
+          u_now: 'Angin u saat ini',
+          v_now: 'Angin v saat ini',
+          u_lag_1h: 'Angin u 1 jam lalu',
+          v_lag_1h: 'Angin v 1 jam lalu',
+          u_lag_3h: 'Angin u 3 jam lalu',
+          v_lag_3h: 'Angin v 3 jam lalu',
+          u_lag_6h: 'Angin u 6 jam lalu',
+          v_lag_6h: 'Angin v 6 jam lalu',
+          u_mean_6h: 'Rerata u 6 jam',
+          v_mean_6h: 'Rerata v 6 jam',
+          u_mean_24h: 'Rerata u 24 jam',
+          v_mean_24h: 'Rerata v 24 jam',
+          hour_sin: 'Siklus jam (sin)',
+          hour_cos: 'Siklus jam (cos)',
+          doy_sin: 'Siklus musim (sin)',
+          doy_cos: 'Siklus musim (cos)',
+          station_lat: 'Lintang bandara',
+          station_lon: 'Bujur bandara',
+        }) as Record<string, string>
+      )[name] ?? name,
+    reason: (code: string) =>
+      (
+        ({
+          'outside-reference-coverage':
+            'Lokasi di luar cakupan awal titik referensi Sungai Raya (25 km).',
+          'outside-station-coverage': 'Tidak ada bandara acuan dalam 300 km.',
+          'cams-source-unavailable': 'Sumber CAMS tidak dapat diambil.',
+          'cams-input-stale': 'Input CAMS lebih dari 2 jam atau belum tersedia.',
+          'cams-history-incomplete': 'Riwayat CAMS yang dibutuhkan belum lengkap.',
+          'cams-grid-mismatch': 'Sel grid CAMS berbeda dari sel yang dipakai saat melatih model.',
+          'iem-metar-unavailable': 'Sumber METAR tidak dapat diambil.',
+          'iem-metar': 'Sumber METAR tidak dapat diambil.',
+          'no-station-report': 'Belum ada laporan METAR untuk bandara ini.',
+          'station-report-stale': 'Laporan METAR lebih dari 3 jam.',
+          'station-input-incomplete': 'Kolom penting pada laporan METAR belum lengkap.',
+          'nasa-firms-7d': 'Sumber deteksi satelit tidak dapat diambil.',
+          'firms-input-stale':
+            'Cache deteksi satelit lebih dari 90 menit atau waktunya tidak valid.',
+          'open-meteo': 'Riwayat cuaca belum tersedia.',
+          'risk-inputs-incomplete': 'Riwayat deteksi atau cuaca untuk sel ini belum lengkap.',
+          'invalid-model-output': 'Keluaran model tidak valid dan tidak ditampilkan.',
+        }) as Record<string, string>
+      )[code] ?? 'Data masukan belum tersedia.',
     riskTitle: 'Peluang titik panas terdeteksi',
     riskWhen: (day: string) => `di kotak grid ~28 km yang memuat lokasi, ${day} (UTC)`,
     riskNote:
@@ -1037,13 +1154,16 @@ export const id = {
     hazeTitle: 'Peluang jarak pandang < 3 km karena kabut asap',
     hazeAt: (name: string, km: number | null) =>
       km === null ? `Bandara ${name}` : `Bandara ${name} · ${Math.round(km)} km`,
-    in6h: '6 jam lagi',
-    in24h: '24 jam lagi',
+    in6h: 't+6 jam',
+    in24h: 't+24 jam',
     visibilityNow: (km: number | null) =>
-      km === null ? 'Jarak pandang terkini: tidak tersedia' : `Jarak pandang terkini: ${km.toFixed(1)} km`,
+      km === null
+        ? 'Jarak pandang terkini: tidak tersedia'
+        : `Jarak pandang terkini: ${km.toFixed(1)} km`,
     unknown: 'Tidak tersedia',
-    unknownWhy: 'Sebagian data masukan belum tersedia, jadi peluang tidak dihitung (bukan berarti rendah).',
-    outsideGrid: 'Lokasi di luar wilayah model (Kalimantan).',
+    unknownWhy:
+      'Data masukan belum lengkap atau kedaluwarsa, jadi hasil model belum dihitung. Nilai kosong bukan berarti rendah.',
+    outsideGrid: 'Lokasi tidak tercakup sel daratan model ini.',
     why: 'Faktor terbesar menurut model',
     raises: 'menaikkan',
     lowers: 'menurunkan',
@@ -1062,7 +1182,11 @@ export const id = {
       det_nbr_7d: (v: number) => `${v} deteksi titik panas di sekitar dalam 7 hari`,
       det_wide_7d: (v: number) => `${v} deteksi titik panas di wilayah ±90 km dalam 7 hari`,
       days_since_det: (v: number) =>
-        v >= 7 ? 'Tidak ada deteksi di sel ini 7 hari terakhir' : v === 0 ? 'Ada deteksi di sel ini kemarin' : `Deteksi terakhir di sel ini ${v} hari lalu`,
+        v >= 7
+          ? 'Tidak ada deteksi di sel ini 7 hari terakhir'
+          : v === 0
+            ? 'Ada deteksi di sel ini kemarin'
+            : `Deteksi terakhir di sel ini ${v} hari lalu`,
       precip_1d_mm: (v: number) => `Hujan kemarin ${v.toFixed(1)} mm`,
       precip_7d_mm: (v: number) => `Hujan 7 hari terakhir ${Math.round(v)} mm`,
       precip_30d_mm: (v: number) => `Hujan 30 hari terakhir ${Math.round(v)} mm`,
@@ -1074,11 +1198,13 @@ export const id = {
       vpd_max_kpa: (v: number) => `Udara kering kemarin (VPD ${v.toFixed(1)} kPa)`,
       vpd_7d_mean_kpa: (v: number) => `Udara kering seminggu (VPD rata-rata ${v.toFixed(1)} kPa)`,
       doy: () => 'Waktu dalam tahun (musim)',
-      cell_hist_rate: (v: number) => `Sel ini punya deteksi pada ${(v * 100).toFixed(1)}% hari di 2015–2021`,
+      cell_hist_rate: (v: number) =>
+        `Sel ini punya deteksi pada ${(v * 100).toFixed(1)}% hari di 2015–2021`,
       vsby_km: (v: number) => `Jarak pandang terkini ${v.toFixed(1)} km`,
       vsby_min_6h_km: (v: number) => `Jarak pandang terendah 6 jam terakhir ${v.toFixed(1)} km`,
       vsby_min_24h_km: (v: number) => `Jarak pandang terendah 24 jam terakhir ${v.toFixed(1)} km`,
-      haze_now: (v: number) => (v ? 'Laporan terkini mencatat kabut asap (HZ/FU)' : 'Laporan terkini tanpa kabut asap'),
+      haze_now: (v: number) =>
+        v ? 'Laporan terkini mencatat kabut asap (HZ/FU)' : 'Laporan terkini tanpa kabut asap',
       haze_frac_24h: (v: number) => `Kabut asap di ${Math.round(v * 100)}% laporan 24 jam terakhir`,
       haze_frac_72h: (v: number) => `Kabut asap di ${Math.round(v * 100)}% laporan 3 hari terakhir`,
       precip_frac_24h: (v: number) => `Hujan di ${Math.round(v * 100)}% laporan 24 jam terakhir`,
@@ -1088,8 +1214,12 @@ export const id = {
       hour_local: (v: number) => `Jam ${String(v).padStart(2, '0')}.00 waktu setempat`,
       det_100km_24h: (v: number) => `${v} deteksi titik panas dalam 100 km (24 jam)`,
       det_300km_72h: (v: number) => `${v} deteksi titik panas dalam 300 km (3 hari)`,
-      upwind_72h: (v: number) => (v > 0 ? `Titik panas di arah datangnya angin (skor ${v.toFixed(0)})` : 'Tidak ada titik panas di arah datangnya angin'),
-      station_month_rate: (v: number) => `Kabut asap biasa tercatat di ${Math.round(v * 100)}% laporan bulan ini (2015–2021)`,
+      upwind_72h: (v: number) =>
+        v > 0
+          ? `Titik panas di arah datangnya angin (skor ${v.toFixed(0)})`
+          : 'Tidak ada titik panas di arah datangnya angin',
+      station_month_rate: (v: number) =>
+        `Kabut asap biasa tercatat di ${Math.round(v * 100)}% laporan bulan ini (2015–2021)`,
     } as Record<string, (v: number) => string>,
   },
 

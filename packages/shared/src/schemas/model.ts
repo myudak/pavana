@@ -88,6 +88,11 @@ export const HazeStationSchema = z.object({
   lon: z.number(),
   distanceKm: z.number().nullable(),
   issueAt: IsoDateTime.nullable(),
+  reportAt: IsoDateTime.nullable(),
+  inputProvider: z.enum(['iem', 'noaa-awc']).nullable().default(null),
+  target6hAt: IsoDateTime.nullable(),
+  target24hAt: IsoDateTime.nullable(),
+  missing: z.array(z.string()),
   visibilityKm: z.number().nullable(),
   p6h: z.number().min(0).max(1).nullable(),
   p24h: z.number().min(0).max(1).nullable(),
@@ -133,5 +138,102 @@ export type ModelEvaluation = z.infer<typeof ModelEvaluationSchema>;
 
 export const ModelEvaluationsResponseSchema = z.object({
   models: z.array(ModelEvaluationSchema),
+  regressionModels: z.array(z.lazy(() => RegressionEvaluationSchema)).default([]),
 });
 export type ModelEvaluationsResponse = z.infer<typeof ModelEvaluationsResponseSchema>;
+
+export const ScalarMetricsSchema = z.object({
+  n: z.number().int().nonnegative(),
+  mae: z.number().nonnegative().nullable(),
+  rmse: z.number().nonnegative().nullable(),
+});
+export const WindMetricsSchema = z.object({
+  n: z.number().int().nonnegative(),
+  vectorRmse: z.number().nonnegative().nullable(),
+  vectorMae: z.number().nonnegative().nullable(),
+  speedMae: z.number().nonnegative().nullable(),
+  speedRmse: z.number().nonnegative().nullable(),
+  directionMaeDeg: z.number().min(0).max(180).nullable(),
+  directionN: z.number().int().nonnegative(),
+});
+export const RegressionEvaluationSchema = z.object({
+  id: z.enum(['pm25', 'wind']),
+  version: z.string(),
+  title: z.string(),
+  target: z.string(),
+  targetKind: z.enum(['model', 'observation']),
+  windows: z.record(z.string(), z.tuple([z.string(), z.string()])),
+  unit: z.enum(['µg/m³', 'm/s']),
+  shapUnit: z.enum(['µg/m³', 'u/v m/s']),
+  test: z.object({
+    model: z.union([ScalarMetricsSchema, WindMetricsSchema]),
+    persistence: z.union([ScalarMetricsSchema, WindMetricsSchema]),
+    climatology: z.union([ScalarMetricsSchema, WindMetricsSchema]),
+  }),
+  importance: z.array(z.object({ feature: z.string(), meanAbsShap: z.number() })),
+  limitations: z.array(z.string()),
+});
+export type RegressionEvaluation = z.infer<typeof RegressionEvaluationSchema>;
+
+const ReferenceSchema = z.object({
+  name: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  distanceKm: z.number().nullable(),
+  gridLat: z.number().optional(),
+  gridLon: z.number().optional(),
+});
+const RegressionInfoSchema = z.object({
+  id: z.enum(['pm25', 'wind']),
+  version: z.string(),
+  experimental: z.literal(true),
+  evaluated: z.literal(true),
+  operationalReady: z.literal(false),
+  target: z.string(),
+});
+export const Pm25ModelResponseSchema = z.object({
+  state: ModelStateSchema,
+  model: RegressionInfoSchema.extend({
+    id: z.literal('pm25'),
+    targetKind: z.literal('model'),
+    servingPolicy: z.literal('experimental-cams-proxy'),
+  }),
+  reference: ReferenceSchema,
+  inputAt: IsoDateTime.nullable(),
+  targetAt: IsoDateTime.nullable(),
+  pm25UgM3: z.number().nonnegative().nullable(),
+  currentCamsUgM3: z.number().nonnegative().nullable(),
+  factors: z.array(ModelFactorSchema),
+  shapUnit: z.literal('µg/m³'),
+  replayTargetUgM3: z.number().nullable(),
+  missing: z.array(z.string()),
+  provenance: ProvenanceSchema,
+});
+export type Pm25ModelResponse = z.infer<typeof Pm25ModelResponseSchema>;
+
+export const WindModelStationSchema = ReferenceSchema.extend({
+  icao: z.string(),
+  inputAt: IsoDateTime.nullable(),
+  reportAt: IsoDateTime.nullable(),
+  inputProvider: z.enum(['iem', 'noaa-awc']).nullable().default(null),
+  targetAt: IsoDateTime.nullable(),
+  u: z.number().nullable(),
+  v: z.number().nullable(),
+  speedMs: z.number().nonnegative().nullable(),
+  directionFromDeg: z.number().min(0).max(360).nullable(),
+  factorsU: z.array(ModelFactorSchema),
+  factorsV: z.array(ModelFactorSchema),
+  missing: z.array(z.string()),
+});
+export const WindModelResponseSchema = z.object({
+  state: ModelStateSchema,
+  model: RegressionInfoSchema.extend({
+    id: z.literal('wind'),
+    targetKind: z.literal('observation'),
+  }),
+  stations: z.array(WindModelStationSchema),
+  shapUnit: z.literal('u/v m/s'),
+  missing: z.array(z.string()),
+  provenance: ProvenanceSchema,
+});
+export type WindModelResponse = z.infer<typeof WindModelResponseSchema>;

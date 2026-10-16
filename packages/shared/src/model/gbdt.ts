@@ -30,7 +30,7 @@ export interface GbdtTree {
 
 export interface GbdtModel {
   format: 'pavana-gbdt-v1';
-  objective: 'binary';
+  objective: 'binary' | 'regression';
   featureNames: string[];
   trees: GbdtTree[];
 }
@@ -70,6 +70,7 @@ export function predictRaw(model: GbdtModel, x: readonly (number | null)[]): num
 export const sigmoid = (z: number): number => 1 / (1 + Math.exp(-z));
 
 export function predictProba(model: GbdtModel, x: readonly (number | null)[]): number {
+  if (model.objective !== 'binary') throw new Error('Probability requires a binary booster');
   return sigmoid(predictRaw(model, x));
 }
 
@@ -82,7 +83,13 @@ interface PathElement {
   w: number;
 }
 
-function extendPath(path: PathElement[], depth: number, zero: number, one: number, feature: number) {
+function extendPath(
+  path: PathElement[],
+  depth: number,
+  zero: number,
+  one: number,
+  feature: number,
+) {
   path[depth] = { feature, zero, one, w: depth === 0 ? 1 : 0 };
   for (let i = depth - 1; i >= 0; i--) {
     path[i + 1]!.w += (one * path[i]!.w * (i + 1)) / (depth + 1);

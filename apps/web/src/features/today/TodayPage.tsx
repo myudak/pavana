@@ -7,6 +7,7 @@ import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FactorList } from '@/features/insights/FactorList';
+import { ModelCard } from '@/features/models/ModelCard';
 import { categoryOf } from '@/lib/aq';
 import { useCopy } from '@/lib/i18n';
 import { useConditions, useExposure, useForecast, useInsights } from '@/lib/queries';
@@ -64,6 +65,7 @@ export function TodayPage() {
                 </Panel>
 
                 <ConditionTiles conditions={c} now={e?.hours[0]} />
+                <ModelCard compact />
                 <Panel title={t.dailyForecast.title}>
                   <QueryState query={forecast} inline>
                     {(f) => <DailyForecast hours={f.hours} timeZone={tz} />}
