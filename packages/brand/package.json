@@ -9,7 +9,7 @@
     "./tokens.css": "./src/tokens.css",
     "./theme.css": "./src/theme.css",
     "./fonts.css": "./src/fonts.css",
-    "./favicon.svg": "./assets/favicon.svg",
+    "./favicon.png": "./assets/favicon.png",
     "./icon-180.png": "./assets/icon-180.png",
     "./icon-192.png": "./assets/icon-192.png",
     "./icon-512.png": "./assets/icon-512.png",

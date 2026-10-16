@@ -69,41 +69,16 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
     Token `--pv-font-display`, `--pv-font-heading`, dan `--pv-font-body` semuanya Inter
     (utilitas `font-display`, `font-heading`, `font-sans`).
 
-## Ikon aplikasi (turunan huruf "p")
+## Ikon aplikasi
 
-- Format ikon persegi terlalu kecil untuk wordmark penuh, jadi dipakai satu huruf awal `p`
-  sebagai turunan tipografis — **bukan simbol terpisah**.
-- `assets/favicon.svg`: huruf `p` **lowercase** (bukan `P`) yang diambil dari outline glyph
-  **Comfortaa Variable wght 700** — bobot dan keluarga font yang sama dengan wordmark —
-  warna Mist `#F5F1EB` di atas kotak membulat ink `#1F2937` (`rx` 16).
-  Outline disimpan sebagai `<path>` (bukan `<text>`) agar bentuk huruf deterministik di
-  semua perender tanpa bergantung pada font yang tersedia.
-- Geometri ikon: tinggi huruf 46/64 unit, dipusatkan tepat di tengah kanvas (margin atas =
-  bawah 8.5, kiri = kanan 15.36), dengan `stroke` 1 unit berwarna sama sebagai kompensasi
-  optis supaya tetap terbaca pada ukuran tab 16 px.
-- Cara menurunkan ulang outline: ekstrak glyph `p` (U+0070) dari
-  `@fontsource-variable/comfortaa/files/comfortaa-latin-wght-normal.woff2` di instance
-  `wght=700` memakai `fontkitten` (dependensi Astro yang sudah ada), lalu skala + pusatkan
-  ke `viewBox 0 0 64 64`. Catat bahwa `getVariation()` fontkitten belum menerapkan `gvar`
-  ke glyph WOFF2, jadi varian bold diambil dengan memanggil
-  `_variationProcessor.transformPoints()` manual.
-- `assets/icon-180.png` (apple-touch), `assets/icon-192.png`, `assets/icon-512.png` adalah
-  render PNG dari `favicon.svg` untuk kebutuhan app-icon/PWA (dikonsumsi Track B).
-  Regenerate dengan `sharp` bawaan repo, dari root (tidak perlu font tambahan karena
-  favicon tidak memakai `<text>`):
-
-  ```bash
-  node --input-type=module -e "const p = 'file://' + process.cwd().replace(/\\/g,'/') + '/node_modules/.pnpm/sharp@0.34.5/node_modules/sharp/lib/index.js'; const { default: sharp } = await import(p); for (const s of [180,192,512]) { await sharp('packages/brand/assets/favicon.svg').resize(s,s).png().toFile('packages/brand/assets/icon-'+s+'.png'); }"
-  ```
-
-  (Versi `sharp` harus cocok dengan yang ter-pin di `pnpm-lock.yaml`.)
-  PWA `manifest.webmanifest` sendiri adalah scope Track B (B9), bukan di sini.
-
-- Salinan `favicon.svg` untuk serving: `apps/landing/public/favicon.svg`,
-  `apps/web/public/favicon.svg` — jaga agar tetap sama dengan aset brand.
-- Setelah Vernosa aktif, turunan huruf `p` dapat ditinjau ulang agar mengikuti bentuk `p`
-  Vernosa — tanpa membuat simbol terpisah dari identitas tipografi.
-- Wordmark memakai token `--pv-font-wordmark` (bukan `--pv-font-display`).
+- `assets/favicon.png` adalah favicon aktif: maskot angin Pavana dari aset yang
+  disediakan tim, disimpan 256 × 256 px dengan transparansi.
+- Salinan favicon untuk web, landing, dan mobile ada di `apps/web/public/favicon.png`,
+  `apps/landing/public/favicon.png`, dan `apps/mobile/assets/favicon.png`; pertahankan
+  kesamaan dengan aset brand.
+- `assets/icon-180.png` (apple-touch), `assets/icon-192.png`, dan `assets/icon-512.png`
+  tetap menjadi ikon app/PWA yang terpisah (Track B). PWA `manifest.webmanifest` sendiri
+  adalah scope Track B (B9), bukan di sini.
 
 ## Latar (backgrounds)
 

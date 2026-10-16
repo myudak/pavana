@@ -76,7 +76,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     const options: NotificationOptions = {
       body: msg.body,
       tag: msg.tag,
-      icon: '/favicon.svg',
+      icon: '/favicon.png',
       data: { url: msg.url ?? '/' },
     };
     // Android Chrome only allows notifications through a service worker.
