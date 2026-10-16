@@ -6,6 +6,10 @@ at `origin/main` (`b1aac3f`). The original checkout, Claude worktree, and its ru
 fetch were preserved. Work happens in managed worktree `pavana-ml-live`,
 branch `codex/ml-live-expansion`.
 
+The original weather process stopped independently after 17 cached points. One resumable fetch
+completed the remaining eleven using the same raw cache; the first seventeen were not downloaded
+again. All 28 points completed and the audited dataset was published on 16 October.
+
 ## Outputs and boundaries
 
 | Output       | Target                                                       | Serving reference                                                         |
@@ -57,6 +61,21 @@ significant weather from unknown codes. PM2.5 uses pinned HF CAMS revision
 `aaa0d2714102b7d3a7b3ad0beb2b1da1ce6a6dbe`, verified against manifest SHA256
 `8cf1a9494a1d8dffe3d2816b68909b5df79ab75eaf8cadbdfe880aef69af4787`.
 That source contains 24,432 hours through 2026-10-14 23:00 UTC, with no missing PM2.5.
+
+Verified snapshot (data kernel version 4, weather dataset version 1):
+
+| Source                              |      Rows | Actual last timestamp (UTC) |
+| ----------------------------------- | --------: | --------------------------- |
+| Suomi NPP VIIRS                     | 2,300,919 | 2026-10-14 17:00            |
+| Twelve airports, METAR              | 1,714,960 | 2026-10-14 23:30            |
+| Historical daily weather, 28 points |   120,568 | 2026-10-15                  |
+| Sungai Raya CAMS grid               |    24,432 | 2026-10-14 23:00            |
+
+Weather has no missing values across its five feature columns. METAR retains 4,789 missing
+visibility values, 250,970 missing directions (including variable wind), 1,884 missing speeds,
+27,534 unknown weather codes, and 12,047 missing/invalid relative humidities. Eligibility and
+label availability further reduce the actual training/evaluation cohorts. Full per-column and
+per-station counts are embedded in each model's `dataSnapshot` metadata.
 
 METAR hourly bins use the last **whole report**, labelled at the completed hour's end. A 10:30
 report belongs to the 11:00 origin and cannot influence the 10:00 origin. Missing fields are
