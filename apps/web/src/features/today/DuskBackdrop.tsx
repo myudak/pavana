@@ -38,7 +38,13 @@ const TINT_COLOR: Record<BackdropTint, string> = {
   unknown: 'var(--pv-exp-unknown)',
 };
 
-export function DuskBackdrop({ className, tint = 'none' }: { className?: string; tint?: BackdropTint }) {
+export function DuskBackdrop({
+  className,
+  tint = 'none',
+}: {
+  className?: string;
+  tint?: BackdropTint;
+}) {
   const dark = useDarkMode();
   return (
     <div aria-hidden className={className}>

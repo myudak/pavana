@@ -86,13 +86,18 @@ export function LocationPicker({
             className,
           )}
         >
-          <Icon icon={Location01Icon} className={cn('size-4 shrink-0', compact ? 'text-accent-strong' : 'text-haze')} />
+          <Icon
+            icon={Location01Icon}
+            className={cn('size-4 shrink-0', compact ? 'text-accent-strong' : 'text-haze')}
+          />
           <span className="max-w-36 truncate">
             {location.label}
             {subtitle && <span className="font-normal text-muted-foreground">, {subtitle}</span>}
           </span>
           {compact ? (
-            <span aria-hidden className="size-4 shrink-0 text-ink-muted">{'▾'}</span>
+            <span aria-hidden className="size-4 shrink-0 text-ink-muted">
+              {'▾'}
+            </span>
           ) : (
             <Icon
               icon={ArrowRight01Icon}

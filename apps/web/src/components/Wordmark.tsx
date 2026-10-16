@@ -6,7 +6,13 @@ import { cn } from '@/lib/utils';
  * Tidak ada simbol/logo mark — identitas brand bertumpu pada tulisan.
  * (Ikon fungsional navigasi tetap dipakai di tempat lain sesuai kebutuhan UI.)
  */
-export function Wordmark({ className, wordClassName }: { className?: string; wordClassName?: string }) {
+export function Wordmark({
+  className,
+  wordClassName,
+}: {
+  className?: string;
+  wordClassName?: string;
+}) {
   return (
     <span className={cn('inline-flex items-center text-ink', className)}>
       <span

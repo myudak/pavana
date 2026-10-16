@@ -4,4 +4,5 @@ dist
 .turbo
 coverage
 ml
+apps/api/src/models/*.json
 docs/PAVANA_HANDOFF.md

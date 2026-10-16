@@ -1,4 +1,7 @@
 import {
+  AiBrain01Icon,
+  MinusSignIcon,
+  PlusSignIcon,
   ArrowDown01Icon,
   Cancel01Icon,
   FastWindIcon,
@@ -36,6 +39,7 @@ import {
   type Hotspot,
 } from '@pavana/shared';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type maplibregl from 'maplibre-gl';
 import { useSearchParams } from 'react-router';
 import { DesktopNav } from '@/app/layout/DesktopNav';
 import { DemoPill } from '@/components/DemoBanner';
@@ -48,29 +52,27 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
-import { useConditions } from '@/lib/queries';
-import { useDarkMode } from '@/lib/theme-context';
+import { useConditions, useHotspotRisk } from '@/lib/queries';
 import { cn } from '@/lib/utils';
 import { msToKmh, windSummary } from '@/lib/wind';
-import { HotspotMap, INDONESIA_BBOX } from './HotspotMap';
+import { MapLegend } from './MapLegend';
+import { INDONESIA_BBOX, parseMapFocus } from './map-focus';
+import { HotspotMap, type MapOverlay } from './HotspotMap';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
-import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
+import { useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
-type Layer = 'hotspots' | 'plumes' | 'density' | 'wind';
+type Layer = 'hotspots' | 'plumes' | 'density' | 'wind' | 'risk';
 /** Strongest detections get a trail; more would only add noise at regional zoom. */
+const RISK_STOPS: [number, string][] = [
+  [0, 'rgba(250, 204, 21, 0.14)'],
+  [0.05, 'rgba(250, 204, 21, 0.35)'],
+  [0.2, '#f59e0b'],
+  [0.4, '#ea580c'],
+  [0.7, '#b91c1c'],
+];
 const PLUME_SOURCES = 160;
 /** Cap for the map-failure fallback list (the full count stays in the header). */
 const FALLBACK_LIMIT = 100;
-
-/** Deep-link focus (?lat=&lon=&zoom=), validated; null means the default view. */
-function parseFocus(sp: URLSearchParams): { center: { lat: number; lon: number }; zoom: number } | null {
-  const lat = Number(sp.get('lat'));
-  const lon = Number(sp.get('lon'));
-  const zoom = Number(sp.get('zoom'));
-  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(zoom)) return null;
-  if (lat < -90 || lat > 90 || lon < -180 || lon > 180 || zoom < 0 || zoom > 22) return null;
-  return { center: { lat, lon }, zoom };
-}
 
 const CHIP =
   'glass h-9 shrink-0 gap-1.5 rounded-full border-0 px-3.5 text-[13px] font-medium text-foreground/80 data-[state=on]:bg-haze/20 data-[state=on]:text-haze data-[state=on]:shadow-[0_0_18px_-4px_var(--pv-accent)]';
@@ -107,10 +109,7 @@ function MapFallback({
             <p className="font-heading text-lg font-semibold tabular">{t.map.count(count)}</p>
             <ul className="space-y-2">
               {items.map((h) => (
-                <li
-                  key={h.id}
-                  className="glass flex items-center gap-3 rounded-2xl p-3 text-sm"
-                >
+                <li key={h.id} className="glass flex items-center gap-3 rounded-2xl p-3 text-sm">
                   <span
                     aria-hidden
                     className="size-2 shrink-0 rounded-full bg-accent"
@@ -147,7 +146,6 @@ function MapFallback({
 
 export default function MapPage() {
   const t = useCopy();
-  const dark = useDarkMode();
   const { location, query: hotspots } = useHotspots();
   const regional = useRegionalHotspots();
   const windField = useWindField();
@@ -160,14 +158,53 @@ export default function MapPage() {
   const [plumesOpen, setPlumesOpen] = useState(true);
   const [searchParams] = useSearchParams();
   // One-shot deep-link focus: honored once at creation, never refit afterwards.
-  const [focus] = useState(() => parseFocus(searchParams));
+  const [focus] = useState(() => parseMapFocus(searchParams));
   const [mapFailed, setMapFailed] = useState(false);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
 
+  const mapRef = useRef<maplibregl.Map | null>(null);
   const on = (l: Layer) => layers.includes(l);
-  // 'Sekitarku' view: roughly 250 km around the selected location.
+  const risk = useHotspotRisk(on('risk'));
+  const overlays = useMemo<MapOverlay[]>(() => {
+    const d = risk.data;
+    if (!on('risk') || !d) return [];
+    const h = d.cellDeg / 2;
+    return [
+      {
+        id: 'hotspot-risk',
+        type: 'fill',
+        valueProperty: 'p',
+        stops: RISK_STOPS,
+        opacity: 0.6,
+        data: {
+          type: 'FeatureCollection',
+          features: d.cells
+            .filter((c) => c.probability !== null)
+            .map((c) => ({
+              type: 'Feature',
+              properties: { p: c.probability },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [
+                  [
+                    [c.lon - h, c.lat - h],
+                    [c.lon + h, c.lat - h],
+                    [c.lon + h, c.lat + h],
+                    [c.lon - h, c.lat + h],
+                    [c.lon - h, c.lat - h],
+                  ],
+                ],
+              },
+            })),
+        },
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [risk.data, layers]);
+
+  // Nearby view: roughly 90 km across around the selected location.
   const localBox = useMemo(
-    () => [location.lon - 1.1, location.lat - 1.1, location.lon + 1.1, location.lat + 1.1] as BBox,
+    () => [location.lon - 0.4, location.lat - 0.4, location.lon + 0.4, location.lat + 0.4] as BBox,
     [location.lon, location.lat],
   );
   // Measured chrome for the default fit: top chrome height, sheet height (also
@@ -298,13 +335,26 @@ export default function MapPage() {
     setSelected(null);
     // A location switch after mount flies to the new area, as before.
     // (Compared against the mount-time location so StrictMode remounts stay put.)
-    if (
-      initialLoc.current.lat !== location.lat ||
-      initialLoc.current.lon !== location.lon
-    ) {
+    if (initialLoc.current.lat !== location.lat || initialLoc.current.lon !== location.lon) {
       setView('local');
     }
   }, [location, location.lat, location.lon]);
+
+  // Keep a tapped detection above its expanded detail card.
+  useEffect(() => {
+    const map = mapRef.current;
+    const lat = selected?.['lat'];
+    const lon = selected?.['lon'];
+    if (!map || typeof lat !== 'number' || typeof lon !== 'number') return;
+    const y = map.project([lon, lat]).y;
+    const height = map.getContainer().clientHeight;
+    if (y > fitPadding.top && y < height - fitPadding.bottom - 24) return;
+    map.easeTo({
+      center: [lon, lat],
+      offset: [0, (fitPadding.top - fitPadding.bottom) / 2],
+      duration: 400,
+    });
+  }, [selected, fitPadding]);
 
   const goTo = (v: 'local' | 'region') => {
     setView(v);
@@ -319,7 +369,7 @@ export default function MapPage() {
     <div
       ref={containerRef}
       style={{ '--map-sheet-h': `${chromePad.sheetH}px` } as React.CSSProperties}
-      className="relative h-[calc(var(--app-vh)-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] w-full overflow-hidden bg-background lg:h-dvh"
+      className="relative h-[calc(var(--app-vh)-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] w-full overflow-hidden bg-background lg:h-[var(--app-vh)]"
     >
       {!mapFailed ? (
         <HotspotMap
@@ -329,18 +379,23 @@ export default function MapPage() {
           showDensity={on('density')}
           showWind={on('wind')}
           density={on('density') ? density : null}
-          fitTo={view === 'region' ? BORNEO_RENDER_BBOX : view === 'local' ? localBox : INDONESIA_BBOX}
+          fitTo={
+            view === 'region' ? BORNEO_RENDER_BBOX : view === 'local' ? localBox : INDONESIA_BBOX
+          }
           initialCamera={focus}
           autoFit={focus == null}
-          fitPadding={fitPadding}
+          insets={fitPadding}
+          fitMaxZoom={view === 'local' ? 8.75 : 11}
+          overlays={overlays}
+          selectedId={typeof selected?.['id'] === 'string' ? selected['id'] : null}
+          onMapReady={(map) => {
+            mapRef.current = map;
+          }}
           streamlines={streamlines}
           plumes={plumes}
           showPlumes={on('plumes')}
           fitNonce={fitNonce}
-          timeZone={tz}
-          controls={false}
           onError={() => setMapFailed(true)}
-          styleUrl={dark ? DARK_STYLE_URL : undefined}
           onSelectHotspot={(p) => setSelected(p)}
           wind={
             wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
@@ -390,12 +445,55 @@ export default function MapPage() {
           <ToggleGroupItem value="density" className={CHIP}>
             <Icon icon={Layers01Icon} className="size-4" /> {t.map.layerDensity}
           </ToggleGroupItem>
+          <ToggleGroupItem value="risk" className={CHIP}>
+            <Icon icon={AiBrain01Icon} className="size-4" /> {t.map.layerRisk}
+          </ToggleGroupItem>
         </ToggleGroup>
+        {on('risk') && (
+          <p className="glass pointer-events-auto max-w-md rounded-2xl px-3 py-2 text-xs text-muted-foreground">
+            {risk.data
+              ? risk.data.state === 'unavailable'
+                ? t.model.unknownWhy
+                : t.map.riskLegend(
+                    risk.data.targetDay,
+                    risk.data.provenance.isDemo,
+                    risk.data.issueDay,
+                    risk.data.model.version,
+                  )
+              : risk.isError
+                ? t.model.unknownWhy
+                : t.common.loading}
+          </p>
+        )}
       </div>
+
+      {on('hotspots') && !mapFailed && (
+        <div className="absolute left-3 z-10" style={{ top: chromePad.top + 8 }}>
+          <MapLegend />
+        </div>
+      )}
 
       {/* Right-side controls: stacked just above the card, the same way on both
           breakpoints (card bottom gap + card height + 12px). */}
       <div className="absolute bottom-[calc(var(--map-sheet-h)+1.5rem)] right-3 z-10 flex flex-col gap-2 lg:bottom-[calc(var(--map-sheet-h)+3rem)]">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => mapRef.current?.zoomIn()}
+          aria-label={t.map.zoomIn}
+          className="glass size-11 rounded-full"
+        >
+          <Icon icon={PlusSignIcon} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => mapRef.current?.zoomOut()}
+          aria-label={t.map.zoomOut}
+          className="glass size-11 rounded-full"
+        >
+          <Icon icon={MinusSignIcon} />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
@@ -462,10 +560,7 @@ export default function MapPage() {
       {/* Bottom sheet. The map container already subtracts the mobile tab bar, so the
           12px gap is measured from the container edge; adding --bottom-nav-h here again
           would float the card ~tab bar higher than it needs to be. */}
-      <div
-        ref={sheetRef}
-        className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-lg lg:bottom-6"
-      >
+      <div ref={sheetRef} className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-lg lg:bottom-6">
         {selected ? (
           <div className="glass rounded-3xl p-4">
             <div className="flex items-start justify-between gap-2">

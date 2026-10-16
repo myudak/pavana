@@ -48,4 +48,3 @@ export function weekdayShort(date: string, timeZone: string): string {
     new Date(`${date}T12:00:00Z`),
   );
 }
-

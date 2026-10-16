@@ -11,6 +11,7 @@ export * from './schemas/insights';
 export * from './schemas/exposure';
 export * from './schemas/sources';
 export * from './schemas/api';
+export * from './schemas/research';
 
 // Pure utilities
 export * from './math/units';
@@ -26,3 +27,8 @@ export * from './regions';
 export * from './aq/us-aqi';
 export * from './aq/ispu';
 export * from './status/data-state';
+export * from './schemas/model';
+export * from './model/gbdt';
+export * from './model/regression-features';
+export * from './model/hotspot-features';
+export * from './model/haze-features';

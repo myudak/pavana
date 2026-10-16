@@ -10,7 +10,7 @@ provider yet — the app still serves the fixture.
 | Pavana fixture                                                           | Demo scenario (PM2.5, wind, hotspots)                                        | 🧪                | `apps/api/src/providers/fixture`                                | Internal (repo ini); sintetis                                                                                                                                                                     | Label UI "Mode Demo · Data ilustratif"                     | Synthetic, `isDemo: true`                                                                                                                                                           |
 | Pavana regional fixture                                                  | Demo hotspot field, Kalimantan-wide (density)                                | 🧪                | `apps/api/src/providers/fixture`                                | Internal (repo ini); sintetis                                                                                                                                                                     | Label UI "Mode Demo · Data ilustratif" + legenda kepadatan | ~1346 deteksi sintetis (seeded, 4 sabuk + 10 pusat + latar); keep-out 75 km di sekitar Sungai Raya                                                                                  |
 | [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/api/area/)             | Hotspots (VIIRS NOAA-20/21, S-NPP NRT): lat/lon, UTC time, FRP, confidence   | 🔶                | `providers/firms` · `ml/.../data/firms.py`                      | Gratis dengan `FIRMS_MAP_KEY`; ikuti syarat layanan FIRMS                                                                                                                                         | "NASA FIRMS" di panel Peta + waktu deteksi per titik       | One Indonesia-wide request per satellite (day range 2), cached 15 min, filtered in memory. Key server-side only, never in errors/logs. Detection ≠ fire; outage → upwind `unknown`. |
-| [Open-Meteo Weather](https://open-meteo.com/en/docs)                     | Hourly wind (FROM°, m/s), temp, RH, precip; gridded current wind for the map | ✅                | `providers/open-meteo` · `ml/.../data/open_meteo.py`            | Data CC BY 4.0; API gratis untuk penggunaan non-komersial                                                                                                                                         | "Weather data by Open-Meteo.com" + provenance per datum    | `timezone=GMT`, `timeformat=unixtime`, `wind_speed_unit=ms`, `past_hours=1&forecast_hours=73`; cached 15 min (wind grid 30 min); stale-on-error ≤ 6 h. Checked 2026-10-16.          |
+| [Open-Meteo Weather](https://open-meteo.com/en/docs)                     | Hourly wind (FROM°, m/s), temp, RH, precip; gridded current wind for the map | ✅                | `providers/open-meteo` · `ml/.../data/open_meteo.py`            | Data CC BY 4.0; API gratis untuk penggunaan non-komersial                                                                                                                                         | "Weather data by Open-Meteo.com" + provenance per datum    | `timezone=GMT`, `timeformat=unixtime`, `wind_speed_unit=ms`, `past_hours=1&forecast_hours=121`; cached 15 min (wind grid 30 min); stale-on-error ≤ 6 h. Checked 2026-10-16.         |
 | [Open-Meteo Air Quality](https://open-meteo.com/en/docs/air-quality-api) | CAMS global PM2.5 forecast (baseline)                                        | ✅                | `providers/open-meteo`                                          | Data CC BY 4.0 (CAMS/Copernicus); API non-komersial                                                                                                                                               | "Open-Meteo (CAMS)" + `spatialResolutionKm: 45`            | `domains=cams_global`; total PM2.5, not "fire smoke"; ~45 km grid. Endpoint occasionally slow → 12 s timeout, stale-on-error. Checked 2026-10-16.                                   |
 | [OpenAQ v3](https://api.openaq.org/docs)                                 | Nearest station PM2.5 (observation overlay)                                  | 🔶                | `providers/openaq` · `ml/.../data/openaq.py`                    | Ikuti ketentuan OpenAQ; `OPENAQ_API_KEY`                                                                                                                                                          | "OpenAQ" + nama stasiun di kartu PM2.5                     | Only ≤ 25 km and < 2 h old; else none (common in Kalimantan). Never replaces the CAMS forecast.                                                                                     |
 | [BMKG Data Terbuka](https://data.bmkg.go.id/prakiraan-cuaca/)            | 3-hourly weather forecast, comparison only (`/api/weather-reference`)        | ✅                | `providers/bmkg` + `data/bmkg-adm4.ts`                          | Wajib atribusi "BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)"; batas 60 req/menit/IP                                                                                                      | "Pembanding: BMKG" di Prakiraan → Cuaca                    | Curated adm4 list (9 smoke-prone cities, codes verified 2026-10-15); ≤ 30 km else `insufficient`. `ws` km/h → m/s. Official warnings stay link-only.                                |
@@ -25,12 +25,16 @@ provider yet — the app still serves the fixture.
 
 ## Map tiles (atribusi peta)
 
-- Default `VITE_MAP_STYLE_URL` = `https://demotiles.maplibre.org/style.json` (lihat `.env.example`).
-  Atribusi tampil otomatis lewat kontrol atribusi MapLibre (`attributionControl: { compact: true }`
-  di `apps/web/src/features/map/HotspotMap.tsx`) sesuai isi style JSON.
-- Penyedia tile final (MapTiler / Protomaps / OSM) **belum diputuskan** — lihat B3 di `docs/PRD.md`.
-  Saat penyedia dipilih: cantumkan lisensinya di tabel ini dan pastikan kreditnya tampil di
-  aplikasi (halaman Info dan/atau kontrol peta).
+- Default basemaps: **CARTO Voyager** (light) and **CARTO Dark Matter** (dark), free CARTO
+  vector basemaps built on OpenStreetMap data (`apps/web/src/features/map/basemap.ts`; the
+  mobile app uses the same pair). Dark Matter gets a gentle Dusk grade (land/water/rivers/
+  boundaries) at runtime; Voyager is untouched.
+- Override with `VITE_MAP_STYLE_URL` (light) and `VITE_MAP_STYLE_URL_DARK` (dark); empty =
+  the CARTO defaults (see `.env.example`).
+- Attribution: "© CARTO, © OpenStreetMap contributors" comes from the style JSON and is shown
+  by the MapLibre attribution control (kept above the map's bottom sheet). CARTO's free
+  basemaps are for non-commercial/low-volume use; revisit B3 in `docs/PRD.md` before any
+  commercial or high-traffic launch.
 
 ## Observed PM2.5 is the blocker
 
@@ -81,3 +85,15 @@ the modelling work is limited to an explicitly labelled CAMS-target experiment.
   (10–30 min live, 1 h demo, no-store on errors) so Vercel's edge absorbs traffic.
 - `GET /api/sources` reports each source as ok / error / not_configured (keys never exposed).
 - Manual real-API check: `pnpm --filter @pavana/api smoke:live` (never in CI).
+
+## Daily PM2.5 view and historical ML lab
+
+`GET /api/forecast` accepts up to 120 hours. The Today page groups non-null CAMS PM2.5
+by the selected location's calendar day, showing minimum, maximum and available hour count.
+The first/last day can be partial; all-null tail days are omitted. The bar is a range across
+available hourly values, not an uncertainty interval or a new Pavana ML forecast.
+
+`/lab-ml` reads a frozen research export at `apps/web/public/ml/research.json`.
+It contains real held-out model predictions and Tree SHAP, with pinned revisions and model
+checksum. It never replaces the live provider response. The CAMS-target model remains
+`operational_ready: false` and `observation_validated: false`.

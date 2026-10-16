@@ -1,10 +1,6 @@
 import { Navigation, Wind } from 'lucide-react';
 import { Link } from 'react-router';
-import type {
-  ConditionsResponse,
-  ExposureResponse,
-  ForecastHour,
-} from '@pavana/shared';
+import type { ConditionsResponse, ExposureResponse, ForecastHour } from '@pavana/shared';
 import { Flame } from '@/components/icons';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { summarizePm25 } from '@/features/insights/insight-derive';
@@ -94,7 +90,9 @@ export function ForecastHero({
             <span className="text-5xl md:text-[clamp(5.25rem,13svh,6.75rem)] lg:text-[clamp(4.5rem,11svh,7rem)]">
               {pm === null ? '-' : fmt(pm)}
             </span>
-            <span className="ml-1 align-top text-xs font-light text-[var(--pv-hero-sub)] dark:text-white md:text-base">{t.today.unit}</span>
+            <span className="ml-1 align-top text-xs font-light text-[var(--pv-hero-sub)] dark:text-white md:text-base">
+              {t.today.unit}
+            </span>
           </p>
 
           <p

@@ -6,6 +6,7 @@ import { DataStateBadge } from '@/components/DataStateBadge';
 import { ProvenanceNote } from '@/components/ProvenanceNote';
 import { QueryState } from '@/components/QueryState';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { ModelCard } from '@/features/models/ModelCard';
 import { FactorList } from '@/features/insights/FactorList';
 import { describeFactor } from '@/features/insights/factor-text';
 import { NearestHotspotsCard } from '@/features/fire/NearestHotspotsCard';
@@ -59,8 +60,7 @@ function HeroSubtext({ text }: { text: string }) {
         'mt-2 line-clamp-2 max-w-[32.5rem] text-[0.84375rem] leading-[1.25rem] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)] md:text-[clamp(0.95rem,1.1vw,1.1rem)] md:leading-[1.55] md:line-clamp-none lg:mt-1 lg:max-w-none lg:text-[clamp(0.875rem,1.9svh,1.0625rem)]',
         fitMode === 'fit' && 'lg:whitespace-nowrap lg:[text-align-last:justify]',
         fitMode === 'left' && 'lg:whitespace-nowrap lg:[text-align-last:auto]',
-        fitMode === 'wrap' &&
-          'lg:whitespace-normal lg:[text-align-last:auto] lg:line-clamp-2',
+        fitMode === 'wrap' && 'lg:whitespace-normal lg:[text-align-last:auto] lg:line-clamp-2',
       )}
     >
       {text}
@@ -274,9 +274,7 @@ export function TodayPage() {
                             to="/prakiraan"
                             className="flex items-center gap-2 text-sm text-ink hover:opacity-80"
                           >
-                            <span className="min-w-0 flex-1 truncate">
-                              {t.today.todayForecast}
-                            </span>
+                            <span className="min-w-0 flex-1 truncate">{t.today.todayForecast}</span>
                             {c.state === 'demo' && (
                               <span
                                 title={`${t.common.source}: ${c.airQuality.provenance.provider} · ${t.provenanceKind[c.airQuality.provenance.kind]} · ${t.common.validAt} ${formatDateTime(c.airQuality.provenance.validAt, tz)}`}
@@ -429,6 +427,7 @@ export function TodayPage() {
                   </QueryState>
                   <ConditionTiles conditions={c} now={exposure.data?.hours[0]} />
                   <NearestHotspotsCard />
+                  <ModelCard compact />
                 </div>
               ) : (
                 <div className="px-[6.25vw] pb-28 lg:pt-[var(--section-gap)]">
@@ -501,16 +500,33 @@ export function TodayPage() {
                       )}
                     />
 
-                    <div className={cn('lg:col-span-7 lg:row-start-4', glassCard, forecastCard, 'rounded-card border p-3')}>
+                    <div
+                      className={cn(
+                        'lg:col-span-7 lg:row-start-4',
+                        glassCard,
+                        forecastCard,
+                        'rounded-card border p-3',
+                      )}
+                    >
                       <QueryState query={exposure}>
                         {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
                       </QueryState>
                     </div>
 
-                    <div className={cn('lg:col-span-5 lg:col-start-8 lg:row-start-4', glassCard, forecastCard, 'rounded-card border p-3')}>
+                    <div
+                      className={cn(
+                        'lg:col-span-5 lg:col-start-8 lg:row-start-4',
+                        glassCard,
+                        forecastCard,
+                        'rounded-card border p-3',
+                      )}
+                    >
                       <QueryState query={exposure}>
                         {() => <ConditionTiles conditions={c} now={exposure.data?.hours[0]} />}
                       </QueryState>
+                    </div>
+                    <div className="lg:col-span-12">
+                      <ModelCard compact />
                     </div>
                   </div>
                 </div>

@@ -57,32 +57,32 @@ export function AppShell() {
             '[text-shadow:0_1px_12px_rgba(6,9,24,0.35)] lg:[text-shadow:none]',
           )}
         >
-        <div className="px-4 lg:px-[6.25vw]">
-          <div className="mx-auto flex h-[3.25rem] w-full max-w-[84rem] items-center justify-between gap-3 lg:grid lg:h-[var(--topbar-h)] lg:grid-cols-[1fr_auto_1fr] lg:gap-4">
-            {/* Left: olive wordmark */}
-            <div className="flex min-w-0 items-center justify-start">
-              <Wordmark
-                className="shrink-0 dark:[filter:drop-shadow(0_0_14px_rgba(244,114,182,0.35))]"
-                wordClassName="text-[1.4rem] lg:text-[2.375rem]"
-              />
-            </div>
-
-            {/* Center: translucent pill nav (desktop only) */}
-            <DesktopNav className="justify-self-center" />
-
-            {/* Right: demo chip, location pill + two round glass buttons */}
-            <div className="flex shrink-0 items-center justify-end gap-2 lg:gap-2.5">
-              <DemoChip className="hidden lg:inline-flex" />
-              <div className="hidden lg:block">
-                <LocationPicker />
+          <div className="px-4 lg:px-[6.25vw]">
+            <div className="mx-auto flex h-[3.25rem] w-full max-w-[84rem] items-center justify-between gap-3 lg:grid lg:h-[var(--topbar-h)] lg:grid-cols-[1fr_auto_1fr] lg:gap-4">
+              {/* Left: olive wordmark */}
+              <div className="flex min-w-0 items-center justify-start">
+                <Wordmark
+                  className="shrink-0 dark:[filter:drop-shadow(0_0_14px_rgba(244,114,182,0.35))]"
+                  wordClassName="text-[1.4rem] lg:text-[2.375rem]"
+                />
               </div>
-              <DemoChip className="lg:hidden" />
-              <NotificationBell className="size-10 lg:size-11" />
-              <ThemeToggle className="size-10 lg:size-11" />
+
+              {/* Center: translucent pill nav (desktop only) */}
+              <DesktopNav className="justify-self-center" />
+
+              {/* Right: demo chip, location pill + two round glass buttons */}
+              <div className="flex shrink-0 items-center justify-end gap-2 lg:gap-2.5">
+                <DemoChip className="hidden lg:inline-flex" />
+                <div className="hidden lg:block">
+                  <LocationPicker />
+                </div>
+                <DemoChip className="lg:hidden" />
+                <NotificationBell className="size-10 lg:size-11" />
+                <ThemeToggle className="size-10 lg:size-11" />
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
       )}
 
       {/* Mobile location row (Home only): no backdrop, scrolls away with content. */}
@@ -97,17 +97,11 @@ export function AppShell() {
       <main
         id="main"
         className={cn(
-          isMap
-            ? 'flex min-h-0 flex-1 flex-col h-dvh'
-            : 'flex min-h-0 flex-1 flex-col',
+          isMap ? 'flex min-h-0 flex-1 flex-col h-[var(--app-vh)]' : 'flex min-h-0 flex-1 flex-col',
           // Fixed desktop header floats above content: reserve its height,
           // except on Home (the hero has its own spacer).
           // Info/Forecast own the full offset inside PageContainer (topbar + gap).
-          !isMap &&
-            !isHome &&
-            !isInfo &&
-            !isForecast &&
-            'lg:pt-[var(--topbar-h)]',
+          !isMap && !isHome && !isInfo && !isForecast && 'lg:pt-[var(--topbar-h)]',
         )}
       >
         <Suspense fallback={<p className="py-8 text-sm text-ink-muted">{t.common.loading}</p>}>
@@ -117,9 +111,9 @@ export function AppShell() {
 
       {/* Mobile tab bar: glass bar + raised Pavi bubble, on every route including the map. */}
       <nav
-          aria-label="Navigasi utama"
-          className="fixed inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)] z-40 lg:hidden"
-        >
+        aria-label="Navigasi utama"
+        className="fixed inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)] z-40 lg:hidden"
+      >
         <ul className="glass mx-auto grid max-w-md grid-cols-5 items-end rounded-[1.75rem] p-1.5 shadow-[0_12px_40px_rgba(2,6,23,0.35)]">
           {NAV_ITEMS.map(({ to, labelKey, icon, center }) => (
             <li key={to}>

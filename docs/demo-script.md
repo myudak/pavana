@@ -1,5 +1,10 @@
 # Skenario demo & naskah video Pavana (2–3 menit)
 
+> Pembaruan ML 16 Oktober 2026: [handoff ML live](ML_LIVE_HANDOFF.md) memuat enam booster,
+> metrik nyata, dan cara replay. Naskah MVP di bawah berfokus pada indikator deterministik;
+> untuk demo model, buka Prakiraan → Model Pavana → Detail model & SHAP → Lab ML.
+> Bedakan fixture provider sintetis dari replay input model yang berasal dari arsip nyata.
+
 > Status: berdasarkan fitur yang **benar-benar berjalan** di mode demo (`PAVANA_MODE=demo`,
 > skenario sintetis Kubu Raya — lihat `fixtures/README.md`). Jangan membacakan angka dari
 > dokumen ini; sebutkan angka yang tampil di layar dan tegaskan labelnya.
@@ -15,15 +20,15 @@
 
 ## Alur demo (langkah demi langkah, dapat diulang)
 
-| #   | Layar    | Aksi presenter                                                                  | Poin yang ditekankan                                         |
-| --- | -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| 1   | Hari Ini | Buka aplikasi (default: Sungai Raya, Kubu Raya). Tunjuk banner demo.            | Lokasi, nilai PM2.5 + satuan µg/m³, sumber & waktu berlaku.  |
-| 2   | Hari Ini | Baca headline tren + timeline 24 jam ke depan.                                  | Arah perubahan, bukan angka pasti.                           |
-| 3   | Hari Ini | Ketuk "Lihat penjelasan" (faktor: tren PM2.5, angin, titik panas searah angin). | "Kenapa bisa berubah" — indikator deterministik, bukan ML.   |
-| 4   | Peta     | Buka Peta, tunjuk lokasi + deteksi titik panas, klik satu titik.                | Waktu deteksi & sumber; deteksi ≠ konfirmasi kebakaran.      |
-| 5   | Peta     | Tunjuk arah angin + legenda + atribusi peta.                                    | Angin dalam m/s, arah FROM meteorologis.                     |
-| 6   | Insight  | Buka Insight: grafik prakiraan PM2.5 + faktor + "Bagaimana ini dihitung?".      | Metodologi transparan; belum ada model terlatih.             |
-| 7   | Info     | Buka Info: tautan resmi (BMKG, SiPongi, BNPB, BPBD Kalbar).                     | Pavana bukan sumber peringatan resmi; ikuti arahan otoritas. |
+| #   | Layar     | Aksi presenter                                                                  | Poin yang ditekankan                                         |
+| --- | --------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 1   | Hari Ini  | Buka aplikasi (default: Sungai Raya, Kubu Raya). Tunjuk banner demo.            | Lokasi, nilai PM2.5 + satuan µg/m³, sumber & waktu berlaku.  |
+| 2   | Hari Ini  | Baca headline tren + timeline 24 jam ke depan.                                  | Arah perubahan, bukan angka pasti.                           |
+| 3   | Hari Ini  | Ketuk "Lihat penjelasan" (faktor: tren PM2.5, angin, titik panas searah angin). | "Kenapa bisa berubah" — indikator deterministik, bukan ML.   |
+| 4   | Peta      | Buka Peta, tunjuk lokasi + deteksi titik panas, klik satu titik.                | Waktu deteksi & sumber; deteksi ≠ konfirmasi kebakaran.      |
+| 5   | Peta      | Tunjuk arah angin + legenda + atribusi peta.                                    | Angin dalam m/s, arah FROM meteorologis.                     |
+| 6   | Prakiraan | Buka kartu Model Pavana, detail SHAP, lalu Lab ML.                              | Model eksperimental; metrik dan pembanding historis terbuka. |
+| 7   | Info      | Buka Info: tautan resmi (BMKG, SiPongi, BNPB, BPBD Kalbar).                     | Pavana bukan sumber peringatan resmi; ikuti arahan otoritas. |
 
 ## Naskah video (±2,5 menit, Bahasa Indonesia)
 

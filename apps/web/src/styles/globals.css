@@ -245,3 +245,24 @@ html {
   background: transparent;
 }
 
+/* Map: keep the (license-required) attribution above the floating bottom sheet,
+   themed to match the glass chrome. --pv-map-inset-bottom is set by MapPage. */
+.pv-map .maplibregl-ctrl-bottom-right,
+.pv-map .maplibregl-ctrl-bottom-left {
+  bottom: var(--pv-map-inset-bottom, 0px);
+}
+.pv-map .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.pv-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background-color: color-mix(in oklab, var(--pv-surface) 82%, transparent);
+  color: var(--pv-ink-muted);
+  font-size: 10px;
+}
+.pv-map .maplibregl-ctrl-attrib a {
+  color: var(--pv-ink-muted);
+}
+.pv-map .maplibregl-ctrl-attrib.maplibregl-compact-show {
+  max-width: calc(100vw - 2rem);
+}
+:root[data-theme='dark'] .pv-map .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}

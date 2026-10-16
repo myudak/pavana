@@ -59,7 +59,10 @@ export function HotspotTrendCard({ className }: { className?: string }) {
             const s = startMs + i * BUCKET_MS;
             const e = s + BUCKET_MS;
             return {
-              label: i === buckets.length - 1 ? t.insights.nowMarker : `-${(buckets.length - 1 - i) * 6}j`,
+              label:
+                i === buckets.length - 1
+                  ? t.insights.nowMarker
+                  : `-${(buckets.length - 1 - i) * 6}j`,
               range: formatTimeRange(
                 new Date(s).toISOString(),
                 new Date(e).toISOString(),
@@ -77,17 +80,13 @@ export function HotspotTrendCard({ className }: { className?: string }) {
             <div className="min-w-0 space-y-3">
               <div className="flex min-w-0 flex-wrap items-end gap-x-6 gap-y-2">
                 <p className="min-w-0">
-                  <span className="block break-words text-xs text-ink-muted">
-                    {f.trendTotal}
-                  </span>
+                  <span className="block break-words text-xs text-ink-muted">{f.trendTotal}</span>
                   <span className="font-heading text-3xl font-semibold tabular">
                     {formatNumber(summary.total)}
                   </span>
                 </p>
                 <p className="min-w-0">
-                  <span className="block break-words text-xs text-ink-muted">
-                    {f.trendPeak}
-                  </span>
+                  <span className="block break-words text-xs text-ink-muted">{f.trendPeak}</span>
                   <span className="break-words text-sm font-medium tabular">
                     {formatNumber(summary.peakCount)} ·{' '}
                     {formatTimeRange(
@@ -147,11 +146,7 @@ export function HotspotTrendCard({ className }: { className?: string }) {
                       {data.map((_, i) => (
                         <Cell
                           key={i}
-                          fill={
-                            i === summary.peakIndex
-                              ? 'var(--pv-accent)'
-                              : 'var(--pv-primary)'
-                          }
+                          fill={i === summary.peakIndex ? 'var(--pv-accent)' : 'var(--pv-primary)'}
                         />
                       ))}
                     </Bar>

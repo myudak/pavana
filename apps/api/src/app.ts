@@ -4,6 +4,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config/env';
 import { AppError, UpstreamError } from './domain/errors';
 import { createDemoBundle, createProviders, type LiveDeps } from './providers';
+import { createModelInputs } from './providers/model-inputs';
 import type { ProviderBundle } from './providers/types';
 import { routes } from './routes';
 
@@ -32,6 +33,10 @@ const CDN_TTL: Record<string, number> = {
   '/api/locations/search': 86400,
   '/api/official-links': 86400,
   '/api/sources': 300,
+  '/api/model/hotspot-risk': 1800,
+  '/api/model/haze': 600,
+  '/api/model/wind': 600,
+  '/api/model/evaluation': 86400,
 };
 const DEMO_TTL = 3600;
 
@@ -43,7 +48,7 @@ export async function buildApp({
 }: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: { level: config.LOG_LEVEL }, trustProxy: config.TRUST_PROXY });
 
-  await app.register(cors, { origin: config.CORS_ORIGINS, methods: ['GET'] });
+  await app.register(cors, { origin: config.CORS_ORIGINS, methods: ['GET', 'POST'] });
   await app.register(rateLimit, { max: config.RATE_LIMIT_PER_MINUTE, timeWindow: '1 minute' });
 
   app.addHook('onSend', async (req, reply, payload) => {
@@ -86,6 +91,8 @@ export async function buildApp({
     providers: providers ?? createProviders(config, liveDeps),
     demo: demoProviders ?? createDemoBundle(),
     version: API_VERSION,
+    chat: { apiKey: config.OPENROUTER_API_KEY, model: config.OPENROUTER_MODEL },
+    modelInputs: createModelInputs({ fetch: liveDeps?.fetch, now: liveDeps?.now }),
   });
   return app;
 }

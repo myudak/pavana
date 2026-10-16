@@ -18,11 +18,43 @@ secrets. Codex reviews the output and independently verifies findings that deter
 
 ## What this workspace is
 
-Offline Python research. **Nothing here powers the app.** `evaluated: true` says a model was scored on
-a holdout; it does not make it servable. Serving requires `is_app_ready`, which also demands an
-**observed** target — the CAMS-field experiment in `models/experiment.py` is `evaluated: true` and
-still must not be served. The app currently serves deterministic indicators plus the synthetic
-fixture.
+Offline Python research **plus the training code of the models the app serves as experiments**.
+
+Serving policy (user decision, 16 Oct 2026 — replaces the earlier "never serve a model" rule):
+a model may be served when it has an **observed** target, was **evaluated on a temporal holdout**
+against honest baselines, and is labelled **"eksperimental"** in the UI
+(`pavana_ml.models.lgbm.is_servable_experimental`). `is_app_ready` (operational readiness) stays
+stricter and nothing meets it. The original CAMS-target Path 2 ablation (`models/experiment.py`)
+stays historical research in `/lab-ml`.
+
+Narrow exception authorized by the user on 16 Oct 2026: the NEW CAMS-only t+6h autoregression in
+`pipelines/regressions.py` may be served under `servingPolicy: experimental-cams-proxy`.
+Its `targetKind` stays `model`, never observation, and `operationalReady` stays false. This does
+not qualify it for `is_servable_experimental` or `is_app_ready`; the API checks the separate
+explicit proxy contract. See [ML live handoff](../docs/ML_LIVE_HANDOFF.md).
+
+Served models (trained in Kaggle, see `kaggle/`):
+
+| Model | Target | Code |
+| --- | --- | --- |
+| `hotspot-risk` | ≥1 Suomi NPP VIIRS detection in a 0.25° Kalimantan cell on UTC day d+1 | `pipelines/hotspot_risk.py`, `features/hotspot_grid.py` |
+| `haze-6h`, `haze-24h` | airport METAR visibility < 3 km with HZ/FU, no rain/fog, at t+6 h / t+24 h | `pipelines/haze_nowcast.py`, `features/haze_station.py` |
+| `pm25` | CAMS model field t+6h (explicit proxy exception) | `pipelines/regressions.py`, `features/pm25.py` |
+| `wind-u`, `wind-v` | airport METAR wind-vector components t+6h | `pipelines/regressions.py`, `features/station_wind.py` |
+
+Training runs on Kaggle from a verified snapshot. Stage the paced local weather cache once,
+then pin both source hashes/versions as documented in the live handoff:
+
+```bash
+uv run --project ml python ml/kaggle/build.py observed-data --push   # fetch keyless sources
+uv run --project ml python ml/kaggle/build.py observed-train --push  # train + evaluate + export
+kaggle kernels output myudak/pavana-observed-train -p <dir>          # pull models/
+```
+
+Use `ml/scripts/install_live_models.py` to verify metrics and install serving JSON into
+`apps/api/src/models/`. The TS evaluator
+(`packages/shared/src/model/gbdt.ts`) is checked against the `*.parity.json` LightGBM vectors, and the
+live feature code (`packages/shared/src/model/*-features.ts`) mirrors the Python features — change both.
 
 ## Commands
 

@@ -66,8 +66,8 @@ Then use semantic utilities: `bg-canvas`, `bg-surface`, `text-ink`, `text-ink-mu
   - Isi & deskripsi: Inter Regular/400 (default body).
   - Label & navigasi: Inter Medium/500 (`font-medium`).
   - Angka & nilai AQI/PM2.5: Inter SemiBold/600 (`font-semibold`, `tabular-nums`).
-  Token `--pv-font-display`, `--pv-font-heading`, dan `--pv-font-body` semuanya Inter
-  (utilitas `font-display`, `font-heading`, `font-sans`).
+    Token `--pv-font-display`, `--pv-font-heading`, dan `--pv-font-body` semuanya Inter
+    (utilitas `font-display`, `font-heading`, `font-sans`).
 
 ## Ikon aplikasi (turunan huruf "p")
 

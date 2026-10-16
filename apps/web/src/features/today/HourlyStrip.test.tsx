@@ -14,9 +14,7 @@ function hour(
     validAt,
     airQuality: { pm25UgM3: pm25 },
     weather:
-      ms === null && fromDeg === null
-        ? null
-        : { windSpeedMs: ms, windDirectionFromDeg: fromDeg },
+      ms === null && fromDeg === null ? null : { windSpeedMs: ms, windDirectionFromDeg: fromDeg },
   } as unknown as ForecastHour;
 }
 
@@ -54,9 +52,7 @@ describe('HourlyTimeline strip', () => {
     expect(within(cells[0]!).getByText('18 km/jam')).toBeInTheDocument();
     const arrow = cells[0]!.querySelector('svg');
     expect(arrow).not.toBeNull();
-    expect(arrow!.getAttribute('style')).toContain(
-      `rotate(${windFromToFlowBearing(134)}deg)`,
-    );
+    expect(arrow!.getAttribute('style')).toContain(`rotate(${windFromToFlowBearing(134)}deg)`);
     // 2 m/s → 7 km/jam (rounded).
     expect(within(cells[3]!).getByText('7 km/jam')).toBeInTheDocument();
   });

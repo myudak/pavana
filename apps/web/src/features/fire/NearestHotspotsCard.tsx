@@ -11,7 +11,11 @@ import { TREND_URL } from './trend-link';
 import { useFirePoints } from './use-fire-points';
 
 /** Detection time: relative within 24h, absolute otherwise (location time zone). */
-function detectionLabel(acquiredAt: string, timeZone: string, t: ReturnType<typeof useCopy>): string {
+function detectionLabel(
+  acquiredAt: string,
+  timeZone: string,
+  t: ReturnType<typeof useCopy>,
+): string {
   const ageMs = Date.now() - Date.parse(acquiredAt);
   if (Number.isFinite(ageMs) && ageMs >= 0) {
     const minutes = Math.floor(ageMs / 60_000);
@@ -59,17 +63,13 @@ export function NearestHotspotsCard({
           ) : (
             <ul className="min-w-0 space-y-1">
               {nearest.map(({ hotspot, distanceKm, bearingDeg }) => (
-                <li
-                  key={hotspot.id}
-                  className="flex min-w-0 items-center gap-3 rounded-2xl py-2"
-                >
+                <li key={hotspot.id} className="flex min-w-0 items-center gap-3 rounded-2xl py-2">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-exp-high/15">
                     <Flame className="size-5 text-exp-high" aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1 break-words">
                     <span className="block break-words text-sm font-medium tabular">
-                      {f.km(formatNumber(Math.round(distanceKm)))} ·{' '}
-                      {compassId(bearingDeg, t)}
+                      {f.km(formatNumber(Math.round(distanceKm)))} · {compassId(bearingDeg, t)}
                     </span>
                     <span className="block break-words text-xs text-muted-foreground">
                       {detectionLabel(hotspot.acquiredAt, timeZone, t)}

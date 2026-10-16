@@ -10,23 +10,36 @@ import {
   type TextMessagePartComponent,
 } from '@assistant-ui/react';
 import { ArrowUp02Icon, RefreshIcon, StopIcon } from '@hugeicons/core-free-icons';
-import { Fragment, useMemo } from 'react';
+import { Fragment, useEffect, useMemo, useRef } from 'react';
 import { Icon } from '@/components/Icon';
 import { Mascot } from '@/components/Mascot';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { useSelectedLocation } from '@/features/location/location-context';
+import { useDemoMode } from '@/lib/demo-mode';
 import { createDemoAdapter } from './demo-adapter';
+import { createLiveAdapter } from './live-adapter';
 import { isMood, moodPose } from './mascot-mood';
 import { TOOL_UIS } from './ToolCards';
 
 /**
- * Tanya Pavi — chat assistant. DEMO: replies come from a scripted adapter over the demo
- * scenario (demo-adapter.ts); no LLM yet. The UI is built on assistant-ui primitives
- * so the real backend only swaps the runtime.
+ * Tanya Pavi — chat assistant. Live: an OpenRouter LLM grounded server-side in the selected
+ * location's data (live-adapter.ts → POST /api/chat). Demo: scripted replies over the demo
+ * scenario (demo-adapter.ts).
  */
 export default function ChatPage() {
   const t = useCopy();
-  const adapter = useMemo(() => createDemoAdapter(t.chat), [t]);
+  const { demo } = useDemoMode();
+  const { location } = useSelectedLocation();
+  const point = useRef({ lat: location.lat, lon: location.lon });
+  useEffect(() => {
+    point.current = { lat: location.lat, lon: location.lon };
+  }, [location.lat, location.lon]);
+  // Demo mode keeps the scripted replies; live mode asks the server-side LLM over real data.
+  const adapter = useMemo(
+    () => (demo ? createDemoAdapter(t.chat) : createLiveAdapter(t.chat, () => point.current)),
+    [t, demo],
+  );
   const runtime = useLocalRuntime(adapter);
 
   return (
@@ -40,32 +53,33 @@ export default function ChatPage() {
 function ChatLayout() {
   const empty = useAuiState((s) => s.thread.isEmpty);
   return (
-      <div className="flex h-[calc(var(--app-vh)-7.5rem-env(safe-area-inset-bottom))] flex-col px-4 pt-[max(env(safe-area-inset-top),0.75rem)] md:px-6 lg:h-[calc(var(--app-vh)-5rem)] lg:px-0 lg:pt-2">
-        <ChatHeader />
-        <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
-          <ThreadPrimitive.Viewport
-            className={cn(
-              'pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3',
-              // Empty on desktop: fixed area, no scroll (content is sized to
-              // fit). Mobile keeps scroll; running threads always scroll.
-              empty && 'lg:overflow-hidden',
-            )}
-          >
-            <AuiIf condition={(s) => s.thread.isEmpty}>
-              <Welcome />
-            </AuiIf>
-            <ThreadPrimitive.Messages>
-              {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
-            </ThreadPrimitive.Messages>
-          </ThreadPrimitive.Viewport>
-          <Composer />
-        </ThreadPrimitive.Root>
-      </div>
+    <div className="flex h-[calc(var(--app-vh)-7.5rem-env(safe-area-inset-bottom))] flex-col px-4 pt-[max(env(safe-area-inset-top),0.75rem)] md:px-6 lg:h-[calc(var(--app-vh)-5rem)] lg:px-0 lg:pt-2">
+      <ChatHeader />
+      <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
+        <ThreadPrimitive.Viewport
+          className={cn(
+            'pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3',
+            // Empty on desktop: fixed area, no scroll (content is sized to
+            // fit). Mobile keeps scroll; running threads always scroll.
+            empty && 'lg:overflow-hidden',
+          )}
+        >
+          <AuiIf condition={(s) => s.thread.isEmpty}>
+            <Welcome />
+          </AuiIf>
+          <ThreadPrimitive.Messages>
+            {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
+          </ThreadPrimitive.Messages>
+        </ThreadPrimitive.Viewport>
+        <Composer />
+      </ThreadPrimitive.Root>
+    </div>
   );
 }
 
 function ChatHeader() {
   const t = useCopy();
+  const { demo } = useDemoMode();
   const aui = useAui();
   const empty = useAuiState((s) => s.thread.isEmpty);
   return (
@@ -77,7 +91,7 @@ function ChatHeader() {
         <div className="flex items-center gap-2">
           <h1 className="font-heading text-lg font-semibold leading-tight">{t.chat.name}</h1>
           <span className="rounded-full bg-state-demo/15 px-2 py-0.5 text-[11px] font-semibold text-state-demo ring-1 ring-state-demo/30">
-            {t.chat.status}
+            {demo ? t.chat.status : t.chat.liveStatus}
           </span>
         </div>
         <p className="truncate text-xs text-muted-foreground">{t.chat.role}</p>
@@ -118,13 +132,14 @@ function SuggestionChips({ compact = false }: { compact?: boolean }) {
 
 function Welcome() {
   const t = useCopy();
+  const { demo } = useDemoMode();
   return (
     <div className="mx-auto my-auto flex w-full max-w-md flex-col items-center gap-2 px-2 py-4 text-center lg:h-full lg:justify-center lg:py-2">
       <Mascot pose="wave" size={104} float />
       <h2 className="font-heading text-2xl font-semibold">{t.chat.greeting}</h2>
       <p className="text-sm leading-relaxed text-muted-foreground">{t.chat.intro}</p>
       <span className="rounded-full bg-state-demo/10 px-3 py-1 text-[11px] font-medium text-state-demo">
-        {t.chat.demoBadge}
+        {demo ? t.chat.demoBadge : t.chat.liveBadge}
       </span>
       <div className="mt-1">
         <SuggestionChips />
@@ -210,6 +225,7 @@ function AssistantMessage() {
 
 function Composer() {
   const t = useCopy();
+  const { demo } = useDemoMode();
   return (
     <div className="space-y-1.5 pb-1 pt-2">
       <ComposerPrimitive.Root className="glass flex items-end gap-2 rounded-[1.75rem] p-1.5 pl-4 focus-within:ring-2 focus-within:ring-primary/40">
@@ -237,7 +253,7 @@ function Composer() {
         </AuiIf>
       </ComposerPrimitive.Root>
       <p className="px-3 text-center text-[10px] leading-snug text-muted-foreground">
-        {t.chat.footer}
+        {demo ? t.chat.footer : t.chat.liveFooter}
       </p>
     </div>
   );

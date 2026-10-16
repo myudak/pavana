@@ -74,6 +74,23 @@
   --pv-state-demo: #7c3aed;
   --pv-state-stale: #b45309;
   --pv-state-error: #b91c1c;
+  /* Map overlays (theme-aware, tuned for the CARTO Voyager / Dark Matter basemaps).
+     Detection age: <6 h, 6–24 h, 24–48 h, >48 h. Always paired with a legend. */
+  --pv-fire-age-0: #dc2626;
+  --pv-fire-age-1: #f97316;
+  --pv-fire-age-2: #f59e0b;
+  --pv-fire-age-3: #a1806b;
+  --pv-fire-stroke: #ffffff;
+  /* Low-zoom detection-density glow (sparse → dense). */
+  --pv-fire-heat-1: #fed7aa;
+  --pv-fire-heat-2: #fdba74;
+  --pv-fire-heat-3: #f97316;
+  --pv-fire-heat-4: #dc2626;
+  --pv-map-location: #2563eb;
+  --pv-map-wind-a: #6d28d9;
+  --pv-map-wind-b: #be185d;
+  --pv-map-plume-a: #db2777;
+  --pv-map-plume-b: #7c3aed;
 
   /* Warning (amber), banners and cautions. AA: strong on soft/white. */
   --pv-warning: #d97706;
@@ -89,7 +106,9 @@
   /* Wordmark utama: Vernosa (pending lisensi/file — lihat fonts.css & README).
      Interim aktif: Comfortaa. "Vernosa" tercantum pertama agar otomatis dipakai
      setelah @font-face diaktifkan; sebelum itu jatuh ke Comfortaa. */
-  --pv-font-wordmark: 'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --pv-font-wordmark:
+    'Vernosa', 'Comfortaa Variable', 'Comfortaa', 'Outfit Variable', 'Outfit', ui-sans-serif,
+    system-ui, sans-serif;
   --pv-font-body: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -132,6 +151,20 @@
   --pv-state-demo: #a78bfa;
   --pv-state-stale: #fbbf24;
   --pv-state-error: #f87171;
+  --pv-fire-age-0: #ff4b3e;
+  --pv-fire-age-1: #ff8c42;
+  --pv-fire-age-2: #ffc857;
+  --pv-fire-age-3: #b39a8c;
+  --pv-fire-stroke: #140f1c;
+  --pv-fire-heat-1: #7c2d12;
+  --pv-fire-heat-2: #ea580c;
+  --pv-fire-heat-3: #fb923c;
+  --pv-fire-heat-4: #fde68a;
+  --pv-map-location: #818cf8;
+  --pv-map-wind-a: #b7a6ff;
+  --pv-map-wind-b: #f08cc8;
+  --pv-map-plume-a: #f472b6;
+  --pv-map-plume-b: #a855f7;
 
   /* Dusk / Haze decorative effects (dark only). */
   --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
@@ -194,6 +227,20 @@
     --pv-state-demo: #a78bfa;
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;
+    --pv-fire-age-0: #ff4b3e;
+    --pv-fire-age-1: #ff8c42;
+    --pv-fire-age-2: #ffc857;
+    --pv-fire-age-3: #b39a8c;
+    --pv-fire-stroke: #140f1c;
+    --pv-fire-heat-1: #7c2d12;
+    --pv-fire-heat-2: #ea580c;
+    --pv-fire-heat-3: #fb923c;
+    --pv-fire-heat-4: #fde68a;
+    --pv-map-location: #818cf8;
+    --pv-map-wind-a: #b7a6ff;
+    --pv-map-wind-b: #f08cc8;
+    --pv-map-plume-a: #f472b6;
+    --pv-map-plume-b: #a855f7;
 
     /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
     --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);

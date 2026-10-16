@@ -1,4 +1,6 @@
 import { AiBrain01Icon } from '@hugeicons/core-free-icons';
+import { Link } from 'react-router';
+import { ModelCard } from '@/features/models/ModelCard';
 import { PageContainer } from '@/app/layout/PageContainer';
 import { Icon } from '@/components/Icon';
 import { QueryState } from '@/components/QueryState';
@@ -13,22 +15,20 @@ import { PM25TimeSeries } from '@/features/insights/PM25TimeSeries';
 import { DuskBackdrop } from '@/features/today/DuskBackdrop';
 import { panelSurface } from '@/features/today/glass';
 import { useCopy } from '@/lib/i18n';
-import {
-  useConditions,
-  useExposure,
-  useForecast,
-  useInsights,
-} from '@/lib/queries';
+import { useConditions, useExposure, useForecast, useInsights } from '@/lib/queries';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { TREND_SECTION_ID } from '@/features/fire/trend-link';
 import { ForecastHero } from './ForecastHero';
+import { SmokeBars } from './SmokeBars';
+import { WeatherTable } from './WeatherTable';
+import { BmkgReference } from './BmkgReference';
 
 const TAB =
   'h-9 flex-1 rounded-full border-0 text-[13px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground dark:data-[state=active]:border-transparent';
 
-const TAB_VALUES = ['air', 'fire'] as const;
+const TAB_VALUES = ['air', 'fire', 'smoke', 'weather'] as const;
 type TabValue = (typeof TAB_VALUES)[number];
 
 /** ?tab=titik-api selects the fire tab; everything else falls back to air. */
@@ -91,84 +91,127 @@ export default function ForecastPage() {
         )}
       </QueryState>
       <PageContainer className="pt-0">
-      {conditions.data && (
-        <InsightAlert conditions={conditions.data} forecastHours={forecast.data?.hours ?? []} />
-      )}
+        {conditions.data && (
+          <InsightAlert conditions={conditions.data} forecastHours={forecast.data?.hours ?? []} />
+        )}
 
-      <Tabs
-        value={tab}
-        // Manual tab switches replace the URL without a hash, so no
-        // auto-scroll runs and the back button still returns to Home.
-        onValueChange={(v) =>
-          navigate(v === 'fire' ? '/prakiraan?tab=titik-api' : '/prakiraan', { replace: true })
-        }
-        className="gap-4"
-      >
-        <TabsList className="glass h-11 w-full rounded-full p-1">
-          <TabsTrigger value="air" className={TAB}>
-            {t.forecast.tabs.air}
-          </TabsTrigger>
-          <TabsTrigger value="fire" className={TAB}>
-            {t.forecast.tabs.fire}
-          </TabsTrigger>
-        </TabsList>
+        <Tabs
+          value={tab}
+          // Manual tab switches replace the URL without a hash, so no
+          // auto-scroll runs and the back button still returns to Home.
+          onValueChange={(v) =>
+            navigate(
+              v === 'air' ? '/prakiraan' : `/prakiraan?tab=${v === 'fire' ? 'titik-api' : v}`,
+              { replace: true },
+            )
+          }
+          className="gap-4"
+        >
+          <TabsList className="glass h-11 w-full rounded-full p-1">
+            <TabsTrigger value="air" className={TAB}>
+              {t.forecast.tabs.air}
+            </TabsTrigger>
+            <TabsTrigger value="fire" className={TAB}>
+              {t.forecast.tabs.fire}
+            </TabsTrigger>
+            <TabsTrigger value="smoke" className={TAB}>
+              {t.forecast.tabs.smoke}
+            </TabsTrigger>
+            <TabsTrigger value="weather" className={TAB}>
+              {t.forecast.tabs.weather}
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="air">
-          <section className={cn(panelSurface, 'rounded-3xl p-5')}>
-            <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-muted">
-              {t.forecast.airTitle}{' '}
-              <span className="normal-case tracking-normal">({t.today.unit})</span>
-            </h2>
-            <QueryState
-              query={forecast}
-              skeleton={<Skeleton className="h-56 w-full rounded-2xl" />}
-            >
-              {(f) => <PM25TimeSeries hours={f.hours} timeZone={tz} />}
-            </QueryState>
-          </section>
-        </TabsContent>
-        <TabsContent value="fire" className="space-y-4">
-          <HotspotTrendCard />
-          <NearestHotspotsCard showLink={false} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="air">
+            <section className={cn(panelSurface, 'rounded-3xl p-5')}>
+              <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-muted">
+                {t.forecast.airTitle}{' '}
+                <span className="normal-case tracking-normal">({t.today.unit})</span>
+              </h2>
+              <QueryState
+                query={forecast}
+                skeleton={<Skeleton className="h-56 w-full rounded-2xl" />}
+              >
+                {(f) => <PM25TimeSeries hours={f.hours} timeZone={tz} />}
+              </QueryState>
+            </section>
+          </TabsContent>
+          <TabsContent value="fire" className="space-y-4">
+            <HotspotTrendCard />
+            <NearestHotspotsCard showLink={false} />
+          </TabsContent>
+          <TabsContent value="smoke">
+            <section className={cn(panelSurface, 'rounded-3xl p-5')}>
+              <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-muted">
+                {t.forecast.smokeTitle}
+              </h2>
+              <QueryState query={exposure}>
+                {(x) => <SmokeBars hours={x.hours} timeZone={tz} />}
+              </QueryState>
+              <p className="mt-3 text-[11px] leading-relaxed text-ink-muted">
+                {t.exposure.disclaimer}
+              </p>
+            </section>
+          </TabsContent>
+          <TabsContent value="weather">
+            <section className={cn(panelSurface, 'rounded-3xl p-5')}>
+              <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-muted">
+                {t.forecast.weatherTitle}
+              </h2>
+              <QueryState query={forecast}>
+                {(f) => (
+                  <>
+                    <WeatherTable hours={f.hours.slice(0, 24)} timeZone={tz} />
+                    {f.state !== 'demo' && <BmkgReference timeZone={tz} />}
+                  </>
+                )}
+              </QueryState>
+            </section>
+          </TabsContent>
+        </Tabs>
 
-      {conditions.data && (
-        <section aria-label={t.forecast.factorsTitle}>
+        {conditions.data && (
+          <section aria-label={t.forecast.factorsTitle}>
             <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-muted">
               {t.forecast.factorsTitle}
             </h2>
             <InsightMetricCards conditions={conditions.data} insights={insights} />
-        </section>
-      )}
+          </section>
+        )}
 
-      <section className={cn(panelSurface, 'rounded-3xl p-5')}>
-        <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-state-demo/15">
-            <Icon icon={AiBrain01Icon} className="text-state-demo" />
-          </span>
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-medium">{t.forecast.modelTitle}</h2>
-              <span className="rounded-full bg-state-stale/15 px-2 py-0.5 text-[11px] font-semibold text-state-stale ring-1 ring-state-stale/30">
-                {t.forecast.modelStatus}
-              </span>
+        <ModelCard />
+
+        <section className={cn(panelSurface, 'rounded-3xl p-5')}>
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-state-demo/15">
+              <Icon icon={AiBrain01Icon} className="text-state-demo" />
+            </span>
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-medium">{t.lab.historyTitle}</h2>
+                <span className="rounded-full bg-state-stale/15 px-2 py-0.5 text-[11px] font-semibold text-state-stale ring-1 ring-state-stale/30">
+                  {t.lab.historyBadge}
+                </span>
+              </div>
+              {/* Historical CAMS research stays separate from experimental live models. */}
+              <p className="text-sm leading-relaxed text-muted-foreground">{t.lab.liveNote}</p>
+              <Link
+                to="/lab-ml"
+                className="inline-flex pt-2 text-sm font-medium text-primary-strong underline underline-offset-4"
+              >
+                {t.lab.open}
+              </Link>
             </div>
-            {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t.forecast.modelBody}
-            </p>
           </div>
-        </div>
-        <details className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">
-          <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
-          <ul className="mt-2 list-disc space-y-2 pl-5 text-muted-foreground">
-            {t.insights.howBody.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
-        </details>
-      </section>
+          <details className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">
+            <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
+            <ul className="mt-2 list-disc space-y-2 pl-5 text-muted-foreground">
+              {t.insights.howBody.map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          </details>
+        </section>
       </PageContainer>
     </>
   );

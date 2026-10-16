@@ -5,12 +5,7 @@ import { factorNumber } from '@/features/insights/insight-derive';
 import { useSelectedLocation } from '@/features/location/location-context';
 import { api } from '@/lib/api';
 import { useInsights } from '@/lib/queries';
-import {
-  bucketHotspots,
-  nearestHotspots,
-  summarizeTrend,
-  trendWindowEnd,
-} from './fire-points';
+import { bucketHotspots, nearestHotspots, summarizeTrend, trendWindowEnd } from './fire-points';
 
 /** Search radius around the selected location — same window as the insights factor. */
 const RADIUS_KM = 300;

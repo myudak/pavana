@@ -70,66 +70,74 @@ export function InfoPage() {
     <PageContainer className="pt-3 lg:pt-[calc(var(--topbar-h)+16px)]">
       <ScrollScrim />
       <AtmosphereSection labelledBy="info-title" className="scroll-mt-24 p-4">
-      <header className="flex flex-wrap items-start justify-between gap-3 pb-1 pt-2">
-        <div className="space-y-1">
-        <h1 id="info-title" className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
-          {t.info.title}
-        </h1>
-        <p className="max-w-2xl text-sm text-ink md:text-base">{t.info.subtitle}</p>
-        </div>
-        {conditions.data && <DataStateBadge state={conditions.data.state} />}
-      </header>
-
-      {staleWarning && (
-        <p
-          role="status"
-          className="flex items-center gap-2 rounded-2xl bg-warning-soft px-3 py-2 text-sm text-warning-ink ring-1 ring-warning/40"
-        >
-          <AlertTriangle className="size-4" />
-          {t.info.staleWarning}
-        </p>
-      )}
-
-      <div className={cn(panelSurface, 'flex flex-col items-stretch gap-3 rounded-3xl p-4 lg:flex-row lg:items-center lg:justify-between lg:gap-2 lg:p-5')}>
-        <div
-          role="group"
-          aria-label={t.info.filtersLabel}
-          className="flex snap-x gap-1 overflow-x-auto rounded-full bg-foreground/5 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {INFO_FILTERS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={filter === f}
-              onClick={() => setFilter(f)}
-              className={cn(
-                'h-10 shrink-0 snap-start rounded-full px-3 text-[13px] font-medium transition-colors',
-                filter === f
-                  ? 'bg-accent text-ink shadow-sm dark:text-canvas'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
+        <header className="flex flex-wrap items-start justify-between gap-3 pb-1 pt-2">
+          <div className="space-y-1">
+            <h1
+              id="info-title"
+              className="font-heading text-3xl font-semibold tracking-tight md:text-4xl"
             >
-              {t.info.filters[f]}
-            </button>
-          ))}
-        </div>
-        <div className="w-full lg:w-auto">
-          <LocationPicker className="max-lg:w-full max-lg:justify-between" />
-        </div>
-      </div>
+              {t.info.title}
+            </h1>
+            <p className="max-w-2xl text-sm text-ink md:text-base">{t.info.subtitle}</p>
+          </div>
+          {conditions.data && <DataStateBadge state={conditions.data.state} />}
+        </header>
 
-      <QueryState query={conditions}>
-        {(c) => (
-          <InfoCardGrid
-            descriptors={visible}
-            conditions={c}
-            forecast={forecast}
-            insights={insights}
-            links={links}
-            onRefresh={refreshAll}
-          />
+        {staleWarning && (
+          <p
+            role="status"
+            className="flex items-center gap-2 rounded-2xl bg-warning-soft px-3 py-2 text-sm text-warning-ink ring-1 ring-warning/40"
+          >
+            <AlertTriangle className="size-4" />
+            {t.info.staleWarning}
+          </p>
         )}
-      </QueryState>
+
+        <div
+          className={cn(
+            panelSurface,
+            'flex flex-col items-stretch gap-3 rounded-3xl p-4 lg:flex-row lg:items-center lg:justify-between lg:gap-2 lg:p-5',
+          )}
+        >
+          <div
+            role="group"
+            aria-label={t.info.filtersLabel}
+            className="flex snap-x gap-1 overflow-x-auto rounded-full bg-foreground/5 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {INFO_FILTERS.map((f) => (
+              <button
+                key={f}
+                type="button"
+                aria-pressed={filter === f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  'h-10 shrink-0 snap-start rounded-full px-3 text-[13px] font-medium transition-colors',
+                  filter === f
+                    ? 'bg-accent text-ink shadow-sm dark:text-canvas'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {t.info.filters[f]}
+              </button>
+            ))}
+          </div>
+          <div className="w-full lg:w-auto">
+            <LocationPicker className="max-lg:w-full max-lg:justify-between" />
+          </div>
+        </div>
+
+        <QueryState query={conditions}>
+          {(c) => (
+            <InfoCardGrid
+              descriptors={visible}
+              conditions={c}
+              forecast={forecast}
+              insights={insights}
+              links={links}
+              onRefresh={refreshAll}
+            />
+          )}
+        </QueryState>
       </AtmosphereSection>
 
       <div className="grid items-stretch gap-4 break-words md:grid-cols-2 [&>*]:min-w-0 [&>*]:max-w-full [&_section]:min-w-0 [&_section]:max-w-full">
@@ -141,39 +149,39 @@ export function InfoPage() {
             title={t.info.linksTitle}
             className="min-w-0 scroll-mt-24 max-md:order-5"
           >
-          <QueryState query={links} inline>
-            {(d) => (
-              <ul className="divide-y divide-foreground/10">
-                {d.links.map((l) => (
-                  <li key={l.id}>
-                    <a
-                      href={l.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex items-start justify-between gap-3 py-3 first:pt-0"
-                    >
-                      <span className="min-w-0">
-                        <span className="font-medium group-hover:underline">{l.title}</span>
-                        <span className="text-muted-foreground"> · {l.publisher}</span>
-                        <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
-                          {l.description}
+            <QueryState query={links} inline>
+              {(d) => (
+                <ul className="divide-y divide-foreground/10">
+                  {d.links.map((l) => (
+                    <li key={l.id}>
+                      <a
+                        href={l.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex items-start justify-between gap-3 py-3 first:pt-0"
+                      >
+                        <span className="min-w-0">
+                          <span className="font-medium group-hover:underline">{l.title}</span>
+                          <span className="text-muted-foreground"> · {l.publisher}</span>
+                          <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
+                            {l.description}
+                          </span>
                         </span>
-                      </span>
-                      <Icon
-                        icon={ArrowUpRight01Icon}
-                        className="mt-0.5 size-4 text-muted-foreground"
-                      />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </QueryState>
-        </Panel>
+                        <Icon
+                          icon={ArrowUpRight01Icon}
+                          className="mt-0.5 size-4 text-muted-foreground"
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </QueryState>
+          </Panel>
 
-        <Panel title={t.info.aboutTitle} className="min-w-0 md:flex-1 max-md:order-6">
-          <p className="text-sm leading-relaxed text-muted-foreground">{t.info.aboutBody}</p>
-        </Panel>
+          <Panel title={t.info.aboutTitle} className="min-w-0 md:flex-1 max-md:order-6">
+            <p className="text-sm leading-relaxed text-muted-foreground">{t.info.aboutBody}</p>
+          </Panel>
         </div>
 
         {/* Right column: data mode, sources, smart alerts, theme.

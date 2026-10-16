@@ -3,12 +3,12 @@
 Dipakai oleh `apps/web/src/features/today/DuskBackdrop.tsx` dan diimpor lewat Vite,
 jadi hanya file tema aktif yang diunduh pengguna.
 
-| Nama file               | Tema   | Dipakai untuk            | Ukuran saran  |
-| ----------------------- | ------ | ------------------------ | ------------- |
-| `backdrop-1280.webp`    | gelap  | layar < 768px (ponsel)   | 1280 x 720    |
-| `backdrop-2560.webp`    | gelap  | layar >= 768px (desktop) | 2560 x 1440   |
-| `dawn-1280.webp`        | terang | layar < 768px (ponsel)   | 1280 x 720    |
-| `dawn-2560.webp`        | terang | layar >= 768px (desktop) | 2560 x 1440   |
+| Nama file            | Tema   | Dipakai untuk            | Ukuran saran |
+| -------------------- | ------ | ------------------------ | ------------ |
+| `backdrop-1280.webp` | gelap  | layar < 768px (ponsel)   | 1280 x 720   |
+| `backdrop-2560.webp` | gelap  | layar >= 768px (desktop) | 2560 x 1440  |
+| `dawn-1280.webp`     | terang | layar < 768px (ponsel)   | 1280 x 720   |
+| `dawn-2560.webp`     | terang | layar >= 768px (desktop) | 2560 x 1440  |
 
 Cara mengganti gambar:
 
@@ -28,7 +28,7 @@ Cara mengganti gambar:
 
 ## Sumber & lisensi
 
-| File | Sumber / lisensi |
-| ---- | ---------------- |
+| File                                       | Sumber / lisensi   |
+| ------------------------------------------ | ------------------ |
 | `backdrop-1280.webp`, `backdrop-2560.webp` | diisi pemilik repo |
-| `dawn-1280.webp`, `dawn-2560.webp` | diisi pemilik repo |
+| `dawn-1280.webp`, `dawn-2560.webp`         | diisi pemilik repo |

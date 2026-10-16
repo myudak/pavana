@@ -4,7 +4,7 @@
  * is unit-tested in `insight-derive.test.ts`.
  */
 import type { DataState, Factor, ForecastHour, ProvenanceKind, Trend } from '@pavana/shared';
-import { PRIORITY_RANK, type Priority } from '@/lib/priorities';
+import { PRIORITY_RANK, type Priority } from '../../lib/priorities';
 
 /** Numeric metric from a factor, or null when absent/not a number. */
 export function factorNumber(factor: Factor | undefined, key: string): number | null {

@@ -8,10 +8,7 @@ import { cn } from '@/lib/utils';
 export function PriorityBadge({ priority }: { priority: Priority }) {
   const t = useCopy();
   return (
-    <Badge
-      variant={PRIORITY_TIER[priority].badge}
-      className="shrink-0 whitespace-nowrap"
-    >
+    <Badge variant={PRIORITY_TIER[priority].badge} className="shrink-0 whitespace-nowrap">
       {t.insights.notif.priority[priority]}
     </Badge>
   );

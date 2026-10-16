@@ -119,6 +119,19 @@ async function liveApp(
 }
 
 describe('live mode (recorded upstream)', () => {
+  // Cold provider/fixture initialization can exceed Vitest's 5 s default on loaded Windows hosts.
+  it('bounds requests to ten days while preserving the actual upstream forecast horizon', async () => {
+    const { get, calls } = await liveApp();
+    const response = await get(`/api/forecast?${KR}&hours=120`);
+    expect(response.statusCode).toBe(200);
+    const body = ForecastResponseSchema.parse(response.json());
+    expect(body.hours.length).toBeLessThanOrEqual(121);
+    expect(calls.filter((url) => url.includes('forecast_hours=121'))).toHaveLength(2);
+    const longer = await get(`/api/forecast?${KR}&hours=240`);
+    expect(longer.statusCode).toBe(200);
+    expect(ForecastResponseSchema.parse(longer.json()).hours).toEqual(body.hours);
+    expect((await get(`/api/forecast?${KR}&hours=241`)).statusCode).toBe(400);
+  }, 20_000);
   it('conditions: CAMS forecast + Open-Meteo wind + OpenAQ station, all labelled', async () => {
     const { get } = await liveApp();
     const res = await get(`/api/conditions?${KR}`);
