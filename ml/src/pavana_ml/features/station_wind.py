@@ -30,10 +30,17 @@ FEATURES = (
 
 
 def components(speed, direction) -> tuple:
+    speed, direction = np.asarray(speed, dtype=float), np.asarray(direction, dtype=float)
     rad = np.deg2rad(direction)
+    valid = (
+        np.isfinite(speed)
+        & (speed >= 0)
+        & ((speed == 0) | (np.isfinite(direction) & (direction >= 0) & (direction <= 360)))
+    )
     # A zero speed defines a zero vector even if a direction wasn't reported.
-    return np.where(speed == 0, 0, -speed * np.sin(rad)), np.where(
-        speed == 0, 0, -speed * np.cos(rad)
+    return (
+        np.where(valid, np.where(speed == 0, 0, -speed * np.sin(rad)), np.nan),
+        np.where(valid, np.where(speed == 0, 0, -speed * np.cos(rad)), np.nan),
     )
 
 

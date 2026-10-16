@@ -99,6 +99,11 @@ def test_wind_vectors_and_calm_direction_metrics():
     m = regression.wind(np.array([[0, 0], [-2, 0]]), np.array([[0, 0], [0, -2]]))
     assert m["directionN"] == 1 and m["directionMaeDeg"] == pytest.approx(90)
     assert m["vectorRmse"] == pytest.approx(2)
+    u_bad, v_bad = station_wind.components(
+        np.array([0.0, -1.0, 2.0]), np.array([np.nan, 90.0, 400.0])
+    )
+    assert u_bad[0] == 0 and v_bad[0] == 0
+    assert np.isnan(u_bad[1:]).all() and np.isnan(v_bad[1:]).all()
 
 
 def test_regression_export_keeps_identity_link_and_missing_shap():
