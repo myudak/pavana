@@ -15,6 +15,7 @@ import {
 import { Panel } from '@/components/Panel';
 import { QueryState } from '@/components/QueryState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageContainer } from '@/app/layout/PageContainer';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { localContributions } from './research-derive';
@@ -317,33 +318,35 @@ export default function LabPage() {
     },
   });
   return (
-    <div className="space-y-6 pt-6">
-      <header className="space-y-3">
-        <Link
-          to="/prakiraan"
-          className="text-xs text-muted-foreground underline underline-offset-4"
-        >
-          {t.lab.back}
-        </Link>
-        <h1 className="font-heading text-5xl font-semibold tracking-tight">{t.lab.title}</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">{t.modelLab.introduction}</p>
-      </header>
-      <Tabs value={view} onValueChange={setView}>
-        <TabsList className="mb-4 w-full">
-          <TabsTrigger value="models" className="flex-1">
-            {t.modelLab.servedTab}
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex-1">
-            {t.modelLab.historyTab}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="models">
-          <ServedModelsEvaluation />
-        </TabsContent>
-        <TabsContent value="history">
-          <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>
-        </TabsContent>
-      </Tabs>
-    </div>
+    <PageContainer className="pt-6 lg:pt-[calc(var(--topbar-h)+16px)]">
+      <div className="space-y-6">
+        <header className="space-y-3">
+          <Link
+            to="/prakiraan"
+            className="text-xs text-muted-foreground underline underline-offset-4"
+          >
+            {t.lab.back}
+          </Link>
+          <h1 className="font-heading text-5xl font-semibold tracking-tight">{t.lab.title}</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground">{t.modelLab.introduction}</p>
+        </header>
+        <Tabs value={view} onValueChange={setView}>
+          <TabsList className="mb-4 w-full">
+            <TabsTrigger value="models" className="flex-1">
+              {t.modelLab.servedTab}
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex-1">
+              {t.modelLab.historyTab}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="models">
+            <ServedModelsEvaluation />
+          </TabsContent>
+          <TabsContent value="history">
+            <QueryState query={query}>{(bundle) => <ResearchContent bundle={bundle} />}</QueryState>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </PageContainer>
   );
 }
