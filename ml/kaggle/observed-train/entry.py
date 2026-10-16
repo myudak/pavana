@@ -1,4 +1,4 @@
-# Pavana — observed-target training kernel (hotspot risk + airport haze).
+# Pavana — experimental hotspot/haze, CAMS-proxy PM2.5 and station-wind training.
 # Input: the output of the `pavana-observed-data` kernel. Output: /kaggle/working/models.
 # Generated from ml/kaggle/observed-train/entry.py by ml/kaggle/build.py; do not edit run.py.
 import json

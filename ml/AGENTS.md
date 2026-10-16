@@ -35,14 +35,15 @@ explicit proxy contract. See [ML live handoff](../docs/ML_LIVE_HANDOFF.md).
 
 Served models (trained in Kaggle, see `kaggle/`):
 
-| Model | Target (observation) | Code |
+| Model | Target | Code |
 | --- | --- | --- |
 | `hotspot-risk` | ≥1 Suomi NPP VIIRS detection in a 0.25° Kalimantan cell on UTC day d+1 | `pipelines/hotspot_risk.py`, `features/hotspot_grid.py` |
 | `haze-6h`, `haze-24h` | airport METAR visibility < 3 km with HZ/FU, no rain/fog, at t+6 h / t+24 h | `pipelines/haze_nowcast.py`, `features/haze_station.py` |
 | `pm25` | CAMS model field t+6h (explicit proxy exception) | `pipelines/regressions.py`, `features/pm25.py` |
 | `wind-u`, `wind-v` | airport METAR wind-vector components t+6h | `pipelines/regressions.py`, `features/station_wind.py` |
 
-Workflow — everything heavy runs on Kaggle, nothing needs local data:
+Training runs on Kaggle from a verified snapshot. Stage the paced local weather cache once,
+then pin both source hashes/versions as documented in the live handoff:
 
 ```bash
 uv run --project ml python ml/kaggle/build.py observed-data --push   # fetch keyless sources
@@ -50,7 +51,8 @@ uv run --project ml python ml/kaggle/build.py observed-train --push  # train + e
 kaggle kernels output myudak/pavana-observed-train -p <dir>          # pull models/
 ```
 
-Copy `models/*.{model,meta,grid,demo,parity}.json` into `apps/api/src/models/`. The TS evaluator
+Use `ml/scripts/install_live_models.py` to verify metrics and install serving JSON into
+`apps/api/src/models/`. The TS evaluator
 (`packages/shared/src/model/gbdt.ts`) is checked against the `*.parity.json` LightGBM vectors, and the
 live feature code (`packages/shared/src/model/*-features.ts`) mirrors the Python features — change both.
 

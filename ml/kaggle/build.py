@@ -55,7 +55,7 @@ def main() -> None:
     info = {
         "sha256": digest,
         "git_commit": git("rev-parse", "HEAD"),
-        "git_dirty": bool(git("status", "--porcelain", "--", "src")),
+        "git_dirty": bool(git("status", "--porcelain", "--", "src", "kaggle")),
     }
     entry = (kdir / "entry.py").read_text(encoding="utf-8")
     info["entry_sha256"] = hashlib.sha256(entry.encode()).hexdigest()
