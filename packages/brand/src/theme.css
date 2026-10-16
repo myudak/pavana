@@ -27,6 +27,8 @@
 
   --color-glass-border: var(--pv-glass-border);
   --color-glass-hero: var(--pv-glass-hero);
+  --color-pill: var(--pv-pill);
+  --color-pill-border: var(--pv-pill-border);
   --color-hairline: var(--pv-hairline);
 
   --color-aq-good: var(--pv-aq-good);

@@ -38,6 +38,15 @@
   --pv-glass-hero: rgba(255, 255, 255, 0.6);
   --pv-glass-border: rgba(194, 65, 12, 0.22);
   --pv-hairline: rgba(31, 41, 55, 0.12);
+  /* Translucent navbar pill + round header buttons (desktop). */
+  --pv-pill: rgba(255, 255, 255, 0.42);
+  --pv-pill-border: rgba(255, 255, 255, 0.55);
+  /* Shell chrome metrics. --mobile-tabbar-h excludes the safe-area inset,
+     which usage sites add separately. */
+  --topbar-h: 4.75rem;
+  --mobile-tabbar-h: 6.75rem;
+  /* Alias for the bottom nav height (same element, spec language). */
+  --bottom-nav-h: var(--mobile-tabbar-h);
   --pv-gradient-headline: linear-gradient(90deg, #4338ca 0%, #db2777 100%);
   --pv-hero-lead: #374151;
   --pv-hero-sub: #4b5563;
@@ -124,12 +133,6 @@
   --pv-state-stale: #fbbf24;
   --pv-state-error: #f87171;
 
-  /* Warning (amber) on dark — AA: strong on #171b2e. */
-  --pv-warning: #f59e0b;
-  --pv-warning-strong: #fbbf24;
-  --pv-warning-soft: #2e2411;
-  --pv-warning-ink: #fef3c7;
-
   /* Dusk / Haze decorative effects (dark only). */
   --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
   --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
@@ -139,6 +142,8 @@
   /* Restrained shadow for the translucent hero panels. */
   --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
   --pv-glass-border: rgba(129, 140, 248, 0.28);
+  --pv-pill: rgba(14, 18, 42, 0.4);
+  --pv-pill-border: rgba(129, 140, 248, 0.24);
   --pv-hairline: rgba(255, 255, 255, 0.12);
   --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);
   --pv-hero-lead: #e5e7f0;
@@ -190,12 +195,6 @@
     --pv-state-stale: #fbbf24;
     --pv-state-error: #f87171;
 
-    /* Warning (amber) on dark — AA: strong on #171b2e. */
-    --pv-warning: #f59e0b;
-    --pv-warning-strong: #fbbf24;
-    --pv-warning-soft: #2e2411;
-    --pv-warning-ink: #fef3c7;
-
     /* Dusk / Haze decorative effects (dark only). Keep in sync with the block above. */
     --pv-shadow-lift: 0 12px 40px rgba(2, 6, 23, 0.55);
     --pv-glow-accent: 0 0 24px rgba(244, 114, 182, 0.45);
@@ -205,6 +204,8 @@
     /* Restrained shadow for the translucent hero panels. */
     --pv-shadow-soft: 0 8px 32px rgba(2, 6, 23, 0.35);
     --pv-glass-border: rgba(129, 140, 248, 0.28);
+    --pv-pill: rgba(14, 18, 42, 0.4);
+    --pv-pill-border: rgba(129, 140, 248, 0.24);
     --pv-hairline: rgba(255, 255, 255, 0.12);
     --pv-gradient-headline: linear-gradient(90deg, #818cf8 0%, #f472b6 100%);
     --pv-hero-lead: #e5e7f0;
