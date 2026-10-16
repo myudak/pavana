@@ -1,0 +1,16 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "tileSize": 512,
+  "style": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  "views": {
+    "borneo": {
+      "center": [114.1, 1.4],
+      "zoom": 5.8
+    },
+    "kuburaya": {
+      "center": [109.78, -0.55],
+      "zoom": 8.8
+    }
+  }
+}

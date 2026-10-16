@@ -2,10 +2,11 @@
 // Run the web app first (`pnpm dev:app`), then:
 //   node apps/video/scripts/capture-demo.mjs [baseUrl]
 // Uses the Chrome Headless Shell that Remotion already downloaded (or CHROME_PATH).
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
+import { findChrome } from './chrome.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 // CAPTURE_THEME=light and CAPTURE_OUT=<dir> give a light set elsewhere (e.g. for print docs).
@@ -13,31 +14,13 @@ const theme = process.env.CAPTURE_THEME ?? 'dark';
 const out = process.env.CAPTURE_OUT ?? join(root, 'public', 'demo');
 const base = process.argv[2] ?? 'http://localhost:5173';
 
-function findChrome() {
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  const dir = join(root, 'node_modules', '.remotion', 'chrome-headless-shell');
-  const subdirs = (d) =>
-    existsSync(d) ? readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()) : [];
-  for (const platform of subdirs(dir)) {
-    for (const sub of subdirs(join(dir, platform.name))) {
-      for (const exe of ['chrome-headless-shell.exe', 'chrome-headless-shell']) {
-        const p = join(dir, platform.name, sub.name, exe);
-        if (existsSync(p)) return p;
-      }
-    }
-  }
-  throw new Error(
-    'No Chrome found: run `pnpm --filter @pavana/video still` once or set CHROME_PATH',
-  );
-}
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 const browser = await puppeteer.launch({
-  executablePath: findChrome(),
+  executablePath: findChrome(root),
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--hide-scrollbars'],
 });
 const page = await browser.newPage();

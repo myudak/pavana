@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Pavana out/pavana.mp4",
-    "still": "remotion still src/index.ts Pavana",
+    "render": "remotion render src/index.ts PavanaV2 out/pavana.mp4",
+    "render:v1": "remotion render src/index.ts Pavana out/pavana-v1.mp4",
+    "still": "remotion still src/index.ts PavanaV2",
+    "basemap": "node scripts/capture-basemap.mjs",
     "capture": "node scripts/capture-demo.mjs",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json"
@@ -15,6 +17,7 @@
   "dependencies": {
     "@pavana/brand": "workspace:*",
     "@remotion/cli": "4.0.529",
+    "@remotion/media-utils": "4.0.529",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "remotion": "4.0.529"

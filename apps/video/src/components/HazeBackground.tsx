@@ -1,4 +1,4 @@
-import { AbsoluteFill, random, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, random, staticFile, useCurrentFrame } from 'remotion';
 import { FPS, HEIGHT, WIDTH } from '../theme';
 
 // Slow-drifting smoke blobs over an amber sky (think Palangka Raya at noon), with floating
@@ -41,8 +41,7 @@ export function HazeBackground() {
               width: b.r,
               height: b.r,
               borderRadius: '50%',
-              background: `radial-gradient(circle, ${b.c} 0%, transparent 68%)`,
-              filter: 'blur(30px)',
+              background: `radial-gradient(circle, ${b.c} 0%, transparent 72%)`,
             }}
           />
         );
@@ -62,7 +61,6 @@ export function HazeBackground() {
               height: a.size,
               borderRadius: '50%',
               background: `rgba(245, 241, 235, ${a.alpha})`,
-              filter: a.size > 5 ? 'blur(1.5px)' : undefined,
             }}
           />
         );
@@ -80,22 +78,22 @@ export function HazeBackground() {
   );
 }
 
-/** Film grain: SVG turbulence with a seed that changes every 2 frames. */
+/**
+ * Film grain: pre-made 256 px noise tiles (public/fx/noise-*.png) swapped and shifted every
+ * 2 frames. Much cheaper to render than an SVG turbulence filter at 1920×1080.
+ */
 export function Grain({ opacity = 0.09 }: { opacity?: number }) {
   const frame = useCurrentFrame();
+  const step = Math.floor(frame / 2);
   return (
-    <AbsoluteFill style={{ opacity, mixBlendMode: 'overlay', pointerEvents: 'none' }}>
-      <svg width={WIDTH} height={HEIGHT}>
-        <filter id="pv-grain">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.9"
-            numOctaves={2}
-            seed={Math.floor(frame / 2) % 12}
-          />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#pv-grain)" />
-      </svg>
-    </AbsoluteFill>
+    <AbsoluteFill
+      style={{
+        opacity,
+        mixBlendMode: 'overlay',
+        pointerEvents: 'none',
+        backgroundImage: `url(${staticFile(`fx/noise-${step % 4}.png`)})`,
+        backgroundPosition: `${(step * 97) % 256}px ${(step * 53) % 256}px`,
+      }}
+    />
   );
 }
