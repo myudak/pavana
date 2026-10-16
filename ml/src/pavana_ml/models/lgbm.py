@@ -160,3 +160,17 @@ def latest_app_ready_artifact(root: Path = ARTIFACTS_DIR) -> Path | None:
         if is_app_ready(json.loads(meta_path.read_text(encoding="utf-8"))):
             return meta_path.parent
     return None
+
+
+def is_servable_experimental(meta: dict[str, Any]) -> bool:
+    """Whether the app may serve this artifact as an *experimental* model (policy 2026-10-16).
+
+    Requires an observed target, a holdout evaluation and an explicit experimental label; the UI
+    must show it as "eksperimental". It does not claim operational readiness (`is_app_ready`).
+    CAMS-target research artifacts never qualify.
+    """
+    return (
+        (meta.get("evaluated") is True)
+        and (meta.get("experimental") is True)
+        and (meta.get("target_kind", meta.get("targetKind")) in OBSERVED_TARGET_KINDS)
+    )

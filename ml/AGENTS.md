@@ -18,11 +18,33 @@ secrets. Codex reviews the output and independently verifies findings that deter
 
 ## What this workspace is
 
-Offline Python research. **Nothing here powers the app.** `evaluated: true` says a model was scored on
-a holdout; it does not make it servable. Serving requires `is_app_ready`, which also demands an
-**observed** target — the CAMS-field experiment in `models/experiment.py` is `evaluated: true` and
-still must not be served. The app currently serves deterministic indicators plus the synthetic
-fixture.
+Offline Python research **plus the training code of the models the app serves as experiments**.
+
+Serving policy (user decision, 16 Oct 2026 — replaces the earlier "never serve a model" rule):
+a model may be served when it has an **observed** target, was **evaluated on a temporal holdout**
+against honest baselines, and is labelled **"eksperimental"** in the UI
+(`pavana_ml.models.lgbm.is_servable_experimental`). `is_app_ready` (operational readiness) stays
+stricter and nothing meets it. The CAMS-target Path 2 experiment (`models/experiment.py`) predicts a
+model field, so it stays research-only in `/lab-ml`.
+
+Served models (trained in Kaggle, see `kaggle/`):
+
+| Model | Target (observation) | Code |
+| --- | --- | --- |
+| `hotspot-risk` | ≥1 Suomi NPP VIIRS detection in a 0.25° Kalimantan cell on UTC day d+1 | `pipelines/hotspot_risk.py`, `features/hotspot_grid.py` |
+| `haze-6h`, `haze-24h` | airport METAR visibility < 3 km with HZ/FU, no rain/fog, at t+6 h / t+24 h | `pipelines/haze_nowcast.py`, `features/haze_station.py` |
+
+Workflow — everything heavy runs on Kaggle, nothing needs local data:
+
+```bash
+uv run --project ml python ml/kaggle/build.py observed-data --push   # fetch keyless sources
+uv run --project ml python ml/kaggle/build.py observed-train --push  # train + evaluate + export
+kaggle kernels output myudak/pavana-observed-train -p <dir>          # pull models/
+```
+
+Copy `models/*.{model,meta,grid,demo,parity}.json` into `apps/api/src/models/`. The TS evaluator
+(`packages/shared/src/model/gbdt.ts`) is checked against the `*.parity.json` LightGBM vectors, and the
+live feature code (`packages/shared/src/model/*-features.ts`) mirrors the Python features — change both.
 
 ## Commands
 
