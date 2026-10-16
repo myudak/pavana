@@ -158,6 +158,162 @@
   }
 }
 
+/*
+ * Popup motion (sheet, dialog, tooltip). The shadcn primitives ship
+ * `animate-in` / `slide-in-from-*` classes that only work with the
+ * tailwindcss-animate plugin, which this app does not install. The motion lives
+ * here as plain CSS instead, keyed on the data-state / data-side attributes
+ * Radix already sets. Radix keeps the element mounted until the exit animation
+ * ends, so the closed-state rules are what make closing animate.
+ */
+@keyframes pv-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pv-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pv-pop-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@keyframes pv-pop-out {
+  to {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@keyframes pv-slide-in-top {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes pv-slide-out-top {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes pv-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pv-slide-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pv-slide-in-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes pv-slide-out-bottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes pv-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes pv-slide-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+[data-slot='sheet-overlay'],
+[data-slot='dialog-overlay'] {
+  animation: pv-fade-in 200ms ease-out;
+}
+
+/* The scrim is the app's own element (Radix only renders one in modal mode,
+   and these panels are non-modal), so the exit reads the closed state off the
+   sibling panel instead of its own data-state. */
+[data-slot='sheet-overlay']:has(+ [data-slot='sheet-content'][data-state='closed']),
+[data-slot='dialog-overlay']:has(+ [data-slot='dialog-content'][data-state='closed']) {
+  animation: pv-fade-out 160ms ease-in forwards;
+}
+
+[data-slot='sheet-content'] {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-slot='sheet-content'][data-state='open'] {
+  animation-name: pv-slide-in-bottom;
+}
+
+[data-slot='sheet-content'][data-state='closed'] {
+  animation-name: pv-slide-out-bottom;
+  animation-duration: 240ms;
+  animation-fill-mode: forwards;
+}
+
+[data-slot='sheet-content'][data-state='open'][data-side='top'] {
+  animation-name: pv-slide-in-top;
+}
+
+[data-slot='sheet-content'][data-state='closed'][data-side='top'] {
+  animation-name: pv-slide-out-top;
+}
+
+[data-slot='sheet-content'][data-state='open'][data-side='right'] {
+  animation-name: pv-slide-in-right;
+}
+
+[data-slot='sheet-content'][data-state='closed'][data-side='right'] {
+  animation-name: pv-slide-out-right;
+}
+
+[data-slot='sheet-content'][data-state='open'][data-side='left'] {
+  animation-name: pv-slide-in-left;
+}
+
+[data-slot='sheet-content'][data-state='closed'][data-side='left'] {
+  animation-name: pv-slide-out-left;
+}
+
+[data-slot='dialog-content'] {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+[data-slot='dialog-content'][data-state='open'] {
+  animation-name: pv-pop-in;
+}
+
+[data-slot='dialog-content'][data-state='closed'] {
+  animation-name: pv-pop-out;
+  animation-fill-mode: forwards;
+}
+
+[data-slot='tooltip-content'] {
+  animation: pv-pop-in 120ms ease-out;
+}
+
+[data-slot='tooltip-content'][data-state='closed'] {
+  animation: pv-pop-out 100ms ease-in forwards;
+}
+
 /* Haze accent for text/icons: the light-theme blush is too pale for text, so use a deeper pink there. */
 :root {
   --pv-haze: #db2777;

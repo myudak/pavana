@@ -6,8 +6,11 @@ import { Cancel01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Dialog as SheetPrimitive } from 'radix-ui';
 
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+/* Non-modal on purpose: Radix's scroll lock removes the page scrollbar (and
+   with it the ability to scroll) while a sheet is open. Callers can pass
+   `modal` explicitly to opt back in. */
+function Sheet({ modal = false, ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="sheet" modal={modal} {...props} />;
 }
 
 function SheetTrigger({ ...props }: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
@@ -22,17 +25,14 @@ function SheetPortal({ ...props }: React.ComponentProps<typeof SheetPrimitive.Po
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
-function SheetOverlay({
-  className,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
+/* Radix renders its own overlay only in modal mode and this sheet is
+   non-modal (see Sheet), so the scrim is ours: it dims the page and swallows
+   the click, which Radix then reports as "outside" and closes the sheet. */
+function SheetOverlay({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <SheetPrimitive.Overlay
+    <div
       data-slot="sheet-overlay"
-      className={cn(
-        'fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
-        className,
-      )}
+      className={cn('pointer-events-auto fixed inset-0 z-50 bg-black/50', className)}
       {...props}
     />
   );
@@ -53,16 +53,13 @@ function SheetContent({
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
+        data-side={side}
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500',
-          side === 'right' &&
-            'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
-          side === 'left' &&
-            'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
-          side === 'top' &&
-            'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
-          side === 'bottom' &&
-            'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg',
+          side === 'right' && 'inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm',
+          side === 'left' && 'inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm',
+          side === 'top' && 'inset-x-0 top-0 h-auto border-b',
+          side === 'bottom' && 'inset-x-0 bottom-0 h-auto border-t',
           className,
         )}
         {...props}
