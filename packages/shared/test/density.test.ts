@@ -212,7 +212,9 @@ describe('regional fixture field metrics', () => {
     expect(mid / land).toBeGreaterThanOrEqual(0.25);
     expect(mid / land).toBeLessThanOrEqual(0.4);
     expect(core / land).toBeLessThanOrEqual(0.08);
-  });
+    // Building the field over the 800 KB regional fixture takes seconds under load,
+    // so give this case its own budget instead of vitest's 5s default.
+  }, 30_000);
 
   it('bright areas connect into a few masses, not scattered blobs', () => {
     const field = buildDensityField(
