@@ -208,8 +208,10 @@ export default function ForecastPage() {
               </Link>
             </div>
           </div>
-          <details className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">
-            <summary className="cursor-pointer font-medium">{t.insights.howTitle}</summary>
+          <details data-accordion className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">
+            <summary data-accordion-trigger className="cursor-pointer font-medium">
+              {t.insights.howTitle}
+            </summary>
             <ul className="mt-2 list-disc space-y-2 pl-5 text-muted-foreground">
               {t.insights.howBody.map((p) => (
                 <li key={p}>{p}</li>

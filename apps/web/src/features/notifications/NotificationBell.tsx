@@ -138,7 +138,7 @@ export function NotificationBell({ className }: { className?: string }) {
                           ))}
                         </ul>
                       )}
-                      <details className="group pt-1">
+                      <details data-accordion className="group pt-1">
                         <summary className="flex min-h-9 cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-primary-strong">
                           {rec.open}
                           <ChevronDown

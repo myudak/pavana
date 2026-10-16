@@ -59,8 +59,11 @@ function RunDetails({
 }) {
   const t = useCopy().model;
   return (
-    <details className="mt-3 border-t border-foreground/10 pt-2">
-      <summary className="cursor-pointer text-xs font-medium text-primary-strong">
+    <details data-accordion className="mt-3 border-t border-foreground/10 pt-2">
+      <summary
+        data-accordion-trigger
+        className="cursor-pointer text-xs font-medium text-primary-strong"
+      >
         {t.details}
       </summary>
       <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
