@@ -58,6 +58,12 @@
  */
 :root {
   --app-vh: 100dvh;
+  --page-gutter-x: 1rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --page-gutter-x: 6.25vw;
+  }
 }
 @media (min-width: 1024px) {
   html {

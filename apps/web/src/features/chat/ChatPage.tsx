@@ -53,26 +53,28 @@ export default function ChatPage() {
 function ChatLayout() {
   const empty = useAuiState((s) => s.thread.isEmpty);
   return (
-    <div className="flex h-[calc(var(--app-vh)-7.5rem-env(safe-area-inset-bottom))] flex-col px-4 pt-[max(env(safe-area-inset-top),0.75rem)] md:px-6 lg:h-[calc(var(--app-vh)-5rem)] lg:px-0 lg:pt-2">
-      <ChatHeader />
-      <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
-        <ThreadPrimitive.Viewport
-          className={cn(
-            'pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3',
-            // Empty on desktop: fixed area, no scroll (content is sized to
-            // fit). Mobile keeps scroll; running threads always scroll.
-            empty && 'lg:overflow-hidden',
-          )}
-        >
-          <AuiIf condition={(s) => s.thread.isEmpty}>
-            <Welcome />
-          </AuiIf>
-          <ThreadPrimitive.Messages>
-            {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
-          </ThreadPrimitive.Messages>
-        </ThreadPrimitive.Viewport>
-        <Composer />
-      </ThreadPrimitive.Root>
+    <div className="flex h-[calc(var(--app-vh)-7.5rem-env(safe-area-inset-bottom))] flex-col px-[var(--page-gutter-x)] pt-[max(env(safe-area-inset-top),0.75rem)] lg:h-[calc(var(--app-vh)-5rem)] lg:pt-2">
+      <div className="mx-auto flex min-h-0 w-full max-w-[84rem] flex-1 flex-col">
+        <ChatHeader />
+        <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col">
+          <ThreadPrimitive.Viewport
+            className={cn(
+              'pv-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain py-3',
+              // Empty on desktop: fixed area, no scroll (content is sized to
+              // fit). Mobile keeps scroll; running threads always scroll.
+              empty && 'lg:overflow-hidden',
+            )}
+          >
+            <AuiIf condition={(s) => s.thread.isEmpty}>
+              <Welcome />
+            </AuiIf>
+            <ThreadPrimitive.Messages>
+              {({ message }) => (message.role === 'user' ? <UserMessage /> : <AssistantMessage />)}
+            </ThreadPrimitive.Messages>
+          </ThreadPrimitive.Viewport>
+          <Composer />
+        </ThreadPrimitive.Root>
+      </div>
     </div>
   );
 }

@@ -62,7 +62,7 @@ export function AppShell() {
             '[text-shadow:0_1px_12px_rgba(6,9,24,0.35)] lg:[text-shadow:none]',
           )}
         >
-          <div className="px-4 lg:px-[6.25vw]">
+          <div className="px-[var(--page-gutter-x)]">
             <div className="mx-auto flex h-[3.25rem] w-full max-w-[84rem] items-center justify-between gap-3 lg:grid lg:h-[var(--topbar-h)] lg:grid-cols-[1fr_auto_1fr] lg:gap-4">
               {/* Left: olive wordmark */}
               <div className="flex min-w-0 items-center justify-start">
@@ -92,7 +92,7 @@ export function AppShell() {
 
       {/* Mobile location row (Home only): no backdrop, scrolls away with content. */}
       {isHome && !isMap && (
-        <div className="px-4 lg:hidden">
+        <div className="px-[var(--page-gutter-x)] lg:hidden">
           <div className="mx-auto flex min-h-8 w-full max-w-[84rem] items-center justify-between gap-2">
             <LocationPicker compact className="min-w-0" />
           </div>

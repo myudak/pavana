@@ -73,10 +73,12 @@ export default function ForecastPage() {
         skeleton={
           <div aria-hidden className="relative overflow-clip">
             <DuskBackdrop className="absolute inset-0" />
-            <div className="mx-auto flex min-h-[clamp(320px,46svh,420px)] w-full max-w-[84rem] animate-pulse flex-col items-center justify-center gap-3 px-[6.25vw] lg:min-h-[clamp(360px,44svh,460px)]">
-              <div className="h-4 w-32 rounded-full bg-white/20" />
-              <div className="h-8 w-56 rounded-xl bg-white/20" />
-              <div className="h-28 w-64 rounded-2xl bg-white/15" />
+            <div className="w-full px-[var(--page-gutter-x)]">
+              <div className="mx-auto flex min-h-[clamp(320px,46svh,420px)] w-full max-w-[84rem] animate-pulse flex-col items-center justify-center gap-3 lg:min-h-[clamp(360px,44svh,460px)]">
+                <div className="h-4 w-32 rounded-full bg-white/20" />
+                <div className="h-8 w-56 rounded-xl bg-white/20" />
+                <div className="h-28 w-64 rounded-2xl bg-white/15" />
+              </div>
             </div>
           </div>
         }

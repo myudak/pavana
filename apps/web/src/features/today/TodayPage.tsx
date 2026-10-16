@@ -151,7 +151,7 @@ export function TodayPage() {
             <section className="relative -mt-[calc(5.8125rem+env(safe-area-inset-top))] flex min-h-[calc(100dvh-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] flex-col overflow-clip md:-mt-16 md:block md:min-h-[100dvh] lg:mt-0 lg:flex lg:min-h-[100svh]">
               <DuskBackdrop className="absolute inset-0" />
 
-              <div className="flex flex-1 flex-col px-4 md:block md:px-[6.25vw] lg:flex">
+              <div className="flex flex-1 flex-col px-[var(--page-gutter-x)] md:block lg:flex">
                 <div className="relative mx-auto flex w-full max-w-[84rem] flex-1 flex-col gap-0 pt-0 md:grid md:gap-8 md:pb-10 md:pt-24 lg:flex lg:flex-col lg:gap-0 lg:p-0 xl:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
                   {/* Photo gap (mobile): fixed image-only space from below the
                       location row (header is 93px: 52 bar + 41 row) to the hero
@@ -420,7 +420,7 @@ export function TodayPage() {
                 height (5 cols), then why + actions. ============ */}
             <div className="bg-canvas [--section-gap:20px]">
               {isMobile ? (
-                <div className="space-y-4 px-4 pb-[calc(var(--mobile-tabbar-h)+env(safe-area-inset-bottom)+1rem)] pt-3">
+                <div className="space-y-4 px-[var(--page-gutter-x)] pb-[calc(var(--mobile-tabbar-h)+env(safe-area-inset-bottom)+1rem)] pt-3">
                   <DailyForecastCard timeZone={tz} nowPm25={pm} />
                   <QueryState query={exposure}>
                     {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
@@ -430,7 +430,7 @@ export function TodayPage() {
                   <ModelCard compact />
                 </div>
               ) : (
-                <div className="px-[6.25vw] pb-28 lg:pt-[var(--section-gap)]">
+                <div className="px-[var(--page-gutter-x)] pb-28 lg:pt-[var(--section-gap)]">
                   <div className="mx-auto grid w-full max-w-[84rem] gap-4 lg:grid-cols-12 lg:gap-[var(--section-gap)]">
                     <Card className={cn('lg:col-span-7 lg:row-start-1', glassCard, forecastCard)}>
                       <CardHeader className="mb-2">
