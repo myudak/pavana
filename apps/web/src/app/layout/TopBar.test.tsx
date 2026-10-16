@@ -29,7 +29,7 @@ function renderAt(path: string) {
 describe('Top bar nav', () => {
   it('marks the current destination active on both desktop and mobile navs', async () => {
     renderAt('/');
-    const todayLinks = await screen.findAllByRole('link', { name: 'Hari Ini' });
+    const todayLinks = await screen.findAllByRole('link', { name: 'Home' });
     // Desktop top bar + mobile bottom tab bar.
     expect(todayLinks.length).toBeGreaterThanOrEqual(2);
     for (const link of todayLinks) {
@@ -61,6 +61,8 @@ describe('Top bar nav', () => {
 
   it('shows the location pill trigger', async () => {
     renderAt('/');
-    expect(await screen.findByRole('button', { name: 'Sungai Raya' })).toBeInTheDocument();
+    // Desktop header pill (hidden on mobile) + compact mobile row pill.
+    const pills = await screen.findAllByRole('button', { name: 'Sungai Raya' });
+    expect(pills.length).toBeGreaterThanOrEqual(2);
   });
 });

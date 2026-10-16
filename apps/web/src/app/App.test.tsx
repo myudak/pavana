@@ -64,12 +64,14 @@ describe('Today page', () => {
       0,
     );
     expect(screen.getAllByText('µg/m³').length).toBeGreaterThan(0);
-    expect(screen.getByText(/pavana-fixture/)).toBeInTheDocument();
+    // Provenance renders twice (mobile instance below the banner + desktop
+    // instance above the hourly strip); exactly one is visible per breakpoint.
+    expect(screen.getAllByText(/pavana-fixture/).length).toBeGreaterThan(0);
   });
 
   it('renders the four primary nav destinations', async () => {
     renderAt('/');
-    for (const label of ['Hari Ini', 'Peta', 'Insight', 'Info']) {
+    for (const label of ['Home', 'Peta', 'Insight', 'Info']) {
       expect((await screen.findAllByRole('link', { name: label })).length).toBeGreaterThan(0);
     }
   });

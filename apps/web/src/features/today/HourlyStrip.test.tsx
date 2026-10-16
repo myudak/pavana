@@ -61,6 +61,14 @@ describe('HourlyTimeline strip', () => {
     expect(within(cells[3]!).getByText('7 km/jam')).toBeInTheDocument();
   });
 
+  it('hides the wind row below the sm breakpoint via CSS (stays in the DOM)', () => {
+    render(<HourlyTimeline hours={HOURS} timeZone="Asia/Pontianak" variant="strip" />);
+    const cells = screen.getAllByRole('listitem');
+    // 5 m/s → 18 km/jam; hidden on <sm, visible sm+ — CSS only so it stays queryable.
+    const wind = within(cells[0]!).getByText('18 km/jam');
+    expect(wind.closest('span')).toHaveClass('hidden');
+  });
+
   it('keeps a screen-reader category label in every cell (never color-only)', () => {
     render(<HourlyTimeline hours={HOURS} timeZone="Asia/Pontianak" variant="strip" />);
     const cells = screen.getAllByRole('listitem');

@@ -51,7 +51,7 @@ export function InfoPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1344px] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
+    <div className="mx-auto w-full max-w-[84rem] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
       {conditions.data?.state === 'demo' && <DemoBanner />}
 
       <AtmosphereSection labelledBy="info-title" className="scroll-mt-24">
@@ -92,9 +92,7 @@ export function InfoPage() {
                 onClick={() => setFilter(f)}
                 className={cn(
                   'min-h-11 rounded-full px-3 text-sm font-medium transition-all duration-200',
-                  filter === f
-                    ? 'bg-surface text-ink shadow-sm'
-                    : 'text-ink-muted hover:text-ink',
+                  filter === f ? 'bg-surface text-ink shadow-sm' : 'text-ink-muted hover:text-ink',
                 )}
               >
                 {t.info.filters[f]}

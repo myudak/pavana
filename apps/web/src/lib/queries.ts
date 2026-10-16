@@ -27,6 +27,15 @@ export function useInsights() {
   });
 }
 
+/** Daily min/max/mean aggregation for the mobile 10-day card. */
+export function useDailyForecast(days = 10) {
+  const { location } = useSelectedLocation();
+  return useQuery({
+    queryKey: ['forecast-daily', location.lat, location.lon, days],
+    queryFn: ({ signal }) => api.dailyForecast(location, days, signal),
+  });
+}
+
 /** Curated official links (BMKG, SiPongi, BPBD…) — location-independent. */
 export function useOfficialLinks() {
   return useQuery({

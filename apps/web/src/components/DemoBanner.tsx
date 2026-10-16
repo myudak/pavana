@@ -12,7 +12,7 @@ export function DemoBanner() {
       <FlaskConical className="mt-0.5 size-4 shrink-0 text-state-demo" aria-hidden />
       <p className="font-semibold" title={t.demoBannerDetail}>
         {t.demoBanner}
-        <span className="sr-only"> — {t.demoBannerDetail}</span>
+        <span className="sr-only">: {t.demoBannerDetail}</span>
       </p>
     </div>
   );

@@ -22,11 +22,18 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface-muted text-ink transition-colors hover:bg-surface',
+        // Mobile: ghost 40px as before. Desktop (lg+): same ghost icon button
+        // as the bell — 40px, no fill/border, 22px ink-muted icon, ink/0.06
+        // hover wash. Focus ring comes from the global :focus-visible token.
+        'inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-transparent bg-transparent text-ink transition-colors hover:bg-surface-muted/70 lg:text-ink-muted lg:hover:bg-ink/[0.06] lg:hover:text-ink',
         className,
       )}
     >
-      {dark ? <Sun className="size-5" aria-hidden /> : <Moon className="size-5" aria-hidden />}
+      {dark ? (
+        <Sun className="size-5 lg:size-[1.375rem]" aria-hidden />
+      ) : (
+        <Moon className="size-5 lg:size-[1.375rem]" aria-hidden />
+      )}
     </button>
   );
 }

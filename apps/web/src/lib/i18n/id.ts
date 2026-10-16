@@ -35,9 +35,10 @@ export const id = {
     soon: 'Segera hadir',
   },
 
-  nav: { today: 'Hari Ini', map: 'Peta', insights: 'Insight', info: 'Info' },
+  nav: { today: 'Home', map: 'Peta', insights: 'Insight', info: 'Info' },
 
   demoBanner: 'Mode Demo · Data ilustratif',
+  demoChip: 'Mode Demo',
   demoBannerDetail:
     'Semua angka di halaman ini adalah skenario sintetis untuk demonstrasi, bukan pengamatan nyata.',
 
@@ -66,7 +67,7 @@ export const id = {
     unknown: 'Tidak diketahui',
   } satisfies Record<UsAqiCategory | 'unknown', string>,
   aqiIndicative: 'Kategori indikatif US AQI dari nilai per jam',
-  aqiIndicativeShort: 'indikatif',
+  aqiIndicativeShort: 'Indikatif',
 
   provenanceKind: {
     observation: 'Pengamatan',
@@ -77,7 +78,19 @@ export const id = {
 
   today: {
     currentTitle: 'PM2.5 saat ini',
-    heroLead: 'Kualitas udara saat ini',
+    heroLead: 'Kualitas udara',
+    // Deskripsi singkat hero per kategori — dinamis mengikuti kategori AQI,
+    // tanpa angka deteksi, radius, arah angin, atau skor indikator.
+    heroDesc: {
+      good: 'Udara relatif bersih. Nikmati aktivitas luar ruangan seperti biasa.',
+      moderate:
+        'Kualitas udara cukup baik. Kelompok yang sensitif sebaiknya memperhatikan kondisi tubuh.',
+      unhealthy_sensitive:
+        'Kelompok sensitif disarankan mengurangi aktivitas berat di luar ruangan.',
+      unhealthy: 'Batasi aktivitas di luar ruangan dan kurangi paparan polusi.',
+      very_unhealthy: 'Hindari aktivitas berat di luar ruangan dan kurangi paparan udara luar.',
+      hazardous: 'Hindari aktivitas di luar ruangan sebisa mungkin.',
+    } satisfies Record<UsAqiCategory, string>,
     pm25Label: 'PM2.5',
     todayForecast: 'Prakiraan hari ini',
     hourlyLabel: 'PRAKIRAAN PER JAM',
@@ -96,7 +109,8 @@ export const id = {
       'Pantau pembaruan dari sumber resmi (BMKG, BPBD setempat).',
       'Kurangi aktivitas luar ruangan jika kondisi memburuk, terutama kelompok sensitif.',
     ],
-    actionsNote: 'Saran umum, bukan nasihat medis atau perintah evakuasi.',
+    actionsNote: 'Saran umum, bukan nasihat medis.',
+    noActions: 'Belum ada saran untuk kondisi saat ini.',
     // E4: saran per kategori US AQI + rujukan. Umum, tanpa diagnosis dan tanpa perintah
     // evakuasi. Kategori `unknown` (data kosong) sengaja tidak punya saran.
     healthAdvice: {
@@ -112,9 +126,32 @@ export const id = {
       hazardous:
         'Tetap di dalam ruangan dan hindari aktivitas luar ruangan. Ikuti arahan otoritas setempat.',
     } satisfies Record<UsAqiCategory, string>,
-    healthAdviceSource:
-      'Sumber saran: informasi umum dari lembaga resmi — selengkapnya di',
     noData: 'Tidak ada data kualitas udara untuk lokasi ini.',
+    // Kartu "Prakiraan 10 hari" — mobile (< 768px) dan kolom kanan grid desktop.
+    daily: {
+      title: 'PRAKIRAAN 10 HARI',
+      unit: 'PM2.5 µg/m³',
+      today: 'Hari ini',
+      unavailable: 'Belum tersedia',
+      rangeNote:
+        'Jangkauan prakiraan kualitas udara terbatas oleh provider; hari berikutnya belum tersedia.',
+      rowLabel: (day: string, min: string, max: string, category: string) =>
+        `${day}: PM2.5 ${min} sampai ${max} µg/m³, kategori ${category}`,
+      // Label kategori singkat untuk kolom kategori desktop (aria-label baris
+      // tetap memakai nama lengkap dari aqCategory).
+      catShort: {
+        good: 'Baik',
+        moderate: 'Sedang',
+        unhealthy_sensitive: 'Sensitif',
+        unhealthy: 'Tidak sehat',
+        very_unhealthy: 'Sangat tidak sehat',
+        hazardous: 'Berbahaya',
+        unknown: 'Tidak diketahui',
+      } satisfies Record<UsAqiCategory | 'unknown', string>,
+      // Tooltip pada bar desktop: min–rata-rata–maks hari itu.
+      barTooltip: (min: string, mean: string, max: string) =>
+        `Min ${min} · Rata-rata ${mean} · Maks ${max} µg/m³`,
+    },
   },
 
   factor: {
@@ -134,8 +171,8 @@ export const id = {
         peakAt
           ? `Saat ini ${current} µg/m³; puncak prakiraan ${peak} µg/m³ sekitar pukul ${peakAt}.`
           : `Saat ini ${current} µg/m³.`,
-      wind: (from: string, deg: string, speed: string, to: string) =>
-        `Dari ${from} (${deg}°), ${speed} m/s — bertiup ke arah ${to}.`,
+      wind: (from: string, speed: string, to: string) =>
+        `Angin dari ${from}, ${speed} m/s, bertiup ke ${to}.`,
       upwindNone: (radiusKm: string, windowH: string) =>
         `Tidak ada deteksi titik panas dalam radius ${radiusKm} km selama ${windowH} jam terakhir. Ini tidak berarti tidak ada api.`,
       upwind: (contributing: string, considered: string, radiusKm: string, score: string) =>
@@ -150,13 +187,12 @@ export const id = {
     closeDetail: 'Tutup detail',
     layerDensity: 'Kepadatan hotspot',
     layerWind: 'Angin',
-    legendDensity: 'Kepadatan deteksi satelit — bukan konsentrasi PM2.5',
+    legendDensity: 'Kepadatan deteksi satelit, bukan konsentrasi PM2.5',
     noDetectionNote: 'Biru redup berarti tidak ada deteksi, bukan berarti udara bersih.',
     fitKalimantan: 'Seluruh Kalimantan',
     windFieldNote:
       'Garis aliran digambar dari prakiraan angin per grid (demo: ilustrasi sintetis).',
     layerHotspots: 'Titik panas',
-    legendHotspot: 'Deteksi anomali panas satelit',
     legendLocation: 'Lokasi dipilih',
     hotspotDisclaimer: 'Deteksi satelit, bukan konfirmasi kebakaran atau batas area terbakar.',
     acquired: 'Waktu deteksi',
@@ -167,14 +203,14 @@ export const id = {
     windFrom: 'dari',
     windTo: 'bertiup ke',
     mapError: 'Peta tidak dapat dimuat. Menampilkan daftar titik panas.',
-    count: (n: number) => `${n} deteksi dalam area`,
+    count: (n: number) => `${n} deteksi anomali panas satelit dalam area`,
   },
 
   insights: {
     title: 'Insight',
     chartTitle: 'Prakiraan PM2.5',
     nowMarker: 'Kini',
-    methodDeterministic: 'Indikator deterministik — bukan model machine learning.',
+    methodDeterministic: 'Indikator deterministik, bukan model machine learning.',
     howTitle: 'Bagaimana ini dihitung?',
     howBody: [
       'Titik panas = deteksi anomali panas satelit, bukan konfirmasi kebakaran.',
@@ -243,15 +279,15 @@ export const id = {
       airTitle: 'Kualitas udara',
       windTitle: 'Angin',
       hotspotTitle: 'Hotspot',
-      windFrom: (name: string, code: string) => `Dari ${name} (${code})`,
+      windFrom: (name: string) => `Dari ${name}`,
       windSpeed: (kmh: string) => `${kmh} km/jam`,
       windScope: 'Konteks sebaran asap',
-      windRelevance: 'Konteks arah sebaran asap — bukan bukti asap akan mencapai lokasi Anda.',
+      windRelevance: 'Konteks arah sebaran asap, bukan bukti asap akan mencapai lokasi Anda.',
       windMissing: 'Data angin tidak tersedia untuk lokasi ini.',
       hotspotScope: (radius: string, window: string) =>
         `Dalam radius ${radius} km · ${window} jam terakhir`,
       hotspotScopeArea: 'Area pencarian di sekitar lokasi terpilih.',
-      hotspotNone: 'Tidak ada deteksi di area pencarian — bukan berarti tidak ada kebakaran.',
+      hotspotNone: 'Tidak ada deteksi di area pencarian, bukan berarti tidak ada kebakaran.',
       hotspotError: 'Jumlah titik panas tidak dapat dimuat.',
       seeChart: 'Lihat grafik',
       seeMap: 'Lihat di peta',
@@ -273,7 +309,7 @@ export const id = {
       staleBody: 'Angka terakhir belum mencerminkan kondisi saat ini.',
       insufficientBody: 'Perubahan kualitas udara belum dapat dinilai.',
       hotspotTitle: 'Titik panas terdeteksi di sekitar wilayah',
-      hotspotBody: (n: string) => `${n} deteksi satelit — indikasi titik panas, bukan kebakaran.`,
+      hotspotBody: (n: string) => `${n} deteksi satelit, indikasi titik panas, bukan kebakaran.`,
       officialTitle: 'Informasi resmi karhutla',
       officialBody: 'Kanal resmi status karhutla & kualitas udara.',
       officialError: 'Tautan resmi tidak dapat dimuat.',
@@ -287,7 +323,7 @@ export const id = {
     // Rekomendasi tindakan — aturan deterministik, satu bundel copy per notifikasi.
     rec: {
       open: 'Lihat rekomendasi',
-      illustrativeNote: 'Data ilustratif — bukan pengamatan nyata.',
+      illustrativeNote: 'Data ilustratif, bukan pengamatan nyata.',
       rules: {
         combined: {
           trigger: (v) =>
@@ -325,9 +361,7 @@ export const id = {
         official: {
           trigger: () => 'Tautan ke sumber resmi karhutla.',
           reason: () => 'Pavana tidak menerbitkan peringatan resmi.',
-          actions: [
-            'Ikuti arahan otoritas; evakuasi hanya bila diperintahkan.',
-          ],
+          actions: ['Ikuti arahan otoritas; evakuasi hanya bila diperintahkan.'],
           limit: 'Belum terhubung ke feed pengumuman resmi.',
         },
         'data-stale': {
@@ -342,10 +376,7 @@ export const id = {
         'data-insufficient': {
           trigger: () => 'Data kualitas udara belum tersedia.',
           reason: () => 'Tanpa data, perubahan tidak dapat dinilai.',
-          actions: [
-            'Cek sumber informasi resmi.',
-            'Jangan menyimpulkan kondisi aman.',
-          ],
+          actions: ['Cek sumber informasi resmi.', 'Jangan menyimpulkan kondisi aman.'],
           limit: 'Angka PM2.5 tidak ditampilkan.',
         },
       } satisfies Record<NotificationId, RecommendationRule>,
@@ -375,7 +406,7 @@ export const id = {
       official: 'Sumber resmi',
       data: 'Status data',
     } satisfies Record<InfoFilter, string>,
-    staleWarning: 'Data terlambat — angka mungkin belum mencerminkan kondisi saat ini.',
+    staleWarning: 'Data terlambat, angka mungkin belum mencerminkan kondisi saat ini.',
     noResults: 'Tidak ada kartu untuk filter ini.',
     cards: {
       pm25Title: 'Prakiraan PM2.5',
@@ -388,7 +419,7 @@ export const id = {
       hotspotNone: 'Tidak ada deteksi di area pencarian.',
       hotspotUnknown: 'Jumlah deteksi belum tersedia.',
       hotspotAction: 'Lihat di Peta',
-      hotspotCaveat: 'Deteksi satelit — bukan konfirmasi kebakaran.',
+      hotspotCaveat: 'Deteksi satelit, bukan konfirmasi kebakaran.',
       officialTitle: 'Informasi resmi BPBD/BMKG',
       officialBody: (n: string) => `${n} kanal resmi terkurasi untuk karhutla dan kualitas udara.`,
       officialEmpty: 'Daftar tautan resmi belum dapat dimuat.',
@@ -397,7 +428,7 @@ export const id = {
       officialCaveat: 'Pavana bukan sumber peringatan resmi.',
       dataTitle: 'Status data',
       dataUpdated: (at: string) => `Diperbarui ${at}`,
-      dataStale: 'Data terlambat — jangan simpulkan kondisi aman.',
+      dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
       dataInsufficient: 'Data belum cukup untuk menilai kondisi.',
       dataUnknown: 'Status data belum tersedia.',
       dataAction: 'Muat ulang',
