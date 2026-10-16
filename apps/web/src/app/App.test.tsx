@@ -112,13 +112,14 @@ describe('Forecast page', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Riset historis')).toBeInTheDocument();
     for (const name of [
-      'Estimasi PM2.5 · CAMS t+6 jam',
       'Angin bandara · t+6 jam',
       'Peluang jarak pandang < 3 km karena kabut asap',
       'Peluang titik panas terdeteksi',
     ]) {
       expect(screen.getByRole('heading', { name, level: 3 })).toBeInTheDocument();
     }
+    // The CAMS-proxy PM2.5 model is research-only and has no forecast card.
+    expect(screen.queryByRole('heading', { name: 'Estimasi PM2.5 · CAMS t+6 jam' })).toBeNull();
   }, 20_000);
 });
 

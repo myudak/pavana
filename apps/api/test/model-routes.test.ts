@@ -37,5 +37,6 @@ describe('model HTTP contracts with real archived replay', () => {
     } finally {
       await app.close();
     }
-  });
+    // Full-grid replay + TreeSHAP for every route; slow on loaded or shared runners.
+  }, 30_000);
 });

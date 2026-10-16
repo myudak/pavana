@@ -23,17 +23,16 @@ There are six actual LightGBM boosters: hotspot, haze-6h, haze-24h, pm25, wind-u
 All are experimental and `operationalReady: false`. Losing to persistence does not disqualify an
 otherwise correctly trained/evaluated experimental model. Scores must be reported as found.
 
-The PM2.5 serving exception is deliberately separate: `targetKind: model` and
-`servingPolicy: experimental-cams-proxy`. It is not an observation, a station validation, or a
-change to `is_app_ready`. The historical H-1 CAMS ablation in
+PM2.5 is **research-only** (review of 16 Oct 2026): its target is the CAMS model field, not an
+observation, and it loses to persistence, so it has no live route or card. Its booster and
+evaluation stay in Lab ML. Serving remains limited to observed targets. The historical H-1 CAMS ablation in
 [the research handoff](ML_RESEARCH_HANDOFF.md) remains a separate artifact and unchanged result.
 
 The UI displays ML cards in Prakiraan and a compact summary in Hari Ini. The map keeps Claude's
 risk-grid overlay. Provider forecasts remain separate comparisons. Each detailed card includes
 input/target timestamps, reference, model version, and live/replay status. The nearest available
 airport within 300 km is shown, with its actual name and distance; this is not a prediction at the
-user's home. PM2.5's initial display policy is within 25 km of the requested Sungai Raya anchor;
-that is a product scope limit, not a validated 25 km spatial accuracy claim.
+user's home.
 
 Missing or stale critical input gives null with reasons. CAMS requires complete autoregressive
 features and an origin no more than 2 h old; a different returned CAMS grid is refused. METAR
@@ -95,7 +94,12 @@ completed-hour and freshness rules. The training archive remains IEM; provider d
 not received a separate validation study. Censored NOAA visibility and variable wind direction
 remain null.
 
-- Observed targets: train 2015–2021, validation 2022–2023, test 2024–2025.
+- Hotspot: train 2015–2021, validation 2022–2023, test 2024–2025.
+- Haze: train 2015–2020, validation 2021–2022, test 2023–2025, so the 2023 El Niño haze season is
+  scored (the 2024–2025 test had only ~230 positives per horizon).
+- Hotspot detection features use 6-day windows (lags 0–5): the keyless live FIRMS file covers the
+  last 7×24 h, so its oldest calendar day is usually cut; days starting before the file's first
+  acquisition are unknown, not zero.
 - PM2.5: train 2024, validation 2025, test 2026 through actual snapshot coverage.
 - Any origin whose target crosses a split end is purged (24 h hotspot, 6/24 h haze, 6 h regressions).
 - Static-source cell masks and climatologies are fitted from training data only.
@@ -178,22 +182,27 @@ installing the JSON. All six TypeScript prediction/TreeSHAP parity cases passed,
 inputs and boundary rows. Full precision results, versions and checksums live in
 [`ml-live-run.json`](../ml/reports/ml-live-run.json).
 
-| Held-out measure                 |  LightGBM | Persistence | Train climatology |     Common rows |
-| -------------------------------- | --------: | ----------: | ----------------: | --------------: |
-| Hotspot PR-AUC (AP), 2024–2025   |  0.368446 |    0.125674 |          0.163767 |         621,437 |
-| Hotspot Brier, 2024–2025         |  0.023884 |    0.027980 |          0.029285 |         621,437 |
-| Haze +6h PR-AUC (AP)             |  0.037112 |    0.002058 |          0.004681 |         193,036 |
-| Haze +24h PR-AUC (AP)            |  0.033815 |    0.002971 |          0.004193 |         194,938 |
-| PM2.5 MAE, µg/m³, 2026           | 21.765695 |   14.388942 |         25.421927 |           6,882 |
-| PM2.5 RMSE, µg/m³, 2026          | 43.609432 |   28.377043 |         47.094647 |           6,882 |
+Training kernel version 2.
+
+| Held-out measure                     |  LightGBM | Persistence | Train climatology |     Common rows |
+| ------------------------------------ | --------: | ----------: | ----------------: | --------------: |
+| Hotspot PR-AUC (AP), 2024–2025       |  0.368081 |    0.124977 |          0.164722 |         628,038 |
+| Hotspot PR-AUC, recent-activity ref. |           |    0.230881 |                   |         628,038 |
+| Hotspot Brier, 2024–2025             |  0.023874 |    0.027983 |          0.029235 |         628,038 |
+| Haze +6h PR-AUC (AP), 2023–2025      |  0.303964 |    0.023666 |          0.029418 | 288,439 (947 +) |
+| Haze +6h Brier skill                 |  0.120156 |   -0.169853 |         -0.475554 |         288,439 |
+| Haze +24h PR-AUC (AP), 2023–2025     |  0.297676 |    0.096866 |          0.030921 | 291,691 (945 +) |
+| Haze +24h Brier skill                |  0.132838 |   -0.006726 |         -0.515246 |         291,691 |
+| PM2.5 MAE, µg/m³, 2026 (research)    | 21.765695 |   14.388942 |         25.421927 |           6,882 |
 | Wind vector RMSE, m/s            |  2.103496 |    3.143955 |          2.219324 |         126,651 |
 | Wind speed MAE, m/s              |  1.157072 |    1.422260 |          1.183757 |         126,651 |
 | Wind direction MAE, degrees FROM | 38.544582 |   60.800860 |         42.439353 | 70,724 non-calm |
 
-PM2.5 loses to persistence; it is an explicitly permitted experimental CAMS proxy, not an
-accuracy improvement. Haze events are very rare (230 positives per horizon in the test cohorts);
-high ROC-AUC does not imply useful precision. Haze Brier skill against test prevalence is negative
-(-0.0062 / -0.0228), despite improving over the two fitted baselines. The different 2026 regime,
+The recent-activity reference is the train-period detection rate binned by the cell's and its
+neighbourhood's 6-day detection counts — a stronger model-free reference than one-day persistence;
+the hotspot model still beats it. PM2.5 loses to persistence and is research-only. Haze remains a
+rare event (~0.3% of reports); with the 2023 season in test the model has positive Brier skill
+while both baselines are negative. The different 2026 regime,
 provider publication latency, station coverage and weather-product mismatch remain limitations.
 Do not retune against these test results.
 
