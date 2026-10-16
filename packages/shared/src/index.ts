@@ -25,3 +25,7 @@ export * from './regions';
 export * from './aq/us-aqi';
 export * from './aq/ispu';
 export * from './status/data-state';
+export * from './schemas/model';
+export * from './model/gbdt';
+export * from './model/hotspot-features';
+export * from './model/haze-features';
