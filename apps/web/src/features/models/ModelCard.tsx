@@ -1,5 +1,5 @@
 import { AiBrain01Icon } from '@hugeicons/core-free-icons';
-import type { ModelFactor } from '@pavana/shared';
+import { windFromToFlowBearing, type ModelFactor } from '@pavana/shared';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Icon } from '@/components/Icon';
@@ -193,7 +193,9 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
                     role="img"
                     aria-label={t.windValue(ws.speedMs!, ws.directionFromDeg)}
                     className="inline-block text-3xl text-primary-strong"
-                    style={{ transform: `rotate(${ws.directionFromDeg + 180}deg)` }}
+                    style={{
+                      transform: `rotate(${windFromToFlowBearing(ws.directionFromDeg)}deg)`,
+                    }}
                   >
                     ↑
                   </span>
