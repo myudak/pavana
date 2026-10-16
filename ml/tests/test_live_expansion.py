@@ -21,6 +21,7 @@ def test_python_feature_fixture_regenerates_without_drift():
     root = Path(__file__).resolve().parents[2]
     module = runpy.run_path(str(root / "ml/scripts/build_live_feature_vectors.py"))
     expected = json.loads((root / "fixtures/test-vectors/live-features.json").read_text())
+
     def same(actual, recorded):
         if isinstance(recorded, dict):
             assert actual.keys() == recorded.keys()
