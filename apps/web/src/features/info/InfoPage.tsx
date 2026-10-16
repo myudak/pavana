@@ -130,18 +130,20 @@ export function InfoPage() {
           </div>
         </div>
 
-        <QueryState query={conditions}>
-          {(c) => (
-            <InfoCardGrid
-              descriptors={visible}
-              conditions={c}
-              forecast={forecast}
-              insights={insights}
-              links={links}
-              onRefresh={refreshAll}
-            />
-          )}
-        </QueryState>
+        <div className="mt-4">
+          <QueryState query={conditions}>
+            {(c) => (
+              <InfoCardGrid
+                descriptors={visible}
+                conditions={c}
+                forecast={forecast}
+                insights={insights}
+                links={links}
+                onRefresh={refreshAll}
+              />
+            )}
+          </QueryState>
+        </div>
       </AtmosphereSection>
 
       <div className="grid items-stretch gap-4 break-words md:grid-cols-2 [&>*]:min-w-0 [&>*]:max-w-full [&_section]:min-w-0 [&_section]:max-w-full">
