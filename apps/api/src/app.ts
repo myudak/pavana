@@ -34,7 +34,6 @@ const CDN_TTL: Record<string, number> = {
   '/api/sources': 300,
   '/api/model/hotspot-risk': 1800,
   '/api/model/haze': 600,
-  '/api/model/pm25': 900,
   '/api/model/wind': 600,
   '/api/model/evaluation': 86400,
 };

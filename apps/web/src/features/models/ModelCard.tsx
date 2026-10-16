@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { Panel } from '@/components/Panel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCopy } from '@/lib/i18n';
-import { useHaze, useHotspotRisk, usePm25Model, useWindModel } from '@/lib/queries';
+import { useHaze, useHotspotRisk, useWindModel } from '@/lib/queries';
 
 const pct = (p: number) => `${p < 0.01 ? '<1' : Math.round(p * 100)}%`;
 const stamp = (s: string | null | undefined) =>
@@ -120,13 +120,13 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
   const t = copy.model;
   const risk = useHotspotRisk(),
     haze = useHaze(),
-    pm = usePm25Model(),
     wind = useWindModel();
-  const p = pm.isError ? undefined : pm.data,
-    r = risk.isError ? undefined : risk.data,
+  // The CAMS-proxy PM2.5 model is research-only (model-field target, loses to persistence);
+  // its evaluation stays in Lab ML and it is not served here.
+  const r = risk.isError ? undefined : risk.data,
     h = haze.isError ? undefined : haze.data,
     w = wind.isError ? undefined : wind.data;
-  const replay = [p, r, h, w].some((d) => d?.provenance.isDemo);
+  const replay = [r, h, w].some((d) => d?.provenance.isDemo);
   const hs = h?.stations.find((s) => s.p6h !== null || s.p24h !== null) ?? h?.stations[0],
     ws = w?.stations.find((s) => s.speedMs !== null) ?? w?.stations[0];
   const box = 'rounded-2xl border border-foreground/5 bg-foreground/5 p-4';
@@ -148,36 +148,6 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
         </div>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 [&>*]:min-w-0">
-        <section className={box}>
-          <div className="flex flex-wrap items-center justify-between gap-1">
-            <h3 className="text-sm font-medium">{t.pm25Title}</h3>
-            {p && <Mode demo={p.provenance.isDemo} />}
-          </div>
-          {pm.isPending ? (
-            <Skeleton className="mt-2 h-16 rounded-xl" />
-          ) : (
-            <>
-              <Value value={p?.pm25UgM3 == null ? null : p.pm25UgM3.toFixed(1)} unit="µg/m³" />
-              {p && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t.referenceAt(p.reference.name, p.reference.distanceKm)}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-muted-foreground">{t.pm25Note}</p>
-              {p?.targetAt && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t.targetTime}: {stamp(p.targetAt)}
-                </p>
-              )}
-              {p?.pm25UgM3 == null && <Missing codes={p?.missing} />}
-              {!compact && (
-                <RunDetails version={p?.model.version} input={p?.inputAt} target={p?.targetAt}>
-                  {p && <Factors factors={p.factors} unit={t.pm25Shap} />}
-                </RunDetails>
-              )}
-            </>
-          )}
-        </section>
         <section className={box}>
           <div className="flex flex-wrap items-center justify-between gap-1">
             <h3 className="text-sm font-medium">{t.windTitle}</h3>

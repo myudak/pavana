@@ -2,7 +2,6 @@ import {
   HazeResponseSchema,
   HotspotRiskResponseSchema,
   ModelEvaluationsResponseSchema,
-  Pm25ModelResponseSchema,
   WindModelResponseSchema,
 } from '@pavana/shared';
 import { describe, expect, it } from 'vitest';
@@ -10,13 +9,12 @@ import { buildApp } from '../src/app';
 import { loadConfig } from '../src/config/env';
 
 describe('model HTTP contracts with real archived replay', () => {
-  it('validates all four output types and separate regression evaluations', async () => {
+  it('validates the served outputs and separate regression evaluations', async () => {
     const app = await buildApp({
       config: loadConfig({ PAVANA_MODE: 'demo', LOG_LEVEL: 'silent' }),
     });
     try {
       for (const [path, schema] of [
-        ['pm25', Pm25ModelResponseSchema],
         ['wind', WindModelResponseSchema],
         ['haze', HazeResponseSchema],
         ['hotspot-risk', HotspotRiskResponseSchema],
@@ -33,6 +31,8 @@ describe('model HTTP contracts with real archived replay', () => {
       const d = ModelEvaluationsResponseSchema.parse(res.json());
       expect(d.models).toHaveLength(3);
       expect(d.regressionModels).toHaveLength(2);
+      // The CAMS-proxy PM2.5 model is research-only: evaluated in Lab ML, never served.
+      expect((await app.inject('/api/model/pm25?lat=-0.1&lon=109.38&demo=1')).statusCode).toBe(404);
       expect((await app.inject('/api/model/wind?lat=100&demo=1')).statusCode).toBe(400);
     } finally {
       await app.close();

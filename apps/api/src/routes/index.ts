@@ -16,7 +16,6 @@ import {
   HotspotRiskQuerySchema,
   HotspotRiskResponseSchema,
   ModelEvaluationsResponseSchema,
-  Pm25ModelResponseSchema,
   WindModelResponseSchema,
   HotspotsQuerySchema,
   HotspotsResponseSchema,
@@ -39,7 +38,7 @@ import { getExposure } from '../services/exposure';
 import { getForecast } from '../services/forecast';
 import { getInsights } from '../services/insights';
 import { getHaze, getHotspotRisk, getModelEvaluations } from '../services/models';
-import { getPm25, getWindModel, getRegressionEvaluations } from '../services/regression-models';
+import { getWindModel, getRegressionEvaluations } from '../services/regression-models';
 import { getSources } from '../services/sources';
 import { getWeatherReference } from '../services/weather-reference';
 import { getWindField } from '../services/wind-field';
@@ -144,10 +143,6 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (
       regressionModels: getRegressionEvaluations(),
     }),
   );
-  app.get('/api/model/pm25', async (req) => {
-    const point = parseInput(HotspotRiskQuerySchema, req.query);
-    return Pm25ModelResponseSchema.parse(await getPm25(modelPick(req), point, modelNow(req)));
-  });
   app.get('/api/model/wind', async (req) => {
     const point = parseInput(HotspotRiskQuerySchema, req.query);
     return WindModelResponseSchema.parse(await getWindModel(modelPick(req), point, modelNow(req)));

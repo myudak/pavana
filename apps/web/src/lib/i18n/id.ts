@@ -1069,7 +1069,8 @@ export const id = {
     intro:
       'Empat keluaran LightGBM dari riwayat deteksi satelit, METAR bandara, dan model CAMS. Diuji pada periode terpisah. Bukan peringatan resmi.',
     pm25Title: 'Estimasi PM2.5 · CAMS t+6 jam',
-    pm25Note: 'Estimasi terhadap keluaran CAMS, bukan pengukuran stasiun atau PM2.5 di rumahmu.',
+    pm25Note:
+      'Riset saja, tidak disajikan di aplikasi: targetnya keluaran model CAMS (bukan pengukuran stasiun) dan model ini kalah dari persistence.',
     windTitle: 'Angin bandara · t+6 jam',
     windNote:
       'Prediksi di bandara referensi, bukan angin di rumahmu. Arah menunjukkan asal angin (FROM).',
