@@ -16,6 +16,8 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <TodayPage /> },
       { path: 'peta', element: <MapPage /> },
+      // Old route name, kept for existing links.
+      { path: 'titik-api', element: <Navigate to="/prakiraan?tab=titik-api" replace /> },
       { path: 'prakiraan', element: <ForecastPage /> },
       { path: 'tanya', element: <ChatPage /> },
       // Old route name, kept for existing links.
