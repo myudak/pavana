@@ -32,7 +32,8 @@ provider yet — the app still serves the fixture.
 - Default basemaps: **CARTO Voyager** (light) and **CARTO Dark Matter** (dark), free CARTO
   vector basemaps built on OpenStreetMap data (`apps/web/src/features/map/basemap.ts`; the
   mobile app uses the same pair). Dark Matter gets a gentle Dusk grade (land/water/rivers/
-  boundaries) at runtime; Voyager is untouched.
+  boundaries) at runtime; Voyager gets a light administrative-boundary grade for clearer
+  country, province, and regency/city borders. Custom style overrides remain untouched.
 - Override with `VITE_MAP_STYLE_URL` (light) and `VITE_MAP_STYLE_URL_DARK` (dark); empty =
   the CARTO defaults (see `.env.example`).
 - Attribution: "© CARTO, © OpenStreetMap contributors" comes from the style JSON and is shown

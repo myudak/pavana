@@ -18,7 +18,13 @@ import { useEffect, useRef } from 'react';
 import { cssVar } from '@/lib/aq';
 import { useCopy } from '@/lib/i18n';
 import { useDarkMode } from '@/lib/theme-context';
-import { basemapStyleUrl, DARK_STYLE_URL, gradeDarkBasemap } from './basemap';
+import {
+  basemapStyleUrl,
+  DARK_STYLE_URL,
+  gradeDarkBasemap,
+  gradeLightBasemap,
+  LIGHT_STYLE_URL,
+} from './basemap';
 import {
   ageClass,
   ageColorExpr,
@@ -434,6 +440,7 @@ export function HotspotMap({
         fittedPaddingRef.current = '';
       }
       if (dark && style === DARK_STYLE_URL) gradeDarkBasemap(map);
+      if (!dark && style === LIGHT_STYLE_URL) gradeLightBasemap(map);
       const p = readMapPalette(dark);
       const firstSymbol = firstSymbolId(map);
 
