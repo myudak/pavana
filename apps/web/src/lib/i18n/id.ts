@@ -567,6 +567,9 @@ export const id = {
     mapError: 'Peta tidak dapat dimuat. Menampilkan daftar titik panas.',
     layersLabel: 'Lapisan peta',
     layerPlumes: 'Arah asap',
+    layerRisk: 'Risiko titik panas',
+    riskLegend: (day: string, demo: boolean) =>
+      `Model eksperimental: peluang ≥1 deteksi satelit Suomi NPP per kotak ~28 km pada ${day} (UTC). Kuning→merah = peluang naik; kotak kosong = data masukan tidak tersedia. Bukan peringatan resmi.${demo ? ' Demo: replay input arsip nyata.' : ''}`,
     plumesTitle: 'Arah sebaran asap',
     plumesHours: (h: number) => (h === 0 ? 'Kini' : `+${h} jam`),
     plumesFrom: 'Titik panas',

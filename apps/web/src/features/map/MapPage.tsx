@@ -1,4 +1,5 @@
 import {
+  AiBrain01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
   Cancel01Icon,
@@ -58,15 +59,24 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { LocationPicker } from '@/features/location/LocationPicker';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
-import { useConditions } from '@/lib/queries';
+import { useConditions, useHotspotRisk } from '@/lib/queries';
 import { cn } from '@/lib/utils';
 import { msToKmh, windSummary } from '@/lib/wind';
-import { HotspotMap, type MapInsets } from './HotspotMap';
+import { HotspotMap, type MapInsets, type MapOverlay } from './HotspotMap';
 import { MapLegend } from './MapLegend';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
 import { useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
-type Layer = 'hotspots' | 'plumes' | 'density' | 'wind';
+type Layer = 'hotspots' | 'plumes' | 'density' | 'wind' | 'risk';
+
+/** Experimental hotspot-risk probability ramp (cells with unknown inputs are not drawn). */
+const RISK_STOPS: [number, string][] = [
+  [0, 'rgba(250, 204, 21, 0.14)'],
+  [0.05, 'rgba(250, 204, 21, 0.35)'],
+  [0.2, '#f59e0b'],
+  [0.4, '#ea580c'],
+  [0.7, '#b91c1c'],
+];
 /** Strongest detections get a trail; more would only add noise at regional zoom. */
 const PLUME_SOURCES = 160;
 
@@ -99,6 +109,41 @@ export default function MapPage() {
   const [insets, setInsets] = useState<MapInsets>({ top: 0, right: 56, bottom: 0, left: 0 });
 
   const on = (l: Layer) => layers.includes(l);
+  const risk = useHotspotRisk(on('risk'));
+  const overlays = useMemo<MapOverlay[]>(() => {
+    const d = risk.data;
+    if (!on('risk') || !d) return [];
+    const h = d.cellDeg / 2;
+    return [
+      {
+        id: 'hotspot-risk',
+        type: 'fill',
+        valueProperty: 'p',
+        stops: RISK_STOPS,
+        opacity: 0.6,
+        data: {
+          type: 'FeatureCollection',
+          features: d.cells.map((c) => ({
+            type: 'Feature',
+            properties: { p: c.probability },
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [c.lon - h, c.lat - h],
+                  [c.lon + h, c.lat - h],
+                  [c.lon + h, c.lat + h],
+                  [c.lon - h, c.lat + h],
+                  [c.lon - h, c.lat - h],
+                ],
+              ],
+            },
+          })),
+        },
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [risk.data, layers]);
   const localBox = useMemo(
     () =>
       [
@@ -251,6 +296,7 @@ export default function MapPage() {
           streamlines={streamlines}
           plumes={plumes}
           showPlumes={on('plumes')}
+          overlays={overlays}
           fitNonce={fitNonce}
           fitMaxZoom={view === 'local' ? LOCAL_MAX_ZOOM : 11}
           insets={insets}
@@ -305,7 +351,19 @@ export default function MapPage() {
           <ToggleGroupItem value="density" className={CHIP}>
             <Icon icon={Layers01Icon} className="size-4" /> {t.map.layerDensity}
           </ToggleGroupItem>
+          <ToggleGroupItem value="risk" className={CHIP}>
+            <Icon icon={AiBrain01Icon} className="size-4" /> {t.map.layerRisk}
+          </ToggleGroupItem>
         </ToggleGroup>
+        {on('risk') && (
+          <p className="glass pointer-events-auto max-w-md rounded-2xl px-3 py-2 text-xs text-muted-foreground">
+            {risk.data
+              ? t.map.riskLegend(risk.data.targetDay, risk.data.state === 'demo')
+              : risk.isError
+                ? t.model.unknownWhy
+                : t.common.loading}
+          </p>
+        )}
       </div>
 
       {on('hotspots') && !mapFailed && (

@@ -44,9 +44,10 @@ export function useOfficialLinks() {
 }
 
 /** Experimental Pavana models (observed targets). Cached for 15 min; inputs refresh slowly. */
-export function useHotspotRisk() {
+export function useHotspotRisk(enabled = true) {
   const { location } = useSelectedLocation();
   return useQuery({
+    enabled,
     queryKey: ['model', 'hotspot-risk', location.lat, location.lon],
     queryFn: ({ signal }) => api.hotspotRisk(location, signal),
     staleTime: 15 * 60_000,
