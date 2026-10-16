@@ -21,6 +21,9 @@ const EnvSchema = z.object({
   // Provider secrets — server-side only, never sent to the browser.
   FIRMS_MAP_KEY: z.string().optional(),
   OPENAQ_API_KEY: z.string().optional(),
+  OPENROUTER_API_KEY: z.string().optional(),
+  /** OpenRouter model id for Tanya Pavi. */
+  OPENROUTER_MODEL: z.string().default('google/gemini-2.5-flash'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 

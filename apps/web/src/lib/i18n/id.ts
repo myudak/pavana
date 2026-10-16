@@ -358,6 +358,12 @@ export const id = {
     navLabel: 'Tanya Pavi',
     mascotAlt: 'Pavi, maskot Pavana',
     status: 'Demo',
+    liveStatus: 'Beta',
+    liveBadge: 'Jawaban AI dari data lokasi yang kamu pilih',
+    liveFooter:
+      'Pavi memakai AI (beta) dan data Pavana untuk lokasi terpilih. Bisa keliru; bukan saran medis atau peringatan resmi.',
+    liveError: 'Maaf, Pavi belum bisa menjawab sekarang. Coba lagi sebentar lagi.',
+    liveBusy: 'Pavi sedang ramai dipakai. Tunggu sebentar lalu coba lagi.',
     reset: 'Mulai ulang',
     greeting: 'Hai, aku Pavi!',
     intro:

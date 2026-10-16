@@ -108,3 +108,26 @@ export const ApiErrorSchema = z.object({
   }),
 });
 export type ApiError = z.infer<typeof ApiErrorSchema>;
+
+/** Tanya Pavi: conversation turns sent to POST /api/chat. Bounded to protect the LLM key. */
+export const ChatRequestSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().min(1).max(2000),
+      }),
+    )
+    .min(1)
+    .max(20),
+});
+export type ChatRequest = z.infer<typeof ChatRequestSchema>;
+
+export const ChatResponseSchema = z.object({
+  reply: z.string(),
+  model: z.string(),
+  isDemo: z.boolean(),
+});
+export type ChatResponse = z.infer<typeof ChatResponseSchema>;

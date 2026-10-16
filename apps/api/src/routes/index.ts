@@ -6,6 +6,8 @@
  * so the pitch demo stays one tap away while production runs on live data.
  */
 import {
+  ChatRequestSchema,
+  ChatResponseSchema,
   ConditionsResponseSchema,
   ExposureQuerySchema,
   ExposureResponseSchema,
@@ -36,6 +38,7 @@ import type { ProviderBundle } from '../providers/types';
 import { getConditions } from '../services/conditions';
 import { getExposure } from '../services/exposure';
 import { getForecast } from '../services/forecast';
+import { chat } from '../services/chat';
 import { getInsights } from '../services/insights';
 import { getHaze, getHotspotRisk, getModelEvaluations } from '../services/models';
 import { getWindModel, getRegressionEvaluations } from '../services/regression-models';
@@ -52,11 +55,13 @@ export interface RoutesOptions {
   version: string;
   /** Keyless inputs for the experimental models; live unless `?demo=1`, whatever PAVANA_MODE is. */
   modelInputs: ModelInputs;
+  /** OpenRouter settings for Tanya Pavi; no key → 503 and the web keeps the scripted demo. */
+  chat: { apiKey: string | undefined; model: string };
 }
 
 export const routes: FastifyPluginAsync<RoutesOptions> = async (
   app,
-  { providers, demo, version, modelInputs },
+  { providers, demo, version, modelInputs, chat: chatConfig },
 ) => {
   const pick = (req: FastifyRequest): ProviderBundle =>
     (req.query as Record<string, unknown> | undefined)?.['demo'] === '1' ? demo : providers;
@@ -147,6 +152,23 @@ export const routes: FastifyPluginAsync<RoutesOptions> = async (
     const point = parseInput(HotspotRiskQuerySchema, req.query);
     return WindModelResponseSchema.parse(await getWindModel(modelPick(req), point, modelNow(req)));
   });
+
+  app.post(
+    '/api/chat',
+    { bodyLimit: 64 * 1024, config: { rateLimit: { max: 12, timeWindow: '1 minute' } } },
+    async (req) => {
+      const body = parseInput(ChatRequestSchema, req.body);
+      const out = await chat(
+        chatConfig,
+        pick(req),
+        modelPick(req),
+        { lat: body.lat, lon: body.lon },
+        body.messages,
+        modelNow(req),
+      );
+      return ChatResponseSchema.parse(out);
+    },
+  );
 
   app.get('/api/official-links', async () =>
     OfficialLinksResponseSchema.parse({ links: OFFICIAL_LINKS }),

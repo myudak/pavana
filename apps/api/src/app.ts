@@ -47,7 +47,7 @@ export async function buildApp({
 }: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: { level: config.LOG_LEVEL }, trustProxy: config.TRUST_PROXY });
 
-  await app.register(cors, { origin: config.CORS_ORIGINS, methods: ['GET'] });
+  await app.register(cors, { origin: config.CORS_ORIGINS, methods: ['GET', 'POST'] });
   await app.register(rateLimit, { max: config.RATE_LIMIT_PER_MINUTE, timeWindow: '1 minute' });
 
   app.addHook('onSend', async (req, reply, payload) => {
@@ -90,6 +90,7 @@ export async function buildApp({
     providers: providers ?? createProviders(config, liveDeps),
     demo: demoProviders ?? createDemoBundle(),
     version: API_VERSION,
+    chat: { apiKey: config.OPENROUTER_API_KEY, model: config.OPENROUTER_MODEL },
     modelInputs: createModelInputs({ fetch: liveDeps?.fetch, now: liveDeps?.now }),
   });
   return app;

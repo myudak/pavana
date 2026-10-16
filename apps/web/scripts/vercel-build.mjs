@@ -35,6 +35,8 @@ writeFileSync(
   JSON.stringify(
     {
       runtime: 'nodejs22.x',
+      // Tanya Pavi waits on an LLM; the default limit can cut a slow reply.
+      maxDuration: 60,
       handler: 'index.mjs',
       launcherType: 'Nodejs',
       shouldAddHelpers: false,

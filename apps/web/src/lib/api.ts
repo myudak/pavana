@@ -9,6 +9,8 @@ import {
   ModelEvaluationsResponseSchema,
   WindModelResponseSchema,
   ApiErrorSchema,
+  ChatResponseSchema,
+  type ChatRequest,
   ConditionsResponseSchema,
   ExposureResponseSchema,
   ForecastResponseSchema,
@@ -64,7 +66,34 @@ async function getJson<S extends z.ZodType>(
   return schema.parse(body);
 }
 
+async function postJson<S extends z.ZodType>(
+  path: string,
+  body: unknown,
+  schema: S,
+  signal?: AbortSignal,
+): Promise<z.output<S>> {
+  const qs = demoMode ? '?demo=1' : '';
+  const res = await fetch(`${BASE}${path}${qs}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+  const json: unknown = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = ApiErrorSchema.safeParse(json);
+    throw new ApiRequestError(
+      res.status,
+      err.success ? err.data.error.code : 'http_error',
+      err.success ? err.data.error.message : `HTTP ${res.status}`,
+    );
+  }
+  return schema.parse(json);
+}
+
 export const api = {
+  chat: (body: ChatRequest, signal?: AbortSignal) =>
+    postJson('/api/chat', body, ChatResponseSchema, signal),
   windModel: (p: LatLon, signal?: AbortSignal) =>
     getJson('/api/model/wind', { lat: p.lat, lon: p.lon }, WindModelResponseSchema, signal),
   hotspotRisk: (p: LatLon, signal?: AbortSignal) =>
