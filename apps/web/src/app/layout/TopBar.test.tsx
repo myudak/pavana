@@ -81,6 +81,8 @@ describe('Top bar nav', () => {
     const scrim = await screen.findByTestId('scroll-scrim');
     expect(scrim.className).toContain('backdrop-blur');
     expect(scrim.className).toContain('inset-x-0');
+    expect(scrim.className).not.toContain('hidden');
+    expect(scrim.className).toContain('h-[calc(3.25rem+env(safe-area-inset-top)+1rem)]');
     expect(scrim.className).not.toContain('opacity-100');
 
     scrollTo(400);
