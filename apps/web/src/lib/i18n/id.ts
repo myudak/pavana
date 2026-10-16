@@ -83,6 +83,105 @@ export const id = {
     requestError:
       'Data belum bisa dimuat. Periksa koneksi dan konfigurasi backend, lalu coba lagi.',
   },
+  lab: {
+    title: 'Lab ML',
+    period: 'Periode kasus',
+    datasetLink: 'Dataset dan provenance sumber',
+    eyebrow: 'PAVANA / RISET',
+    status: 'Eksperimen historis',
+    introduction:
+      'Menelusuri prediksi PM2.5 CAMS dan perhitungan di baliknya, pada satu sel grid sekitar Kubu Raya.',
+    open: 'Buka Lab ML',
+    back: 'Kembali ke prakiraan',
+    scope:
+      'Target adalah keluaran CAMS, bukan pengukuran stasiun. Hasil ini belum mengukur akurasi lapangan dan tidak digunakan sebagai prakiraan live.',
+    liveNote:
+      'Prakiraan aplikasi menggunakan data penyedia. Eksperimen model dan SHAP dapat ditelusuri melalui Lab ML historis.',
+    loadError: 'Hasil riset belum tersedia atau tidak lolos pemeriksaan konsistensi.',
+    chooseHour: 'Pilih waktu target',
+    caseTitle: 'Satu jam, tiga nilai',
+    target: 'Target CAMS',
+    prediction: 'LightGBM',
+    persistence: 'Persistence',
+    baseline: 'Nilai dasar model',
+    contribution: 'Kontribusi fitur',
+    explanationTitle: 'Di balik prediksi ini',
+    explanationNote:
+      'SHAP menjelaskan perubahan dari nilai dasar menuju output model. Kontribusi positif menaikkan prediksi; negatif menurunkannya. Ini bukan bukti penyebab polusi.',
+    other: 'Fitur lainnya',
+    featureValue: 'Nilai fitur',
+    missing: 'Tidak tersedia',
+    globalTitle: 'Pola yang dipelajari model',
+    globalUnit: 'Rerata |SHAP| · µg/m³',
+    globalNote: (n: number) =>
+      `${n.toLocaleString('id-ID')} jam holdout, sampel dengan seed tetap. Besarnya atribusi bukan ukuran dampak fisik atau manfaat fitur.`,
+    evaluationTitle: 'Seberapa baik hasilnya?',
+    evaluationNote:
+      'Semua varian memakai baris test yang sama. Error lebih kecil berarti lebih baik. Varian LightGBM dipilih dari validation, bukan test.',
+    variants: {
+      A: 'Persistence',
+      B: 'Rata-rata musiman',
+      C: 'Riwayat + cuaca',
+      D: 'C + hotspot/FRP',
+      E: 'D + upwind',
+    },
+    mae: 'MAE',
+    rmse: 'RMSE',
+    model: 'Model',
+    unit: 'µg/m³',
+    winner: (variant: string) => `MAE test terendah: ${variant}`,
+    selected: (variant: string) => `LightGBM terpilih dari validation: ${variant}`,
+    historical: 'Target dan prediksi historis',
+    historicalNote:
+      'Cuplikan 168 jam berurutan paling awal. Evaluasi di bawah memakai seluruh holdout.',
+    provenanceTitle: 'Sumber dan metode',
+    source: 'CAMS · ERA5 · NASA FIRMS',
+    methodology: 'Tree SHAP · tree_path_dependent · t+6 jam',
+    modelHash: 'Checksum model',
+    dataRevision: 'Revisi data',
+    codeRevision: 'Revisi kode training',
+    sampleCount: (n: number) => `${n.toLocaleString('id-ID')} jam test`,
+    featureLabel: (name: string): string => {
+      const labels: Record<string, string> = {
+        cams_pm25_ug_m3: 'CAMS saat prediksi dibuat',
+        cams_pm25_mean6h: 'Rata-rata CAMS 6 jam',
+        cams_pm25_mean24h: 'Rata-rata CAMS 24 jam',
+        cams_pm25_change3h: 'Perubahan CAMS 3 jam',
+        temperature_c: 'Suhu (°C)',
+        rh_pct: 'Kelembapan (%)',
+        precip_mm: 'Presipitasi (mm)',
+        wind_speed_ms: 'Kecepatan angin (m/s)',
+        wind_gusts_ms: 'Embusan angin (m/s)',
+        surface_pressure_hpa: 'Tekanan udara (hPa)',
+        boundary_layer_height_m: 'Tinggi lapisan batas (m)',
+        shortwave_radiation_wm2: 'Radiasi gelombang pendek (W/m²)',
+        wind_east_ms: 'Aliran angin timur',
+        wind_north_ms: 'Aliran angin utara',
+        month: 'Bulan',
+        hour: 'Jam UTC',
+        hour_sin: 'Siklus jam · sin',
+        hour_cos: 'Siklus jam · cos',
+        dayofyear_sin: 'Siklus tahunan · sin',
+        dayofyear_cos: 'Siklus tahunan · cos',
+      };
+      if (labels[name]) return labels[name];
+      const lag = /^cams_pm25_lag(\d+)h$/.exec(name);
+      if (lag) return `CAMS ${lag[1]} jam sebelumnya`;
+      const hotspot = /^hotspot_(records_n|frp_sum_mw)_(\d+)km_(\d+)h$/.exec(name);
+      if (hotspot)
+        return `${hotspot[1] === 'records_n' ? 'Deteksi' : 'Jumlah FRP'} · ${hotspot[2]} km / ${hotspot[3]} jam`;
+      return name;
+    },
+  },
+  dailyForecast: {
+    title: 'Prakiraan harian',
+    rangeLabel: 'Min–maks PM2.5 · µg/m³',
+    empty: 'Belum tersedia',
+    partial: 'parsial',
+    coverage: (hours: number) => `${hours}/24 jam`,
+    range: (min: number, max: number) => `Minimum ${min}, maksimum ${max} µg/m³`,
+    note: 'Rentang nilai per jam yang tersedia pada setiap tanggal, bukan interval ketidakpastian. Hari parsial belum mencakup 24 jam. Jangkauan mengikuti data penyedia.',
+  },
   appName: 'pavana',
   tagline: 'Prakiraan kualitas udara & potensi dampak asap, berdasarkan lokasimu.',
 

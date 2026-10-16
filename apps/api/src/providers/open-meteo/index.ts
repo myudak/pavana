@@ -99,7 +99,7 @@ export function createOpenMeteo(deps: OpenMeteoDeps = {}) {
       fetchJson<PointResponse>(
         `${WEATHER_URL}?latitude=${lat}&longitude=${lon}` +
           '&hourly=wind_speed_10m,wind_direction_10m,temperature_2m,relative_humidity_2m,precipitation' +
-          '&wind_speed_unit=ms&timeformat=unixtime&timezone=GMT&past_hours=1&forecast_hours=73',
+          '&wind_speed_unit=ms&timeformat=unixtime&timezone=GMT&past_hours=1&forecast_hours=121',
         http('open-meteo'),
       ),
     );
@@ -108,7 +108,7 @@ export function createOpenMeteo(deps: OpenMeteoDeps = {}) {
     cache.get(`om:aq:${lat},${lon}`, 15 * MINUTE, () =>
       fetchJson<PointResponse>(
         `${AQ_URL}?latitude=${lat}&longitude=${lon}&hourly=pm2_5&domains=cams_global` +
-          '&timeformat=unixtime&timezone=GMT&past_hours=1&forecast_hours=73',
+          '&timeformat=unixtime&timezone=GMT&past_hours=1&forecast_hours=121',
         http('open-meteo-air-quality'),
       ),
     );

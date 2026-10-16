@@ -6,6 +6,69 @@ Dokumen ini menjadi panduan melanjutkan pekerjaan dari kondisi workspace saat in
 Implementasi dihentikan atas permintaan pengguna untuk mendahulukan rencana ini.
 Kotak selesai berarti ada bukti yang dicatat; kode yang baru ditulis tidak otomatis selesai.
 
+## SHAP, Lab ML, dan prakiraan harian — 16 Oktober 2026
+
+- Notebook dirapikan sebagai catatan riset: konfigurasi, audit data, metode, evaluasi,
+  explainability, artifact, dan batas kesimpulan. Pin training/data serta split tetap sama.
+- Kaggle privat <https://www.kaggle.com/code/myudak/pavana-ml-h1-demo>, **version 4 COMPLETE**,
+  CPU, Internet aktif, tanpa API key penyedia. Source cell yang diunduh cocok dengan checkout ini.
+- Run `cams-t6h-retro-kaggle-explain-v1`: LightGBM D dipilih dari validation; persistence tetap
+  menang pada 6.882 jam test. Tidak ada tuning ulang atau perubahan angka hasil.
+- Tree SHAP `tree_path_dependent`, SHAP 0.52.0: 1.000 sampel holdout dengan seed tetap untuk
+  importance/beeswarm; 168 jam berurutan paling awal untuk kasus lokal. Model tersimpan
+  direproduksi terhadap prediksi dan jumlah baseline + kontribusi diperiksa per baris.
+- ZIP diunduh dan diperiksa CRC, checksum model, metrik terhadap prediksi, serta kelengkapannya.
+  Lima PNG (error, historis, importance, beeswarm, waterfall), ringkasan riset, model, prediksi,
+  metrik, run record, dan `research.json` tersedia. ZIP SHA256:
+  `f23564a99568c4e4dfcccdb6b39991b5a9d895d773deed61306265c8dfa4b73e`.
+- `/lab-ml` memakai ekspor asli tersebut melalui schema bersama: pemilihan jam, tiga nilai,
+  kontribusi lokal, importance global, grafik historis, tabel A–E, serta provenance. Ini tetap
+  riset historis, terpisah dari lokasi/data live; seluruh gate operasional tetap false.
+- Prakiraan harian memakai nilai CAMS provider sampai 120 jam, min–maks per tanggal lokal,
+  hitungan jam, dan label parsial. Tail semua-null dipangkas; nol nyata dan gap tetap dijaga.
+  Pemeriksaan adapter API live menghasilkan lima tanggal (16–20 Oktober WIB), dengan
+  hitungan jam 20/24/24/24/8; tidak menggunakan kunci data.
+- Browser: alur Prakiraan → Lab ML, perubahan jam, grafik, serta layar 375 px diperiksa;
+  tidak ada overflow horizontal atau error console pada Lab. Screenshot ada di artifact lokal.
+- Pemeriksaan Python: 149 pytest lulus; tiga tes SHAP diulang setelah penguatan guard model
+  dan lulus. Ruff lint/format serta verifikasi notebook tanpa output lulus.
+- Gate akhir: `pnpm check` lulus (59 shared + 36 API + 44 web = 139 tes JS/TS),
+  `pnpm build` lulus (API, web, landing), Prettier pada berkas TS/TSX/dokumen terkait dan
+  `git diff --check` lulus. Warning Fast Refresh existing, Recharts pada jsdom tanpa ukuran,
+  serta anotasi PURE dari Zod tidak menggagalkan gate. Build produksi memuat ekspor JSON
+  identik dengan asset sumber (SHA256 `197e32a8fae407cd1b02942c9fbacb9daeae4fd1ce5292a4a9219cd50ddaea88`).
+  Preview produksi `/lab-ml` diperiksa kembali di browser tanpa error console.
+
+## Demo H-1 awal — 16 Oktober 2026
+
+Notebook `00_cloud_setup.ipynb` sekarang mencakup petunjuk Kaggle berbahasa Indonesia,
+inventaris sumber/NaN, evaluasi A–E, grafik MAE/RMSE, 168 jam berurutan paling awal pada
+holdout, ringkasan untuk juri, dan ZIP yang diperiksa kelengkapan serta integritasnya.
+Metrik presentasi dihitung ulang dari prediksi tersimpan; pemilihan LightGBM tetap hanya
+memakai validation. Pipeline training, split, pin data/kode, dan API aplikasi tidak diubah.
+
+- Worktree baru dari `origin/main` (`a6e00b8`), branch `codex/ml-h1-demo`.
+- Kaggle privat: <https://www.kaggle.com/code/myudak/pavana-ml-h1-demo>, **version 2 COMPLETE**,
+  CPU empat core, Python 3.13.15, `SMOKE = False`, maksimum 500 ronde dengan early stopping lama.
+- Seluruh 22 sumber sel versi 2 cocok dengan notebook lokal. Upload CLI Windows memakai
+  JSON ASCII-escaped agar pembacaan encoding lokal tidak merusak `µg/m³` atau tanda baca.
+  Notebook di Git tetap UTF-8 dan tanpa output; pengguna dapat mengimpornya langsung lewat UI.
+- Artifact run: `cams-t6h-retro-kaggle-h1-v1`; kode terpin `a9a0d6d9…`, data `aaa0d271…`.
+- Holdout: **6.882 jam yang sama** untuk A–E. MAE: A 14,388942; B 25,421927; C 21,575856;
+  D 20,745541; E 20,885664 µg/m³. RMSE: A 28,377043; B 47,094647; C 43,476426;
+  D 42,257006; E 42,449022 µg/m³. D dipilih dari validation; **persistence A menang pada test**.
+- Status tetap `research_only: true`, `operational_ready: false`, `observation_validated: false`.
+- ZIP hasil di `ml/artifacts/pavana-ml-h1-demo.zip` (gitignored). Selain model/prediksi/metrik,
+  ZIP berisi `cloud_run.json`, `data_audit.json`, dua PNG, tabel CSV, dan `ringkasan_juri.md`.
+  SHA256: `068bc4f98c91e58cee52495e703c421af653454f6355975a001414bf37c9df6a`.
+  Seluruh MAE/RMSE dihitung ulang dari prediksi versi final; kedua PNG diperiksa secara visual,
+  termasuk unit, label, legenda, rentang waktu, dan perbaikan encoding upload Windows.
+- Pemeriksaan lokal: **146 pytest lulus**, ruff lint/format lulus, notebook stripped lulus.
+  Pada PowerShell, kirim daftar nama notebook ke nbstripout; wildcard literal tidak diekspansi.
+  `pnpm check` juga lulus: lint, typecheck, dan 133 tes JS/TS (sebagian memakai cache Turbo).
+
+Bagian CP0–CP5 di bawah tetap menjadi bukti eksperimen awal, bukan pekerjaan baru yang harus diulang.
+
 ## 1. Tujuan dan batas eksperimen
 
 Tujuan produk semula adalah menguji apakah angin dan hotspot membantu memprediksi

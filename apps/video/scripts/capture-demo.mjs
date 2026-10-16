@@ -8,7 +8,9 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const out = join(root, 'public', 'demo');
+// CAPTURE_THEME=light and CAPTURE_OUT=<dir> give a light set elsewhere (e.g. for print docs).
+const theme = process.env.CAPTURE_THEME ?? 'dark';
+const out = process.env.CAPTURE_OUT ?? join(root, 'public', 'demo');
 const base = process.argv[2] ?? 'http://localhost:5173';
 
 function findChrome() {
@@ -46,10 +48,10 @@ await page.setViewport({
   isMobile: true,
   hasTouch: true,
 });
-await page.evaluateOnNewDocument(() => {
-  localStorage.setItem('pavana:theme', 'dark');
+await page.evaluateOnNewDocument((t) => {
+  localStorage.setItem('pavana:theme', t);
   localStorage.setItem('pavana:demo', '1');
-});
+}, theme);
 
 async function open(path, wait = 1800) {
   await page.goto(base + path, { waitUntil: 'networkidle0' });
@@ -102,7 +104,7 @@ cdp.on('Page.screencastFrame', ({ data, metadata, sessionId }) => {
   // Keep frames from the click on, at most ~30 per second.
   if (ms < 0 || (frames.length && ms - frames.at(-1).ms < 33)) return;
   const file = `demo/chat-${String(frames.length).padStart(3, '0')}.jpg`;
-  writeFileSync(join(root, 'public', file), Buffer.from(data, 'base64'));
+  writeFileSync(join(out, '..', file), Buffer.from(data, 'base64'));
   frames.push({ file, ms });
 });
 await cdp.send('Page.startScreencast', {

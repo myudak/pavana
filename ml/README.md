@@ -1,8 +1,8 @@
 # Pavana ML (research workspace)
 
-> **Experimental. Not operational.** Nothing here powers the app: `apps/api` serves deterministic
-> indicators (`apps/api/src/services/insights.ts`) plus the synthetic demo fixture, and no ML artifact
-> is wired into it. A model must pass `is_app_ready` before anything may serve it, and that requires an
+> **Experimental. Not operational.** Live forecasts use provider data and deterministic indicators
+> (`apps/api/src/services/insights.ts`); demo mode uses the synthetic fixture. `/lab-ml` displays frozen
+> historical research output. Serving a model as a live forecast requires `is_app_ready`, including an
 > **observed** target — no artifact in this workspace has one.
 
 ## Two research paths — never merge them
@@ -89,6 +89,30 @@ files are then reused. Full numbers and the hashes they were computed from are i
 [`PLAN.md`](PLAN.md).
 
 ## Cloud flow — Colab / Kaggle
+
+### Notebook riset di Kaggle (CPU)
+
+1. Login ke Kaggle, buat **New Notebook**, lalu **File → Import Notebook** dan unggah
+   `notebooks/00_cloud_setup.ipynb` dari checkout terbaru ini.
+2. Pilih **Accelerator: None (CPU)** dan **Internet: On**. Tidak perlu Kaggle CLI, token Hugging
+   Face, atau API key penyedia data. Selesaikan verifikasi akun jika diminta untuk akses internet.
+3. Mulai dari sesi baru dan **Run all**, dengan `SMOKE = False` untuk eksperimen penuh.
+4. Notebook menampilkan audit, evaluasi A–E, deret historis, importance SHAP, beeswarm, dan
+   waterfall. Sampel global berisi 1.000 jam dengan seed tetap; penjelasan lokal mencakup
+   168 jam berurutan paling awal pada holdout, tanpa pemilihan berdasarkan polusi/error.
+5. Unduh ZIP lewat tautan terakhir atau panel **Output → /kaggle/working/pavana**; gunakan
+   **Save Version** untuk menyimpan notebook beserta outputnya di Kaggle.
+
+ZIP memuat model C/D/E, metadata, `report.json`, `metrics.csv`, `test_predictions.parquet`,
+`cloud_run.json`, `data_audit.json`, `research.json`, serta folder `presentation/`: lima PNG,
+tabel metrik, cuplikan mingguan CSV, dan `ringkasan_riset.md`. Metrik dihitung ulang dari prediksi
+sebelum ditampilkan. Jika baseline menang, ringkasan mengatakannya; tidak ada tuning pada test.
+Hasil tetap bertarget CAMS, retrospektif, dan belum divalidasi terhadap pengukuran stasiun.
+
+`research.json` dipakai halaman `/lab-ml` melalui asset statis `apps/web/public/ml/research.json`.
+Schema bersama memeriksa dimensi, status riset, horizon, serta penjumlahan SHAP. Dataset ini tidak
+menjadi provider prakiraan live dan tidak mengubah `is_app_ready`. Ekspor hanya dibuat setelah
+checksum model dan fingerprint tabel sesuai, prediksi direproduksi, serta additivity SHAP lulus.
 
 `00_cloud_setup.ipynb` is the all-in-one runner: set writable directories → install the code bundle
 from Hugging Face at a pinned revision → download the curated data snapshot at *its own* pinned
