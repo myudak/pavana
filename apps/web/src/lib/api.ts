@@ -14,7 +14,6 @@ import {
   LocationSearchResponseSchema,
   OfficialLinksResponseSchema,
   SourcesResponseSchema,
-  WeatherReferenceResponseSchema,
   WindFieldSchema,
   type BBox,
   type LatLon,
@@ -100,11 +99,4 @@ export const api = {
   officialLinks: (signal?: AbortSignal) =>
     getJson('/api/official-links', {}, OfficialLinksResponseSchema, signal),
   sources: (signal?: AbortSignal) => getJson('/api/sources', {}, SourcesResponseSchema, signal),
-  weatherReference: (p: LatLon, signal?: AbortSignal) =>
-    getJson(
-      '/api/weather-reference',
-      { lat: p.lat, lon: p.lon },
-      WeatherReferenceResponseSchema,
-      signal,
-    ),
 };
