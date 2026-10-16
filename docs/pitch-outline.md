@@ -29,19 +29,22 @@
   → Insight (grafik + "Bagaimana ini dihitung?") → Info (tautan resmi).
 - Tekankan banner "Mode Demo · Data ilustratif" bila memakai fixture.
 
-## 4. Inovasi: indikator upwind + rencana ML
+## 4. Inovasi: indikator upwind + ML eksperimental
 
 - **Indikator paparan upwind** (`docs/modeling-methodology.md`):
   `S(x,t) = Σ FRP · exp(-d/λ) · max(0, ŵ_to · ĥ) · exp(-umur/τ)` (λ = 50 km, τ = 24 jam,
   maks 300 km). Proxy fitur/pendukung — **bukan** probabilitas atau prediksi waktu tiba asap.
 - **Pertanyaan riset ML:** apakah fitur sadar-angin memperbaiki prediksi PM2.5 t+6 jam dibanding
   persistence dan baseline CAMS? Desain ablasi A–E, split temporal, metrik MAE/RMSE.
-- **Status jujur:** belum ada model terlatih dan tervalidasi; aplikasi memakai indikator
-  deterministik berlabel. Hasil negatif tetap sah dan akan dilaporkan apa adanya.
+- **Status ML, 16 Oktober 2026:** enam booster untuk hotspot, haze, estimasi CAMS PM2.5 dan
+  angin stasiun sudah dilatih dan dievaluasi pada holdout temporal. SHAP menjelaskan output
+  model. PM2.5 kalah dari persistence; hasil tetap ditampilkan sebagai eksperimen.
+  [Handoff ML live](ML_LIVE_HANDOFF.md) memuat metrik, sumber, dan batas penerapannya.
 
 ## 5. Batasan (wajib disampaikan ke juri)
 
-- Data live belum tersambung (`PAVANA_MODE=live` mengembalikan 501); demo memakai skenario sintetis.
+- Data provider mengikuti konektor yang tersedia dan label sumbernya. Mode demo memakai fixture;
+  kartu ML menandai input langsung atau replay arsip nyata secara terpisah.
 - Titik panas = deteksi satelit, bukan kebakaran terkonfirmasi; ketiadaan deteksi ≠ tidak ada api.
 - PM2.5 berasal dari banyak sumber; kenaikan tidak otomatis disebabkan kebakaran tertentu.
 - Pavana **bukan** aplikasi pertama soal kebakaran di Indonesia dan tidak mengklaim demikian.

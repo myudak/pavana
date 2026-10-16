@@ -332,7 +332,7 @@ export const id = {
         {
           question: 'Apakah Pavana merupakan aplikasi weather atau prakiraan cuaca?',
           answer:
-            'Pavana mengusung pengalaman seperti aplikasi cuaca (weather), dengan fokus pada hubungan angin, kualitas udara PM2.5, dan potensi dampak asap. Versi saat ini menampilkan skenario demo, bukan prakiraan cuaca langsung.',
+            'Pavana mengusung pengalaman seperti aplikasi cuaca (weather), dengan fokus pada hubungan angin, kualitas udara PM2.5, dan potensi dampak asap. Sumber, waktu berlaku, dan mode demo atau input langsung ditandai pada setiap keluaran.',
         },
         {
           question: 'Apa hubungan Pavana dengan forest fire dan wildfire?',
@@ -342,7 +342,7 @@ export const id = {
         {
           question: 'Apakah data cuaca dan kualitas udara Pavana sudah live?',
           answer:
-            'Belum untuk publik. Integrasi Open-Meteo, CAMS, dan BMKG sudah dibangun dan sedang diuji; NASA FIRMS dan OpenAQ menyusul. Sementara itu aplikasi menampilkan demo dengan data sintetis untuk Kubu Raya, Kalimantan Barat, dan belum ada model machine learning yang terlatih. Untuk informasi terkini dan arahan resmi, periksa BMKG dan BPBD setempat.',
+            'Mode demo memakai skenario sintetis untuk data provider. Kartu Model Pavana memakai enam LightGBM yang sudah dilatih dan diuji pada data historis, dengan label input langsung atau replay arsip nyata. Model tetap eksperimental dan belum siap menjadi prakiraan operasional. Untuk informasi terkini dan arahan resmi, periksa BMKG dan BPBD setempat.',
         },
       ],
     },
@@ -436,7 +436,7 @@ export const id = {
 
   demoBanner: 'Mode Demo · Data ilustratif',
   demoBannerDetail:
-    'Semua angka di halaman ini adalah skenario sintetis untuk demonstrasi, bukan pengamatan nyata.',
+    'Data provider dalam mode demo adalah skenario sintetis. Kartu Model Pavana menandai input langsung atau replay arsip nyata secara terpisah.',
 
   dataState: {
     live: 'Terbaru',
