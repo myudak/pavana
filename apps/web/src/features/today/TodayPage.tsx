@@ -9,7 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FactorList } from '@/features/insights/FactorList';
 import { categoryOf } from '@/lib/aq';
 import { useCopy } from '@/lib/i18n';
-import { useConditions, useExposure, useInsights } from '@/lib/queries';
+import { useConditions, useExposure, useForecast, useInsights } from '@/lib/queries';
+import { DailyForecast } from './DailyForecast';
 import { ConditionTiles } from './ConditionTiles';
 import { ExposureHero } from './ExposureHero';
 import { HourlyStrip } from './HourlyStrip';
@@ -35,6 +36,7 @@ export function TodayPage() {
   const conditions = useConditions();
   const exposure = useExposure(24);
   const insights = useInsights();
+  const forecast = useForecast(120);
 
   return (
     <QueryState query={conditions} skeleton={<HeroSkeleton />}>
@@ -62,6 +64,11 @@ export function TodayPage() {
                 </Panel>
 
                 <ConditionTiles conditions={c} now={e?.hours[0]} />
+                <Panel title={t.dailyForecast.title}>
+                  <QueryState query={forecast} inline>
+                    {(f) => <DailyForecast hours={f.hours} timeZone={tz} />}
+                  </QueryState>
+                </Panel>
               </div>
 
               <div className="space-y-4 lg:col-span-2">

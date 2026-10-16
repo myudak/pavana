@@ -44,7 +44,7 @@ export type ForecastHour = z.infer<typeof ForecastHourSchema>;
 export const ForecastQuerySchema = z.object({
   lat: LatSchema,
   lon: LonSchema,
-  hours: z.coerce.number().int().min(1).max(72).default(24),
+  hours: z.coerce.number().int().min(1).max(120).default(24),
 });
 
 export const ForecastResponseSchema = z.object({

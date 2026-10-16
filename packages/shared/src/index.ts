@@ -10,6 +10,7 @@ export * from './schemas/insights';
 export * from './schemas/exposure';
 export * from './schemas/sources';
 export * from './schemas/api';
+export * from './schemas/research';
 
 // Pure utilities
 export * from './math/units';

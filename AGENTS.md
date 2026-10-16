@@ -2,6 +2,8 @@
 
 Read [`docs/PAVANA_HANDOFF.md`](docs/PAVANA_HANDOFF.md) for the product brief and
 [`CONTRIBUTING.md`](CONTRIBUTING.md) for where code goes.
+For the implemented historical ML lab, notebook artifacts, and daily forecasts, read
+[`docs/ML_RESEARCH_HANDOFF.md`](docs/ML_RESEARCH_HANDOFF.md).
 Demo-only and unbuilt features (e.g. real push notifications) are tracked with context in
 [`docs/backlog.md`](docs/backlog.md).
 

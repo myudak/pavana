@@ -85,7 +85,9 @@ describe('Home page', () => {
     expect(await screen.findByText('Potensi paparan asap tinggi')).toBeInTheDocument();
     expect(screen.getByText('Mode Demo · Data ilustratif')).toBeInTheDocument();
     expect(screen.getAllByText('µg/m³').length).toBeGreaterThan(0);
-    expect(screen.getByText(/pavana-fixture/)).toBeInTheDocument();
+    expect(screen.getAllByText(/pavana-fixture/).length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: 'Prakiraan harian' })).toBeInTheDocument();
+    expect(await screen.findByText('Minimum 32.6, maksimum 159.9 µg/m³')).toBeInTheDocument();
   });
 
   it('renders the four primary nav destinations', async () => {
