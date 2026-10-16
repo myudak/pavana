@@ -1,7 +1,7 @@
 import type { Factor } from '@pavana/shared';
-import { formatNumber, formatTime } from '@/lib/format';
-import type { Copy } from '@/lib/i18n';
-import { compassId, msToKmh } from '@/lib/wind';
+import { formatNumber, formatTime } from '../../lib/format';
+import type { Copy } from '../../lib/i18n';
+import { compassId, msToKmh } from '../../lib/wind';
 
 const num = (v: unknown, digits = 0) => formatNumber(typeof v === 'number' ? v : null, digits);
 

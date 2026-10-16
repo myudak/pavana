@@ -1,0 +1,25 @@
+---
+import { id } from '../../../web/src/lib/i18n/id';
+import { androidBeta } from '../lib/releases';
+
+interface Props {
+  centered?: boolean;
+}
+const { centered = false } = Astro.props;
+const beta = id.landing.androidBeta;
+---
+
+<div class:list={['space-y-2', centered && 'text-center']}>
+  <a
+    href={androidBeta.apkUrl}
+    class="scene-glass inline-flex min-h-12 items-center justify-center rounded-full px-6 font-semibold transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+  >
+    {beta.download}
+  </a>
+  <p class="text-xs leading-relaxed" style="color: var(--scene-fg-muted)">
+    {beta.details}
+    <a href={androidBeta.releaseUrl} class="ml-1 underline underline-offset-4 hover:opacity-80">
+      {beta.releaseNotes}
+    </a>
+  </p>
+</div>

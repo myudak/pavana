@@ -30,6 +30,9 @@ Product brief: [`docs/PAVANA_HANDOFF.md`](docs/PAVANA_HANDOFF.md).
 
 ## Quick start
 
+The Expo Android/iOS app is in [`apps/mobile`](apps/mobile), with the current web
+design and shared demo/API contracts. See [mobile setup and EAS builds](apps/mobile/README.md).
+
 Requirements: **Node ≥ 22**, **pnpm 10** (`corepack enable`), and for ML **[uv](https://docs.astral.sh/uv/)**.
 
 ```bash

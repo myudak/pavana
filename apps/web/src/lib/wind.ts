@@ -1,5 +1,5 @@
 import { normalizeDeg, windFromToFlowBearing } from '@pavana/shared';
-import type { Copy } from '@/lib/i18n';
+import type { Copy } from './i18n';
 
 /** 8-point Indonesian compass name for a bearing (degrees clockwise from north). */
 export function compassId(bearingDeg: number, t: Copy): string {

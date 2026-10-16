@@ -3,7 +3,7 @@
  * filter. No React, no fetch: everything here is unit-tested.
  */
 import type { DataState, Trend } from '@pavana/shared';
-import type { Priority } from '@/lib/priorities';
+import type { Priority } from '../../lib/priorities';
 
 export type InfoCardId = 'pm25' | 'hotspots' | 'official' | 'data';
 

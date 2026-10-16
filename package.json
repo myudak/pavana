@@ -10,6 +10,7 @@
     "dev": "turbo run dev --filter=@pavana/web --filter=@pavana/api --filter=@pavana/landing",
     "dev:app": "turbo run dev --filter=@pavana/web --filter=@pavana/api",
     "dev:landing": "turbo run dev --filter=@pavana/landing",
+    "dev:mobile": "pnpm --filter @pavana/mobile start",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

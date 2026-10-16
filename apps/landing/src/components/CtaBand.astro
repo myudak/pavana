@@ -5,6 +5,7 @@ import dusk900 from '@pavana/brand/backgrounds/dusk-900.webp';
 import haze from '@pavana/brand/backgrounds/haze.webp';
 import haze900 from '@pavana/brand/backgrounds/haze-900.webp';
 import { id } from '../../../web/src/lib/i18n/id';
+import BetaDownload from './BetaDownload.astro';
 import Icon from './Icon.astro';
 
 interface Props {
@@ -51,6 +52,9 @@ const photos = [
         <Icon icon={PlayCircleIcon} class="size-4" />
         {h.ctaDemo}
       </a>
+    </div>
+    <div class="mt-6">
+      <BetaDownload centered />
     </div>
   </div>
 </section>
