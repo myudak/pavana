@@ -58,6 +58,11 @@ const responses: Record<string, unknown> = {
     model: { method: 'deterministic_indicators', modelVersion: null, evaluated: false },
     factors: [],
   },
+  '/api/hotspots': {
+    state: 'demo',
+    bbox: [106, -3, 112, 2],
+    hotspots: [],
+  },
 };
 
 beforeEach(() => {

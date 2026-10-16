@@ -41,11 +41,16 @@ describe('Top bar nav', () => {
     }
   });
 
-  it('hides the shell chrome on the full-bleed map route', async () => {
+  it('shows the bottom tab bar on the map route with Peta active', async () => {
     renderAt('/peta');
-    // The map draws its own chrome; the shell header, location row and tab bar stay out.
-    expect(screen.queryByRole('link', { name: 'Peta' })).toBeNull();
-    expect(screen.queryByRole('navigation', { name: 'Navigasi utama' })).toBeNull();
+    // The map keeps its own top chrome, but the bottom tab bar stays like other pages.
+    const navs = await screen.findAllByRole('navigation', { name: 'Navigasi utama' });
+    expect(navs.length).toBeGreaterThanOrEqual(1);
+    const mapLinks = await screen.findAllByRole('link', { name: 'Peta' });
+    expect(mapLinks.length).toBeGreaterThanOrEqual(1);
+    for (const link of mapLinks) {
+      expect(link).toHaveAttribute('aria-current', 'page');
+    }
   });
 
   it('renders a functional notification bell (no fake disabled state)', async () => {
