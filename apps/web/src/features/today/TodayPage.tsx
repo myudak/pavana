@@ -8,7 +8,8 @@ import { QueryState } from '@/components/QueryState';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FactorList } from '@/features/insights/FactorList';
 import { describeFactor } from '@/features/insights/factor-text';
-import { useHotspots } from '@/features/map/use-hotspots';
+import { NearestHotspotsCard } from '@/features/fire/NearestHotspotsCard';
+import { useFirePoints } from '@/features/fire/use-fire-points';
 import { categoryOf } from '@/lib/aq';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy, type Copy } from '@/lib/i18n';
@@ -25,16 +26,13 @@ import { panelFill, panelSurface } from './glass';
 import { HourlyTimeline } from './HourlyTimeline';
 import { summarizeDayForecast } from './forecast-summary';
 
-// Heavy visual chunks (Recharts, MapLibre) stay out of the main bundle —
-// same lazy pattern as the Map/Insights routes.
+// Heavy visual chunks (Recharts) stay out of the main bundle —
+// same lazy pattern as the Forecast/Chat routes.
 const HeroSparkline = lazy(() =>
   import('./HeroSparkline').then((m) => ({ default: m.HeroSparkline })),
 );
 const ForecastChart = lazy(() =>
   import('@/features/insights/ForecastChart').then((m) => ({ default: m.ForecastChart })),
-);
-const MapPreview = lazy(() =>
-  import('@/features/map/MapPreview').then((m) => ({ default: m.MapPreview })),
 );
 
 /** Glass card shared by the hero and the below-fold sections (dark) / clean white (light). */
@@ -58,7 +56,7 @@ function HeroSubtext({ text }: { text: string }) {
     <p
       ref={subRef}
       className={cn(
-        'mt-2 line-clamp-2 max-w-[32.5rem] text-[0.84375rem] leading-[1.25rem] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)] md:text-[clamp(0.95rem,1.1vw,1.1rem)] md:leading-[1.55] md:line-clamp-none lg:max-w-none lg:text-[clamp(0.875rem,1.9svh,1.0625rem)]',
+        'mt-2 line-clamp-2 max-w-[32.5rem] text-[0.84375rem] leading-[1.25rem] text-[var(--pv-hero-sub)] dark:[text-shadow:0_1px_16px_rgba(6,9,24,0.6)] md:text-[clamp(0.95rem,1.1vw,1.1rem)] md:leading-[1.55] md:line-clamp-none lg:mt-1 lg:max-w-none lg:text-[clamp(0.875rem,1.9svh,1.0625rem)]',
         fitMode === 'fit' && 'lg:whitespace-nowrap lg:[text-align-last:justify]',
         fitMode === 'left' && 'lg:whitespace-nowrap lg:[text-align-last:auto]',
         fitMode === 'wrap' &&
@@ -111,9 +109,10 @@ export function TodayPage() {
   const forecast = useForecast(24);
   const insights = useInsights();
   const exposure = useExposure(24);
-  const { query: hotspotQuery } = useHotspots();
+  const fire = useFirePoints();
+  const hotspotQuery = fire.query;
   // Mobile (< 768px) swaps the heavy below-fold sections for the 10-day card.
-  // Conditional render (not CSS hiding) keeps MapLibre/Recharts out of the
+  // Conditional render (not CSS hiding) keeps Recharts out of the
   // mobile tree entirely. Desktop renders exactly as before.
   const isMobile = useIsMobile();
 
@@ -149,7 +148,7 @@ export function TodayPage() {
             {/* ============ FIRST SCREEN — mobile/tablet: unchanged. Desktop
                 (lg+): 3-zone flex column (navbar spacer, hero text, picture
                 gap, bottom grid), min-height max(100svh, 680px). ============ */}
-            <section className="relative -mt-[calc(5.8125rem+env(safe-area-inset-top))] flex flex-col overflow-clip md:-mt-16 md:block md:min-h-[100dvh] lg:-mt-[6rem] lg:flex lg:min-h-[max(100svh,42.5rem)]">
+            <section className="relative -mt-[calc(5.8125rem+env(safe-area-inset-top))] flex min-h-[calc(100dvh-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] flex-col overflow-clip md:-mt-16 md:block md:min-h-[100dvh] lg:mt-0 lg:flex lg:min-h-[100svh]">
               <DuskBackdrop className="absolute inset-0" />
 
               <div className="flex flex-1 flex-col px-4 md:block md:px-[6.25vw] lg:flex">
@@ -163,12 +162,12 @@ export function TodayPage() {
                   <div
                     aria-hidden
                     data-pv-gap
-                    className="h-[calc(5.8125rem+env(safe-area-inset-top)+clamp(4rem,12svh,6.875rem))] shrink-0 md:hidden [@media((max-width:767px)_and_(max-height:760px))]:h-[calc(5.8125rem+env(safe-area-inset-top)+4rem)]"
+                    className="min-h-[calc(5.8125rem+env(safe-area-inset-top)+clamp(4rem,12svh,6.875rem))] flex-1 shrink-0 md:hidden md:flex-none [@media((max-width:767px)_and_(max-height:760px))]:min-h-[calc(5.8125rem+env(safe-area-inset-top)+4rem)]"
                   />
                   {/* Navbar spacer (lg only) — the photo/sky stays behind it. */}
-                  <div aria-hidden className="hidden shrink-0 lg:block lg:h-24" />
+                  <div aria-hidden className="hidden shrink-0 lg:block lg:h-[var(--topbar-h)]" />
                   {/* Picture gap (lg only, like mobile): ridge photo only, no content. */}
-                  <div aria-hidden className="hidden lg:block lg:min-h-[4.5rem] lg:flex-[1_1_0]" />
+                  <div aria-hidden className="hidden lg:block lg:min-h-[6rem] lg:flex-[1_1_0]" />
                   {/* TOP ZONE (lg): hero text below the picture gap. */}
                   <div className="min-w-0 max-w-[45rem] lg:max-w-none lg:pr-[calc(20rem+2rem)]">
                     {/* Demo chip: in-flow above the lead on every breakpoint. */}
@@ -187,11 +186,11 @@ export function TodayPage() {
                     </p>
                     <h1
                       className={cn(
-                        'mb-[-0.12em] mt-1 line-clamp-2 max-w-full bg-clip-text pb-[0.12em] font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))] md:mt-1.5 md:line-clamp-none',
-                        'text-[clamp(1.625rem,4svh,2.125rem)] leading-[1.15]',
+                        'mb-[-0.12em] mt-1 lg:mt-0.5 line-clamp-2 max-w-full bg-clip-text pb-[0.12em] font-bold tracking-[-0.025em] text-balance text-transparent dark:[filter:drop-shadow(0_2px_24px_rgba(6,9,24,0.45))] md:mt-1.5 md:line-clamp-none',
+                        'text-[clamp(1.625rem,4svh,2.125rem)] leading-[1.15] lg:leading-[1.05]',
                         heroLabelLong
-                          ? 'md:text-[clamp(1.7rem,3.2vw,2.8rem)] md:leading-[1.12] lg:text-[clamp(1.875rem,4.6svh,2.75rem)]'
-                          : 'md:text-[clamp(2.2rem,4.3vw,3.75rem)] md:leading-[1.08] lg:text-[clamp(2.5rem,6.5svh,4rem)]',
+                          ? 'md:text-[clamp(1.7rem,3.2vw,2.8rem)] md:leading-[1.12] lg:text-[clamp(1.875rem,4.6svh,2.75rem)] lg:leading-[1.05]'
+                          : 'md:text-[clamp(2.2rem,4.3vw,3.75rem)] md:leading-[1.08] lg:text-[clamp(2.5rem,6.5svh,4rem)] lg:leading-[1.05]',
                         // Short screens: tighten further so banner + Demo row
                         // clear the tab bar. Mobile only, desktop untouched.
                         '[@media((max-width:767px)_and_(max-height:760px))]:text-[1.6875rem] [@media((max-width:767px)_and_(max-height:760px))]:leading-[1.9375rem]',
@@ -204,13 +203,13 @@ export function TodayPage() {
                   </div>
 
                   {/* BOTTOM ZONE (lg): PM2.5 + hourly + banner left, hotspot right. */}
-                  <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end lg:gap-8 lg:pb-0">
+                  <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end lg:gap-8 lg:pb-5">
                     <div className="min-w-0 max-w-[45rem] lg:max-w-[62.5rem]">
                       {/* AQI glass card — horizontal: big number left, chart right, one row. */}
                       <section
                         aria-label={t.today.pm25Label}
                         className={cn(
-                          'relative mt-[clamp(0.5rem,1.5svh,1rem)] grid overflow-hidden rounded-[1.375rem] md:mt-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:rounded-[1.25rem] lg:mt-[clamp(1rem,2.5svh,1.75rem)] lg:h-[clamp(7.5rem,16svh,9.375rem)]',
+                          'relative mt-[clamp(0.5rem,1.5svh,1rem)] grid rounded-[1.375rem] md:mt-3 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:rounded-[1.25rem] lg:mt-[clamp(0.5rem,1.4svh,0.875rem)] lg:overflow-visible',
                           panelFill,
                         )}
                       >
@@ -218,7 +217,7 @@ export function TodayPage() {
                           aria-hidden
                           className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] shadow-[inset_0_0_0_1px_var(--panel-border)]"
                         />
-                        <div className="min-w-0 p-[clamp(0.875rem,2svh,1.25rem)] md:p-3 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center lg:p-4 lg:px-5">
+                        <div className="min-w-0 p-[clamp(0.875rem,2svh,1.25rem)] md:p-3 md:px-4 md:py-3 lg:flex lg:flex-col lg:justify-center lg:px-5 lg:pb-[0.875rem] lg:pt-[clamp(0.625rem,1.6svh,0.875rem)]">
                           <p className="text-xs font-medium uppercase tracking-[0.18em] text-ink-muted dark:text-white/60 md:text-sm">
                             {t.today.pm25Label}
                           </p>
@@ -228,7 +227,7 @@ export function TodayPage() {
                             <>
                               <div className="mt-1 flex items-center justify-between gap-3 md:mt-1.5 md:flex-wrap md:justify-start md:gap-x-5 md:gap-y-2">
                                 <p className="flex items-baseline gap-2">
-                                  <span className="text-[clamp(2.5rem,6svh,3.25rem)] font-bold leading-none tabular-nums text-ink dark:text-white md:text-[clamp(1.85rem,2.3vw,2.35rem)] md:font-semibold lg:text-[clamp(2.125rem,5svh,2.875rem)] [@media((max-width:767px)_and_(max-height:760px))]:text-[2.5rem]">
+                                  <span className="text-[clamp(2.5rem,6svh,3.25rem)] font-bold leading-none tabular-nums text-ink dark:text-white md:text-[clamp(1.85rem,2.3vw,2.35rem)] md:font-semibold lg:text-[clamp(2rem,4.6svh,2.625rem)] [@media((max-width:767px)_and_(max-height:760px))]:text-[2.5rem]">
                                     {formatNumber(pm)}
                                   </span>
                                   <span className="text-sm text-ink-muted dark:text-white/60">
@@ -316,7 +315,7 @@ export function TodayPage() {
                         />
                       </div>
 
-                      <div className="mb-1 mt-[clamp(0.5rem,1.5svh,1rem)] flex items-center justify-between gap-3 md:mt-2 lg:mt-[clamp(0.5rem,1.3svh,0.875rem)]">
+                      <div className="mb-1 mt-[clamp(0.5rem,1.5svh,1rem)] flex items-center justify-between gap-3 md:mt-2 lg:mb-2 lg:mt-1.5">
                         <p className="text-[0.6875rem] font-medium tracking-[0.2em] text-ink-muted md:text-[0.8125rem] md:tracking-[0.25em] lg:text-xs">
                           {t.today.hourlyLabel}
                         </p>
@@ -335,7 +334,7 @@ export function TodayPage() {
                           {Array.from({ length: 6 }).map((_, i) => (
                             <div
                               key={i}
-                              className="h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 animate-pulse rounded-xl bg-surface-muted/50 max-[359px]:min-w-[3.5rem] md:h-[5.625rem] md:rounded-2xl md:border md:border-glass-border md:bg-glass-hero lg:h-[clamp(4.75rem,10svh,6rem)]"
+                              className="h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 animate-pulse rounded-xl bg-surface-muted/50 max-[359px]:min-w-[3.5rem] md:h-[5.625rem] md:rounded-2xl md:border md:border-glass-border md:bg-glass-hero lg:h-[clamp(4.125rem,9svh,5.125rem)]"
                             />
                           ))}
                         </div>
@@ -348,7 +347,7 @@ export function TodayPage() {
                       <Link
                         to="/prakiraan"
                         className={cn(
-                          'mt-[clamp(0.5rem,1.5svh,1rem)] flex max-h-[4.75rem] min-h-[3rem] items-center gap-3 rounded-[1.125rem] border p-3 md:mt-2 md:px-4 md:py-1 lg:mt-[clamp(0.5rem,1.3svh,0.875rem)] lg:h-[clamp(3rem,6svh,3.625rem)] lg:min-h-0 lg:max-h-none lg:py-0',
+                          'mt-[clamp(0.5rem,1.5svh,1rem)] flex max-h-[4.75rem] min-h-[3rem] items-center gap-3 rounded-[1.125rem] border p-3 md:mt-2 md:px-4 md:py-1 lg:mt-2 lg:h-[3.25rem] lg:min-h-0 lg:max-h-none lg:py-2',
                           panelSurface,
                         )}
                       >
@@ -423,12 +422,13 @@ export function TodayPage() {
                 height (5 cols), then why + actions. ============ */}
             <div className="bg-canvas [--section-gap:20px]">
               {isMobile ? (
-                <div className="space-y-4 px-4 pb-28 pt-3">
+                <div className="space-y-4 px-4 pb-[calc(var(--mobile-tabbar-h)+env(safe-area-inset-bottom)+1rem)] pt-3">
                   <DailyForecastCard timeZone={tz} nowPm25={pm} />
                   <QueryState query={exposure}>
                     {(x) => <SmokeTimeline exposure={x} timeZone={tz} />}
                   </QueryState>
                   <ConditionTiles conditions={c} now={exposure.data?.hours[0]} />
+                  <NearestHotspotsCard />
                 </div>
               ) : (
                 <div className="px-[6.25vw] pb-28 lg:pt-[var(--section-gap)]">
@@ -466,27 +466,7 @@ export function TodayPage() {
                       </QueryState>
                     </Card>
 
-                    <Card className={cn('lg:col-span-7 lg:row-start-2', glassCard, forecastCard)}>
-                      <CardHeader className="mb-2">
-                        <CardTitle>{t.map.title}</CardTitle>
-                        <Link
-                          to="/peta"
-                          className="inline-flex items-center gap-1 text-sm font-medium text-primary-strong"
-                        >
-                          {t.today.seeAll} <ArrowRight className="size-4" aria-hidden />
-                        </Link>
-                      </CardHeader>
-                      <Suspense
-                        fallback={
-                          <div
-                            className="h-48 w-full animate-pulse rounded-[1.5rem] bg-surface-muted"
-                            aria-hidden
-                          />
-                        }
-                      >
-                        <MapPreview />
-                      </Suspense>
-                    </Card>
+                    <NearestHotspotsCard className="lg:col-span-7 lg:row-start-2" />
                     {/* Right column: 10-day outlook pinned to the left column's
                           height — absolute, so it never stretches the grid rows. */}
                     <div className="relative min-h-[32.5rem] lg:col-span-5 lg:col-start-8 lg:row-span-2 lg:row-start-1">
