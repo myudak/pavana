@@ -14,7 +14,7 @@ function WindCell({ ms, fromDeg }: { ms: number | null; fromDeg: number | null }
   }
   const kmh = Math.round(ms * 3.6);
   return (
-    <span className="hidden items-center gap-0.5 whitespace-nowrap text-xs text-ink-muted sm:flex sm:gap-1 sm:text-sm lg:text-xs lg:[@media((max-height:759px))]:hidden">
+    <span className="hidden items-center gap-0.5 whitespace-nowrap text-xs text-ink-muted sm:flex sm:gap-1 sm:text-sm md:text-xs">
       <ArrowUp
         className="size-3.5"
         aria-hidden
