@@ -30,7 +30,14 @@ export interface HotspotGridMeta {
   cellDeg: number;
   nCols: number;
   nRows: number;
-  cells: { id: number; lat: number; lon: number; histRate: number; weatherLat: number; weatherLon: number }[];
+  cells: {
+    id: number;
+    lat: number;
+    lon: number;
+    histRate: number;
+    weatherLat: number;
+    weatherLon: number;
+  }[];
 }
 
 /** Daily weather for one point, oldest first, the last entry = issue day. Length ≥ 60. */
@@ -46,7 +53,8 @@ const DRY_DAY_MM = 1;
 const DRY_DAYS_CAP = 60;
 const DAYS_SINCE_CAP = 7;
 
-const isNum = (v: number | null | undefined): v is number => typeof v === 'number' && Number.isFinite(v);
+const isNum = (v: number | null | undefined): v is number =>
+  typeof v === 'number' && Number.isFinite(v);
 
 /** Sum of the last k values; null if any is missing or history is short. */
 function tailSum(a: readonly (number | null)[], k: number): number | null {
@@ -100,7 +108,9 @@ export function detectionWindow(
     dayOk.push(regionDaysSeen.has(new Date(base - lag * 86_400_000).toISOString().slice(0, 10)));
   }
   for (const d of detections) {
-    const lag = Math.round((base - Date.parse(`${d.acquiredAt.slice(0, 10)}T00:00:00Z`)) / 86_400_000);
+    const lag = Math.round(
+      (base - Date.parse(`${d.acquiredAt.slice(0, 10)}T00:00:00Z`)) / 86_400_000,
+    );
     if (lag < 0 || lag > 6) continue;
     const c = cellIndex(grid, d.lat, d.lon);
     if (c >= 0) counts[lag]![c]! += 1;
