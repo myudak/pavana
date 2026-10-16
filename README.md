@@ -1,4 +1,4 @@
-# pavana
+# pavanaa
 
 **Wildfire-smoke and air-quality awareness for Indonesia.** A weather-app-like product that turns
 satellite hotspots, wind and PM2.5 forecasts into one location-specific answer:
