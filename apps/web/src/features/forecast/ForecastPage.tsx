@@ -1,5 +1,5 @@
 import { AiBrain01Icon } from '@hugeicons/core-free-icons';
-import { PageContainer, ScrollScrim } from '@/app/layout/PageContainer';
+import { PageContainer } from '@/app/layout/PageContainer';
 import { Icon } from '@/components/Icon';
 import { QueryState } from '@/components/QueryState';
 import { Skeleton } from '@/components/ui/skeleton';
