@@ -47,6 +47,43 @@
   }
 }
 
+/* Pavi bobbing gently (mascot) — callers wrap it in motion-safe:. */
+@keyframes pv-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6%);
+  }
+}
+
+/* Halo behind priority icons that need attention now. */
+@keyframes pv-pulse-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Three leaves taking turns while Pavi is "typing". */
+@keyframes pv-leaf {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px) rotate(-20deg);
+    opacity: 1;
+  }
+}
+
 /* Haze accent for text/icons: the light-theme blush is too pale for text, so use a deeper pink there. */
 :root {
   --pv-haze: #db2777;
@@ -89,4 +126,44 @@
   border: 1px solid color-mix(in oklab, var(--pv-ink) 9%, transparent);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/*
+ * Scrollbars: thin, rounded, no arrow buttons, transparent track — everywhere.
+ * Inner scroll areas marked .pv-scroll (chat thread, sheets) only show the thumb on
+ * hover/focus so long threads don't carry a heavy bar.
+ */
+:root {
+  --pv-scrollbar: color-mix(in oklab, var(--pv-ink-muted) 45%, transparent);
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pv-scrollbar) transparent;
+}
+.pv-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.pv-scroll:hover,
+.pv-scroll:focus-within {
+  scrollbar-color: var(--pv-scrollbar) transparent;
+}
+/* Safari fallback (Chromium/Firefox use the standard properties above). */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background: var(--pv-scrollbar) padding-box;
+}
+.pv-scroll:not(:hover)::-webkit-scrollbar-thumb {
+  background: transparent;
 }

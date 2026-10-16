@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import scenario from '../../../../fixtures/scenario-kubu-raya.json';
@@ -112,4 +112,25 @@ describe('Forecast page', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Dalam pengembangan')).toBeInTheDocument();
   }, 20_000);
+});
+
+describe('Tanya Pavi (demo chat)', () => {
+  beforeAll(async () => {
+    await import('@/features/chat/ChatPage');
+  }, 60_000);
+
+  it('greets, then answers a suggestion with a tool card and demo labels', async () => {
+    renderAt('/tanya');
+    expect(
+      await screen.findByRole('heading', { name: 'Hai, aku Pavi!' }, { timeout: 10_000 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Contoh percakapan · data demo Sungai Raya')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Kualitas udara sekarang?' }));
+    expect(
+      await screen.findByText('Cek kualitas udara', {}, { timeout: 10_000 }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('33,9', {}, { timeout: 10_000 })).toBeInTheDocument();
+    expect(screen.getByText(/bukan saran medis atau peringatan resmi/)).toBeInTheDocument();
+  }, 30_000);
 });

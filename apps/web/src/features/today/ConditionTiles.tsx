@@ -36,7 +36,7 @@ function Tile({
 }
 
 /** Compass dial: letters U/T/S/B, arrow showing where the wind BLOWS, speed in the middle. */
-function WindDial({ toDeg, speedKmh }: { toDeg: number | null; speedKmh: number | null }) {
+export function WindDial({ toDeg, speedKmh }: { toDeg: number | null; speedKmh: number | null }) {
   const t = useCopy();
   const ticks = Array.from({ length: 48 }, (_, i) => i * 7.5);
   return (

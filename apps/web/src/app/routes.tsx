@@ -9,6 +9,7 @@ import { NotFoundPage } from './NotFoundPage';
 const MapPage = lazy(() => import('@/features/map/MapPage'));
 const ForecastPage = lazy(() => import('@/features/forecast/ForecastPage'));
 const LabPage = lazy(() => import('@/features/research/LabPage'));
+const ChatPage = lazy(() => import('@/features/chat/ChatPage'));
 
 export const routes: RouteObject[] = [
   {
@@ -18,6 +19,7 @@ export const routes: RouteObject[] = [
       { path: 'peta', element: <MapPage /> },
       { path: 'prakiraan', element: <ForecastPage /> },
       { path: 'lab-ml', element: <LabPage /> },
+      { path: 'tanya', element: <ChatPage /> },
       // Old route name, kept for existing links.
       { path: 'insight', element: <Navigate to="/prakiraan" replace /> },
       { path: 'info', element: <InfoPage /> },

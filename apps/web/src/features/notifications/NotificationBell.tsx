@@ -53,7 +53,7 @@ export function NotificationBell({ className }: { className?: string }) {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full gap-0 overflow-y-auto sm:max-w-sm">
+      <SheetContent side="right" className="pv-scroll w-full gap-0 overflow-y-auto sm:max-w-sm">
         <SheetHeader>
           <div className="flex items-center gap-2">
             <SheetTitle>{a.sheetTitle}</SheetTitle>

@@ -25,7 +25,8 @@ uv run --project ml nbstripout --verify ml/notebooks/*.ipynb
 `packages/shared` (zod schemas + pure math) → `apps/api` (Fastify; providers normalize into
 shared schemas; services compute deterministic insights; routes validate in/out) → `apps/web`
 (React; typed fetch parses responses with the same schemas). `apps/landing` is static Astro.
-`ml/` is an offline Python research workspace, not wired into the API.
+`ml/` is an offline Python research workspace, not wired into the API. `apps/video` is the
+competition video (Remotion); not deployed.
 
 Demo mode (default) serves `fixtures/scenario-kubu-raya.json` and pins "now" to its reference time.
 
