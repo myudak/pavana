@@ -112,7 +112,7 @@ export function InfoPage() {
                 className={cn(
                   'h-10 shrink-0 snap-start rounded-full px-3 text-[13px] font-medium transition-colors',
                   filter === f
-                    ? 'bg-accent text-ink shadow-sm dark:text-canvas'
+                    ? 'bg-primary-strong text-on-primary shadow-sm dark:text-canvas'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

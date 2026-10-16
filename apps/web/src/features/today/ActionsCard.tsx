@@ -44,7 +44,7 @@ export function ActionsCard({
               <ul className="flex flex-1 flex-col justify-between gap-2">
                 {items.length === 0 ? (
                   <li className="flex min-h-[3.5rem] items-center gap-3 rounded-xl border border-border/60 bg-surface/50 p-2 text-ink-muted">
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-strong dark:text-accent">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-strong">
                       <Info className="size-5" aria-hidden />
                     </span>
                     <p className="min-w-0 flex-1 text-sm">{t.today.noActions}</p>
@@ -57,7 +57,7 @@ export function ActionsCard({
                         key={text}
                         className="flex min-h-[3.5rem] items-center gap-3 rounded-xl border border-border/60 bg-surface/50 p-2"
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-strong dark:text-accent">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-strong">
                           <Icon className="size-5" aria-hidden />
                         </span>
                         <p className="line-clamp-2 min-w-0 flex-1 text-sm text-ink">{text}</p>
