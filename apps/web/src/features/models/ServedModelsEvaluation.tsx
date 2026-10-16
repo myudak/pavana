@@ -168,6 +168,7 @@ export function ServedModelsEvaluation() {
               <p className="mt-1 text-xs text-muted-foreground">
                 {t.counts(m.test.model.n, m.test.model.positives)}
               </p>
+              <p className="mt-2 text-xs text-muted-foreground">{t.brierDefinition}</p>
               <Calibration bins={m.calibration} />
               <div className="mt-3">
                 <p className="text-xs font-medium text-muted-foreground">{t.importance}</p>

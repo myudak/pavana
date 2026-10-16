@@ -101,6 +101,10 @@ remain null.
   Regression persistence carries the current CAMS value or current u/v vector forward.
 - Hotspot also reports available 2026 separately; it does not tune against that period.
 
+Classification PR-AUC is average precision, with tied scores grouped. Brier skill uses a constant
+equal to the evaluated cohort's prevalence as its metric reference; this differs from the
+separately scored train-only climatology predictor. Higher AUC/AP and lower Brier/error are better.
+
 Acquisition/report validity time does not prove publication availability. Historical SP detections
 and model fields may be revised or arrive late. These are retrospective holdouts, not a historical
 simulation of every provider's real-time latency. Detection-day presence is only a sensor-data

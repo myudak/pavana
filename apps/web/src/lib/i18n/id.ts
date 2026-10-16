@@ -1025,6 +1025,8 @@ export const id = {
     persistence: 'Persistence',
     climatology: 'Klimatologi',
     brierSkill: 'Skill Brier',
+    brierDefinition:
+      'PR-AUC dihitung sebagai average precision. Skill Brier memakai prediksi konstan sebesar proporsi kejadian data uji sebagai referensi.',
     calibration: 'Kalibrasi (test): proporsi kejadian nyata per rentang peluang',
     observed: (rate: number, n: number) =>
       `${(rate * 100).toFixed(1)}% · n=${n.toLocaleString('id-ID')}`,
