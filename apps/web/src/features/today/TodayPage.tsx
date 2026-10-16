@@ -313,7 +313,7 @@ export function TodayPage() {
                         />
                       </div>
 
-                      <div className="mb-1 mt-[clamp(0.5rem,1.5svh,1rem)] flex items-center justify-between gap-3 md:mt-2 lg:mb-3 lg:mt-3">
+                      <div className="mb-1 mt-[clamp(1rem,2svh,1.5rem)] flex items-center justify-between gap-3 md:mt-5 lg:mb-3 lg:mt-6">
                         <p className="text-[0.6875rem] font-medium tracking-[0.2em] text-ink-muted md:text-[0.8125rem] md:tracking-[0.25em] lg:text-xs">
                           {t.today.hourlyLabel}
                         </p>
