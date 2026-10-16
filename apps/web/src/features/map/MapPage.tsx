@@ -3,6 +3,7 @@ import {
   FastWindIcon,
   FireIcon,
   Gps01Icon,
+  InformationCircleIcon,
   Layers01Icon,
   MapsGlobal01Icon,
   CloudFastWindIcon,
@@ -33,7 +34,8 @@ import {
   type BBox,
   type Hotspot,
 } from '@pavana/shared';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { DesktopNav } from '@/app/layout/DesktopNav';
 import { DemoPill } from '@/components/DemoBanner';
 import { Icon } from '@/components/Icon';
@@ -49,16 +51,98 @@ import { useConditions } from '@/lib/queries';
 import { useDarkMode } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
 import { msToKmh, windSummary } from '@/lib/wind';
-import { HotspotMap } from './HotspotMap';
+import { HotspotMap, INDONESIA_BBOX } from './HotspotMap';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
 import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
 type Layer = 'hotspots' | 'plumes' | 'density' | 'wind';
 /** Strongest detections get a trail; more would only add noise at regional zoom. */
 const PLUME_SOURCES = 160;
+/** Cap for the map-failure fallback list (the full count stays in the header). */
+const FALLBACK_LIMIT = 100;
+
+/** Deep-link focus (?lat=&lon=&zoom=), validated; null means the default view. */
+function parseFocus(sp: URLSearchParams): { center: { lat: number; lon: number }; zoom: number } | null {
+  const lat = Number(sp.get('lat'));
+  const lon = Number(sp.get('lon'));
+  const zoom = Number(sp.get('zoom'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(zoom)) return null;
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180 || zoom < 0 || zoom > 22) return null;
+  return { center: { lat, lon }, zoom };
+}
 
 const CHIP =
   'glass h-9 shrink-0 gap-1.5 rounded-full border-0 px-3.5 text-[13px] font-medium text-foreground/80 data-[state=on]:bg-haze/20 data-[state=on]:text-haze data-[state=on]:shadow-[0_0_18px_-4px_var(--pv-accent)]';
+
+/**
+ * Fallback when the map itself cannot render: the same detections the map
+ * would show, as a plain scrollable list. Never an empty white area — loading,
+ * a clear empty state, or the list itself.
+ */
+function MapFallback({
+  count,
+  items,
+  truncated,
+  pending,
+  timeZone,
+}: {
+  count: number;
+  items: Hotspot[];
+  truncated: boolean;
+  pending: boolean;
+  timeZone: string;
+}) {
+  const t = useCopy();
+  return (
+    <div role="status" className="h-full overflow-y-auto px-4 pb-8 pt-32 lg:pt-28">
+      <div className="mx-auto w-full max-w-lg space-y-3">
+        <p className="text-sm text-muted-foreground">{t.map.mapError}</p>
+        {pending ? (
+          <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+        ) : count === 0 ? (
+          <p className="text-sm text-muted-foreground">{t.info.cards.hotspotNone}</p>
+        ) : (
+          <>
+            <p className="font-heading text-lg font-semibold tabular">{t.map.count(count)}</p>
+            <ul className="space-y-2">
+              {items.map((h) => (
+                <li
+                  key={h.id}
+                  className="glass flex items-center gap-3 rounded-2xl p-3 text-sm"
+                >
+                  <span
+                    aria-hidden
+                    className="size-2 shrink-0 rounded-full bg-accent"
+                    style={{ boxShadow: '0 0 10px var(--pv-accent)' }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium tabular">
+                      {h.lat.toFixed(3)}, {h.lon.toFixed(3)}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {t.map.acquired}: {formatDateTime(h.acquiredAt, timeZone)}
+                    </span>
+                  </span>
+                  <span className="shrink-0 tabular text-muted-foreground">
+                    {h.frpMw == null ? '—' : `${formatNumber(h.frpMw)} MW`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {truncated && (
+              <p className="text-xs text-muted-foreground">
+                {t.map.fallbackMore(formatNumber(count - items.length))}
+              </p>
+            )}
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {t.map.hotspotDisclaimer}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function MapPage() {
   const t = useCopy();
@@ -67,10 +151,13 @@ export default function MapPage() {
   const regional = useRegionalHotspots();
   const windField = useWindField();
   const conditions = useConditions();
-  const [layers, setLayers] = useState<Layer[]>(['hotspots', 'plumes', 'wind']);
-  const [view, setView] = useState<'local' | 'region'>('local');
+  const [layers, setLayers] = useState<Layer[]>(['hotspots', 'plumes', 'wind', 'density']);
+  const [view, setView] = useState<'indonesia' | 'local' | 'region'>('indonesia');
   const [fitNonce, setFitNonce] = useState(0);
   const [plumeHours, setPlumeHours] = useState(6);
+  const [searchParams] = useSearchParams();
+  // One-shot deep-link focus: honored once at creation, never refit afterwards.
+  const [focus] = useState(() => parseFocus(searchParams));
   const [mapFailed, setMapFailed] = useState(false);
   const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
 
@@ -80,6 +167,62 @@ export default function MapPage() {
     () => [location.lon - 1.1, location.lat - 1.1, location.lon + 1.1, location.lat + 1.1] as BBox,
     [location.lon, location.lat],
   );
+  // Measured chrome for the default fit: top chrome height, sheet height (also
+  // exposed as --map-sheet-h for the buttons column), and the sheet's distance
+  // from the container bottom (card + bottom nav) for the fit padding.
+  // Layout effect so heights are ready before the map's first fit.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [chromePad, setChromePad] = useState({ top: 0, sheetH: 0, sheetGap: 0 });
+  useLayoutEffect(() => {
+    const containerEl = containerRef.current;
+    const topEl = topRef.current;
+    const sheetEl = sheetRef.current;
+    if (!containerEl || !topEl || !sheetEl) return;
+    const measure = () => {
+      const next = {
+        top: topEl.offsetHeight,
+        sheetH: sheetEl.offsetHeight,
+        sheetGap: containerEl.offsetHeight - sheetEl.offsetTop,
+      };
+      setChromePad((prev) =>
+        prev.top === next.top && prev.sheetH === next.sheetH && prev.sheetGap === next.sheetGap
+          ? prev
+          : next,
+      );
+    };
+    measure();
+    const obs = new ResizeObserver(measure);
+    obs.observe(containerEl);
+    obs.observe(topEl);
+    obs.observe(sheetEl);
+    return () => obs.disconnect();
+  }, []);
+  const fitPadding = useMemo(
+    () => ({ top: chromePad.top + 12, bottom: chromePad.sheetGap + 12, left: 16, right: 16 }),
+    [chromePad],
+  );
+  // Attribution popover (3rd round button). Closes on outside tap, re-press, Esc.
+  const [attribOpen, setAttribOpen] = useState(false);
+  const attribRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!attribOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (attribRef.current && !attribRef.current.contains(e.target as Node)) {
+        setAttribOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAttribOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [attribOpen]);
   const tz = conditions.data?.location.timezone ?? 'Asia/Jakarta';
   const wind = conditions.data?.weather;
   const isDemo = hotspots.data?.state === 'demo';
@@ -147,7 +290,18 @@ export default function MapPage() {
     );
   }, [windField.query.data, shown, plumeHours]);
 
-  useEffect(() => setSelected(null), [location.lat, location.lon]);
+  const initialLoc = useRef(location);
+  useEffect(() => {
+    setSelected(null);
+    // A location switch after mount flies to the new area, as before.
+    // (Compared against the mount-time location so StrictMode remounts stay put.)
+    if (
+      initialLoc.current.lat !== location.lat ||
+      initialLoc.current.lon !== location.lon
+    ) {
+      setView('local');
+    }
+  }, [location, location.lat, location.lon]);
 
   const goTo = (v: 'local' | 'region') => {
     setView(v);
@@ -159,7 +313,11 @@ export default function MapPage() {
       : null;
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden bg-background">
+    <div
+      ref={containerRef}
+      style={{ '--map-sheet-h': `${chromePad.sheetH}px` } as React.CSSProperties}
+      className="relative h-[calc(var(--app-vh)-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] w-full overflow-hidden bg-background lg:h-dvh"
+    >
       {!mapFailed ? (
         <HotspotMap
           center={location}
@@ -168,7 +326,10 @@ export default function MapPage() {
           showDensity={on('density')}
           showWind={on('wind')}
           density={on('density') ? density : null}
-          fitTo={view === 'region' ? BORNEO_RENDER_BBOX : localBox}
+          fitTo={view === 'region' ? BORNEO_RENDER_BBOX : view === 'local' ? localBox : INDONESIA_BBOX}
+          initialCamera={focus}
+          autoFit={focus == null}
+          fitPadding={fitPadding}
           streamlines={streamlines}
           plumes={plumes}
           showPlumes={on('plumes')}
@@ -185,16 +346,20 @@ export default function MapPage() {
           }
         />
       ) : (
-        <div
-          role="status"
-          className="flex h-full items-center justify-center p-6 text-sm text-muted-foreground"
-        >
-          {t.map.mapError}
-        </div>
+        <MapFallback
+          count={shown.length}
+          items={shown.slice(0, FALLBACK_LIMIT)}
+          truncated={shown.length > FALLBACK_LIMIT}
+          pending={hotspots.isPending || regional.query.isPending}
+          timeZone={tz}
+        />
       )}
 
       {/* Top chrome */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 space-y-2 bg-gradient-to-b from-background/80 to-transparent px-3 pb-6 pt-[max(env(safe-area-inset-top),0.75rem)]">
+      <div
+        ref={topRef}
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 space-y-2 bg-gradient-to-b from-background/80 to-transparent px-3 pb-6 pt-[max(env(safe-area-inset-top),0.75rem)]"
+      >
         <div className="pointer-events-auto flex items-center gap-2">
           <div className="glass flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full pl-4 pr-2">
             <LocationPicker className="min-w-0 flex-1" />
@@ -225,8 +390,9 @@ export default function MapPage() {
         </ToggleGroup>
       </div>
 
-      {/* Right-side view controls */}
-      <div className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-2">
+      {/* Right-side controls: above the card on mobile (~12px gap from the
+          measured card height), vertically centered on desktop. */}
+      <div className="absolute bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px+var(--map-sheet-h)+12px)] right-3 z-10 flex flex-col gap-2 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2">
         <Button
           variant="ghost"
           size="icon"
@@ -247,10 +413,54 @@ export default function MapPage() {
         >
           <Icon icon={MapsGlobal01Icon} />
         </Button>
+        <div ref={attribRef} className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAttribOpen((v) => !v)}
+            aria-label={t.map.attribution}
+            aria-expanded={attribOpen}
+            className={cn('glass size-11 rounded-full', attribOpen && 'text-haze')}
+          >
+            <Icon icon={InformationCircleIcon} />
+          </Button>
+          {attribOpen && (
+            <div
+              role="dialog"
+              aria-label={t.map.attribution}
+              className="glass absolute right-[calc(100%+8px)] top-1/2 w-max max-w-[min(280px,100vw-32px)] -translate-y-1/2 whitespace-normal rounded-2xl p-3 text-xs leading-relaxed"
+            >
+              <p>
+                ©{' '}
+                <a
+                  href="https://carto.com/attributions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  CARTO
+                </a>{' '}
+                · ©{' '}
+                <a
+                  href="https://www.openstreetmap.org/copyright"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  OpenStreetMap
+                </a>{' '}
+                contributors
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Bottom sheet */}
-      <div className="absolute inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 mx-auto max-w-lg lg:bottom-6">
+      <div
+        ref={sheetRef}
+        className="absolute inset-x-3 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px)] z-10 mx-auto max-w-lg lg:bottom-6"
+      >
         {selected ? (
           <div className="glass rounded-3xl p-4">
             <div className="flex items-start justify-between gap-2">
