@@ -2,6 +2,7 @@ import { ArrowRight01Icon, Gps01Icon, Location01Icon } from '@hugeicons/core-fre
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Icon } from '@/components/Icon';
+import { ChevronDown } from '@/components/icons';
 import {
   Command,
   CommandEmpty,
@@ -27,10 +28,13 @@ import { useSelectedLocation } from './location-context';
 export function LocationPicker({
   subtitle,
   compact = false,
+  variant = 'default',
   className,
 }: {
   subtitle?: string;
   compact?: boolean;
+  /** Hero variant: bare location name as text (no pill), for photo heroes. */
+  variant?: 'default' | 'hero';
   className?: string;
 }) {
   const t = useCopy();
@@ -63,28 +67,40 @@ export function LocationPicker({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger
-        className={cn(
-          compact
-            ? 'flex min-h-[2.5rem] items-center gap-1 text-sm font-medium text-ink'
-            : 'group -mx-2 flex min-w-0 items-center gap-1.5 rounded-full px-2 py-1 text-left text-sm font-medium hover:bg-foreground/5',
-          className,
-        )}
-      >
-        <Icon icon={Location01Icon} className={cn('size-4 shrink-0', compact ? 'text-accent-strong' : 'text-haze')} />
-        <span className="max-w-36 truncate">
-          {location.label}
-          {subtitle && <span className="font-normal text-muted-foreground">, {subtitle}</span>}
-        </span>
-        {compact ? (
-          <span aria-hidden className="size-4 shrink-0 text-ink-muted">{'▾'}</span>
-        ) : (
-          <Icon
-            icon={ArrowRight01Icon}
-            className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-          />
-        )}
-      </SheetTrigger>
+      {variant === 'hero' ? (
+        <SheetTrigger
+          className={cn(
+            'group inline-flex max-w-full cursor-pointer items-center justify-center gap-1 bg-transparent text-current',
+            className,
+          )}
+        >
+          <span className="truncate">{location.label}</span>
+          <ChevronDown className="size-3.5 shrink-0 opacity-80" aria-hidden />
+        </SheetTrigger>
+      ) : (
+        <SheetTrigger
+          className={cn(
+            compact
+              ? 'flex min-h-[2.5rem] items-center gap-1 text-sm font-medium text-ink'
+              : 'pill-glass group flex h-11 min-w-0 items-center gap-1.5 rounded-full px-4 py-1 text-left text-sm font-medium',
+            className,
+          )}
+        >
+          <Icon icon={Location01Icon} className={cn('size-4 shrink-0', compact ? 'text-accent-strong' : 'text-haze')} />
+          <span className="max-w-36 truncate">
+            {location.label}
+            {subtitle && <span className="font-normal text-muted-foreground">, {subtitle}</span>}
+          </span>
+          {compact ? (
+            <span aria-hidden className="size-4 shrink-0 text-ink-muted">{'▾'}</span>
+          ) : (
+            <Icon
+              icon={ArrowRight01Icon}
+              className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+            />
+          )}
+        </SheetTrigger>
+      )}
       <SheetContent
         side="bottom"
         className="mx-auto max-h-[85dvh] max-w-lg gap-0 rounded-t-3xl border-x-0 p-0 sm:border-x"
