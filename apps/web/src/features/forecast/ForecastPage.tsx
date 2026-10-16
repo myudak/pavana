@@ -107,7 +107,7 @@ export default function ForecastPage() {
           }
           className="gap-4"
         >
-          <TabsList className="glass h-11 w-full rounded-full p-1">
+          <TabsList className="glass h-11 w-full rounded-full py-1 pr-1 pl-0">
             <TabsTrigger value="air" className={TAB}>
               {t.forecast.tabs.air}
             </TabsTrigger>
