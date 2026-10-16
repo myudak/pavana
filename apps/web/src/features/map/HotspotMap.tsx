@@ -642,7 +642,7 @@ export function HotspotMap({
 
   // Push data/visibility updates once the style is ready.
   // First batch also fits the viewport (explicit fitTo bbox wins over data bounds).
-  const lastCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const lastDensityRef = useRef<{ source: ImageSource; canvas: HTMLCanvasElement } | null>(null);
   const fitKeyFor = () =>
     fitTo ? `fit:${fitTo.join(',')}` : `data:${center.lat},${center.lon},${hotspots.length}`;
   const paddingKey = JSON.stringify(insets);
@@ -690,8 +690,11 @@ export function HotspotMap({
       const rasterVisible = showDensity && density != null;
       if (rasterVisible && density) {
         const src = map.getSource('density-src') as ImageSource | undefined;
-        if (src && lastCanvasRef.current !== density.canvas) {
-          lastCanvasRef.current = density.canvas;
+        if (
+          src &&
+          (lastDensityRef.current?.source !== src || lastDensityRef.current.canvas !== density.canvas)
+        ) {
+          lastDensityRef.current = { source: src, canvas: density.canvas };
           src.updateImage({ url: density.canvas.toDataURL(), coordinates: density.coords });
         }
         if (!map.getLayer(RASTER_ID)) {
