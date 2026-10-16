@@ -146,12 +146,7 @@ export function bannerTone(trend: Trend, state: DataState): BannerTone {
 export type NotificationPriority = Priority;
 
 export type NotificationId =
-  | 'combined'
-  | 'pm25-rise'
-  | 'hotspots'
-  | 'official'
-  | 'data-stale'
-  | 'data-insufficient';
+  'combined' | 'pm25-rise' | 'hotspots' | 'official' | 'data-stale' | 'data-insufficient';
 
 export interface InsightNotification {
   id: NotificationId;

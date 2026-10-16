@@ -16,7 +16,12 @@ export async function getConditions(p: ProviderBundle, point: LatLon): Promise<C
     from: now,
     hours: TREND_HORIZON_HOURS,
   };
-  const [aq, wx] = await Promise.all([p.airQuality.getHourly(query), p.weather.getHourly(query)]);
+  const [aq, wx, station] = await Promise.all([
+    p.airQuality.getHourly(query),
+    p.weather.getHourly(query),
+    // Station overlay is optional: an OpenAQ failure must not hide the forecast.
+    p.stations ? p.stations.nearest(point, now).catch(() => null) : Promise.resolve(undefined),
+  ]);
 
   const current = aq[0] ? withAqi(aq[0]) : missingAirQuality(p.airQuality.id, now, p.isDemo);
   const trend = pm25Trend(
@@ -36,5 +41,8 @@ export async function getConditions(p: ProviderBundle, point: LatLon): Promise<C
     airQuality: current,
     weather: wx[0] ?? null,
     trend,
+    ...(station === undefined
+      ? {}
+      : { station: station && { ...station, airQuality: withAqi(station.airQuality) } }),
   };
 }

@@ -1,18 +1,14 @@
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 
+/** Frosted card in the same style as <Panel> (used by the Insight/Info widgets). */
 export function Card({ className, ...props }: ComponentProps<'section'>) {
-  return (
-    <section
-      className={cn('rounded-card border border-border bg-surface p-4 shadow-sm', className)}
-      {...props}
-    />
-  );
+  return <section className={cn('glass rounded-3xl p-4 sm:p-5', className)} {...props} />;
 }
 
-export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
+export function CardHeader({ className, ...props }: ComponentProps<'header'>) {
   return (
-    <div className={cn('mb-3 flex items-center justify-between gap-2', className)} {...props} />
+    <header className={cn('mb-3 flex items-center justify-between gap-3', className)} {...props} />
   );
 }
 

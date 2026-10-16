@@ -33,9 +33,8 @@ describe('summarizeDayForecast', () => {
   it('ignores hours beyond the 24h window', () => {
     const hours = [
       hour('2026-09-15T00:00:00Z', 20),
-      ...Array.from(
-        { length: 23 },
-        (_, i) => hour(`2026-09-15T${String(i + 1).padStart(2, '0')}:00:00Z`, 10),
+      ...Array.from({ length: 23 }, (_, i) =>
+        hour(`2026-09-15T${String(i + 1).padStart(2, '0')}:00:00Z`, 10),
       ),
       // Index 24 — outside the window, must not win.
       hour('2026-09-16T00:00:00Z', 999),

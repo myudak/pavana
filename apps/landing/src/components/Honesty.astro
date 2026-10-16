@@ -1,47 +1,30 @@
 ---
+// Principles only; the source list lives in Sources.astro (one status array in id.landing.sources).
+import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons';
+import Icon from './Icon.astro';
+
 const principles = [
   'Titik panas adalah deteksi anomali panas oleh satelit — bukan konfirmasi kebakaran.',
   'PM2.5 berasal dari banyak sumber; kenaikannya tidak otomatis disebabkan kebakaran tertentu.',
   'Pavana tidak memprediksi penyebaran api dan tidak memberi perintah evakuasi.',
   'Setiap angka disertai sumber, jenis data (pengamatan/prakiraan/demo), dan waktu berlaku.',
 ];
-
-// Planned integrations — NOT live yet. Keep this honest as connectors ship.
-const sources = [
-  { name: 'NASA FIRMS', use: 'Titik panas VIIRS/MODIS', status: 'Direncanakan' },
-  { name: 'Open-Meteo (CAMS)', use: 'Prakiraan PM2.5 & cuaca', status: 'Direncanakan' },
-  { name: 'BMKG', use: 'Cuaca & kualitas udara resmi', status: 'Tautan resmi' },
-  { name: 'OpenAQ', use: 'Stasiun pemantau PM2.5', status: 'Direncanakan' },
-];
 ---
 
-<section class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:px-8">
-  <div>
-    <h2 class="font-display text-3xl font-bold tracking-tight">Jujur soal ketidakpastian.</h2>
-    <ul class="mt-6 space-y-3">
+<section class="border-y border-border bg-surface-muted/60">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:grid-cols-[0.9fr_1.1fr] md:px-8 md:py-24">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-haze">Prinsip</p>
+      <h2 class="mt-2 font-heading text-3xl font-bold tracking-tight md:text-4xl">
+        Jujur soal ketidakpastian.
+      </h2>
+    </div>
+    <ul class="space-y-3">
       {
         principles.map((p) => (
-          <li class="flex gap-3 text-ink-muted">
-            <span class="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
-            {p}
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-  <div>
-    <h2 class="font-display text-3xl font-bold tracking-tight">Sumber data</h2>
-    <ul class="mt-6 divide-y divide-border rounded-[1.25rem] border border-border bg-surface">
-      {
-        sources.map((s) => (
-          <li class="flex items-center justify-between gap-4 px-5 py-4">
-            <span>
-              <span class="font-medium">{s.name}</span>
-              <span class="block text-sm text-ink-muted">{s.use}</span>
-            </span>
-            <span class="rounded-full bg-surface-muted px-2.5 py-0.5 text-xs text-ink-muted">
-              {s.status}
-            </span>
+          <li class="glass flex gap-3 rounded-2xl p-4 text-sm leading-relaxed">
+            <Icon icon={CheckmarkCircle02Icon} class="mt-0.5 size-5 text-haze" />
+            <span>{p}</span>
           </li>
         ))
       }

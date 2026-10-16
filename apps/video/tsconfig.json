@@ -1,0 +1,7 @@
+{
+  "extends": "@pavana/tsconfig/react.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src", "remotion.config.ts"]
+}

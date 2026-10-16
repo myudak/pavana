@@ -42,10 +42,10 @@ export function formatTimeRange(fromIso: string, toIso: string, timeZone: string
     );
   return `${dayMonth(fromIso)} ${formatTime(fromIso, timeZone)} – ${dayMonth(toIso)} ${formatTime(toIso, timeZone)} ${tzAbbr(timeZone)}`;
 }
-
 /** Short weekday (Sen/Sel/…) for a YYYY-MM-DD date in the location zone. */
 export function weekdayShort(date: string, timeZone: string): string {
   return new Intl.DateTimeFormat('id-ID', { weekday: 'short', timeZone }).format(
     new Date(`${date}T12:00:00Z`),
   );
 }
+

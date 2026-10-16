@@ -36,3 +36,6 @@ ml/artifacts/**/*
 
 # vercel
 .vercel/
+
+# remotion renders
+apps/video/out/

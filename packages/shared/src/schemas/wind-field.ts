@@ -30,13 +30,19 @@ export const WindFieldSchema = z.object({
 export type WindField = z.infer<typeof WindFieldSchema>;
 
 export const WindFieldQuerySchema = z.object({
-  bbox: z.string().transform((s, ctx) => {
-    const parts = s.split(',').map(Number);
-    if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'bbox must be minLon,minLat,maxLon,maxLat' });
-      return z.NEVER;
-    }
-    return parts as [number, number, number, number];
-  }).pipe(BBoxSchema),
+  bbox: z
+    .string()
+    .transform((s, ctx) => {
+      const parts = s.split(',').map(Number);
+      if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'bbox must be minLon,minLat,maxLon,maxLat',
+        });
+        return z.NEVER;
+      }
+      return parts as [number, number, number, number];
+    })
+    .pipe(BBoxSchema),
 });
 export type WindFieldQuery = z.infer<typeof WindFieldQuerySchema>;

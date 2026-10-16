@@ -1,0 +1,29 @@
+---
+import { Moon02Icon, Sun03Icon } from '@hugeicons/core-free-icons';
+import Icon from './Icon.astro';
+---
+
+<!-- Flips Dusk (dark) ↔ Haze (light); same storage key as the app (pavana:theme). -->
+<button
+  type="button"
+  data-theme-toggle
+  aria-label="Ganti tema"
+  class="scene-glass flex size-10 items-center justify-center rounded-full"
+>
+  <Icon icon={Sun03Icon} class="hidden size-5 dark:block" />
+  <Icon icon={Moon02Icon} class="size-5 dark:hidden" />
+</button>
+
+<script is:inline>
+  document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem('pavana:theme', next);
+      } catch {
+        // storage blocked — the theme still applies for this visit
+      }
+    });
+  });
+</script>

@@ -12,7 +12,11 @@ import type {
   Hotspot,
   LatLon,
   Location,
+  Provenance,
+  StationReading,
   WeatherPoint,
+  WeatherReferenceHour,
+  WindField,
 } from '@pavana/shared';
 
 export interface SeriesQuery {
@@ -54,7 +58,44 @@ export interface LocationProvider {
   resolve(point: LatLon): Promise<Location>;
 }
 
-/** Everything a request handler needs, chosen once at startup by `PAVANA_MODE`. */
+export interface WindFieldProvider {
+  readonly id: string;
+  /** Regular grid (row-major, north row first) at the hour containing `at`. */
+  getField(bbox: BBox, cols: number, rows: number, at: Date): Promise<WindField>;
+}
+
+export interface StationProvider {
+  readonly id: string;
+  /** Nearest fresh station reading, or null when none is close/fresh enough. */
+  nearest(point: LatLon, now: Date): Promise<StationReading | null>;
+}
+
+export interface WeatherReferenceProvider {
+  readonly id: string;
+  /** Independent comparison forecast near the point, or null outside coverage. */
+  near(
+    point: LatLon,
+    now: Date,
+  ): Promise<{
+    place: string;
+    distanceKm: number;
+    hours: WeatherReferenceHour[];
+    provenance: Provenance;
+  } | null>;
+}
+
+/** One upstream source as listed by `/api/sources`. `check` must be cheap and cached. */
+export interface SourceDescriptor {
+  id: string;
+  name: string;
+  use: string;
+  attribution: string;
+  url: string;
+  configured: boolean;
+  check(): Promise<void>;
+}
+
+/** Everything a request handler needs. The app holds a primary bundle plus the demo one. */
 export interface ProviderBundle {
   mode: 'demo' | 'live';
   isDemo: boolean;
@@ -64,4 +105,12 @@ export interface ProviderBundle {
   airQuality: AirQualityProvider;
   weather: WeatherProvider;
   hotspots: HotspotProvider;
+  /** Gridded wind for streamlines/trails. Absent → demo synthetic field (demo mode only). */
+  windField?: WindFieldProvider;
+  /** Ground stations (OpenAQ). Optional overlay. */
+  stations?: StationProvider;
+  /** Comparison forecast (BMKG). Optional. */
+  weatherReference?: WeatherReferenceProvider;
+  /** Upstream sources for `/api/sources`. */
+  sources?: SourceDescriptor[];
 }

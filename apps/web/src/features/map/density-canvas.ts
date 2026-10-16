@@ -128,12 +128,9 @@ export function renderDensityCanvas(field: DensityField): HTMLCanvasElement {
 }
 
 /** Corner coordinates for a MapLibre image source: NW, NE, SE, SW. */
-export function densityImageCoords(bbox: BBox): [
-  [number, number],
-  [number, number],
-  [number, number],
-  [number, number],
-] {
+export function densityImageCoords(
+  bbox: BBox,
+): [[number, number], [number, number], [number, number], [number, number]] {
   const [minLon, minLat, maxLon, maxLat] = bbox;
   return [
     [minLon, maxLat],

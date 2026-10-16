@@ -1,5 +1,5 @@
 import type { Provenance } from '@pavana/shared';
-import { Info } from 'lucide-react';
+import { Info } from '@/components/icons';
 import { formatDateTime } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';

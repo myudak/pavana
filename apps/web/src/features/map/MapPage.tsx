@@ -1,4 +1,14 @@
 import {
+  Cancel01Icon,
+  FastWindIcon,
+  FireIcon,
+  Gps01Icon,
+  InformationCircleIcon,
+  Layers01Icon,
+  MapsGlobal01Icon,
+  CloudFastWindIcon,
+} from '@hugeicons/core-free-icons';
+import {
   BORNEO_RENDER_BBOX,
   buildDensityField,
   DENSITY_COLS,
@@ -19,74 +29,237 @@ import {
   STREAMLINE_SEED,
   STREAMLINE_STEP_KM,
   STREAMLINE_TARGET_COUNT,
+  tracePlumes,
   traceStreamlines,
-  windFromToFlowBearing,
+  type BBox,
+  type Hotspot,
 } from '@pavana/shared';
-import { CloudFog, Flame, Maximize2, Navigation, Wind, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { DemoBanner } from '@/components/DemoBanner';
-import { QueryState } from '@/components/QueryState';
-import { Card } from '@/components/ui/card';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import { DesktopNav } from '@/app/layout/DesktopNav';
+import { DemoPill } from '@/components/DemoBanner';
+import { Icon } from '@/components/Icon';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { WindArrow } from '@/components/WindArrow';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { LocationPicker } from '@/features/location/LocationPicker';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { useConditions } from '@/lib/queries';
 import { useDarkMode } from '@/lib/theme-context';
 import { cn } from '@/lib/utils';
-import { windDirectionLabel } from '@/lib/wind-label';
-import { HotspotMap } from './HotspotMap';
+import { msToKmh, windSummary } from '@/lib/wind';
+import { HotspotMap, INDONESIA_BBOX } from './HotspotMap';
 import { densityImageCoords, renderDensityCanvas } from './density-canvas';
 import { DARK_STYLE_URL, useHotspots, useRegionalHotspots, useWindField } from './use-hotspots';
 
+type Layer = 'hotspots' | 'plumes' | 'density' | 'wind';
+/** Strongest detections get a trail; more would only add noise at regional zoom. */
+const PLUME_SOURCES = 160;
+/** Cap for the map-failure fallback list (the full count stays in the header). */
+const FALLBACK_LIMIT = 100;
+
+/** Deep-link focus (?lat=&lon=&zoom=), validated; null means the default view. */
+function parseFocus(sp: URLSearchParams): { center: { lat: number; lon: number }; zoom: number } | null {
+  const lat = Number(sp.get('lat'));
+  const lon = Number(sp.get('lon'));
+  const zoom = Number(sp.get('zoom'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(zoom)) return null;
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180 || zoom < 0 || zoom > 22) return null;
+  return { center: { lat, lon }, zoom };
+}
+
+const CHIP =
+  'glass h-9 shrink-0 gap-1.5 rounded-full border-0 px-3.5 text-[13px] font-medium text-foreground/80 data-[state=on]:bg-haze/20 data-[state=on]:text-haze data-[state=on]:shadow-[0_0_18px_-4px_var(--pv-accent)]';
+
+/**
+ * Fallback when the map itself cannot render: the same detections the map
+ * would show, as a plain scrollable list. Never an empty white area — loading,
+ * a clear empty state, or the list itself.
+ */
+function MapFallback({
+  count,
+  items,
+  truncated,
+  pending,
+  timeZone,
+}: {
+  count: number;
+  items: Hotspot[];
+  truncated: boolean;
+  pending: boolean;
+  timeZone: string;
+}) {
+  const t = useCopy();
+  return (
+    <div role="status" className="h-full overflow-y-auto px-4 pb-8 pt-32 lg:pt-28">
+      <div className="mx-auto w-full max-w-lg space-y-3">
+        <p className="text-sm text-muted-foreground">{t.map.mapError}</p>
+        {pending ? (
+          <p className="text-sm text-muted-foreground">{t.common.loading}</p>
+        ) : count === 0 ? (
+          <p className="text-sm text-muted-foreground">{t.info.cards.hotspotNone}</p>
+        ) : (
+          <>
+            <p className="font-heading text-lg font-semibold tabular">{t.map.count(count)}</p>
+            <ul className="space-y-2">
+              {items.map((h) => (
+                <li
+                  key={h.id}
+                  className="glass flex items-center gap-3 rounded-2xl p-3 text-sm"
+                >
+                  <span
+                    aria-hidden
+                    className="size-2 shrink-0 rounded-full bg-accent"
+                    style={{ boxShadow: '0 0 10px var(--pv-accent)' }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium tabular">
+                      {h.lat.toFixed(3)}, {h.lon.toFixed(3)}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {t.map.acquired}: {formatDateTime(h.acquiredAt, timeZone)}
+                    </span>
+                  </span>
+                  <span className="shrink-0 tabular text-muted-foreground">
+                    {h.frpMw == null ? '—' : `${formatNumber(h.frpMw)} MW`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {truncated && (
+              <p className="text-xs text-muted-foreground">
+                {t.map.fallbackMore(formatNumber(count - items.length))}
+              </p>
+            )}
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {t.map.hotspotDisclaimer}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function MapPage() {
   const t = useCopy();
+  const dark = useDarkMode();
   const { location, query: hotspots } = useHotspots();
   const regional = useRegionalHotspots();
   const windField = useWindField();
-  const [showHotspots, setShowHotspots] = useState(true);
-  const [showDensity, setShowDensity] = useState(true);
-  const [showWind, setShowWind] = useState(true);
-  const [mapFailed, setMapFailed] = useState(false);
-  const [fitNonce, setFitNonce] = useState(0);
-  const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
   const conditions = useConditions();
-  const dark = useDarkMode();
+  const [layers, setLayers] = useState<Layer[]>(['hotspots', 'plumes', 'wind', 'density']);
+  const [view, setView] = useState<'indonesia' | 'local' | 'region'>('indonesia');
+  const [fitNonce, setFitNonce] = useState(0);
+  const [plumeHours, setPlumeHours] = useState(6);
+  const [searchParams] = useSearchParams();
+  // One-shot deep-link focus: honored once at creation, never refit afterwards.
+  const [focus] = useState(() => parseFocus(searchParams));
+  const [mapFailed, setMapFailed] = useState(false);
+  const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
 
+  const on = (l: Layer) => layers.includes(l);
+  // 'Sekitarku' view: roughly 250 km around the selected location.
+  const localBox = useMemo(
+    () => [location.lon - 1.1, location.lat - 1.1, location.lon + 1.1, location.lat + 1.1] as BBox,
+    [location.lon, location.lat],
+  );
+  // Measured chrome for the default fit: top chrome height, sheet height (also
+  // exposed as --map-sheet-h for the buttons column), and the sheet's distance
+  // from the container bottom (card + bottom nav) for the fit padding.
+  // Layout effect so heights are ready before the map's first fit.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [chromePad, setChromePad] = useState({ top: 0, sheetH: 0, sheetGap: 0 });
+  useLayoutEffect(() => {
+    const containerEl = containerRef.current;
+    const topEl = topRef.current;
+    const sheetEl = sheetRef.current;
+    if (!containerEl || !topEl || !sheetEl) return;
+    const measure = () => {
+      const next = {
+        top: topEl.offsetHeight,
+        sheetH: sheetEl.offsetHeight,
+        sheetGap: containerEl.offsetHeight - sheetEl.offsetTop,
+      };
+      setChromePad((prev) =>
+        prev.top === next.top && prev.sheetH === next.sheetH && prev.sheetGap === next.sheetGap
+          ? prev
+          : next,
+      );
+    };
+    measure();
+    const obs = new ResizeObserver(measure);
+    obs.observe(containerEl);
+    obs.observe(topEl);
+    obs.observe(sheetEl);
+    return () => obs.disconnect();
+  }, []);
+  const fitPadding = useMemo(
+    () => ({ top: chromePad.top + 12, bottom: chromePad.sheetGap + 12, left: 16, right: 16 }),
+    [chromePad],
+  );
+  // Attribution popover (3rd round button). Closes on outside tap, re-press, Esc.
+  const [attribOpen, setAttribOpen] = useState(false);
+  const attribRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!attribOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (attribRef.current && !attribRef.current.contains(e.target as Node)) {
+        setAttribOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAttribOpen(false);
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [attribOpen]);
   const tz = conditions.data?.location.timezone ?? 'Asia/Jakarta';
   const wind = conditions.data?.weather;
+  const isDemo = hotspots.data?.state === 'demo';
 
-  // Regional density field (island-wide). Local points are merged in so the
-  // density view stays a superset; the regional fixture keeps a keep-out zone
-  // around the scenario location, so nothing is double-counted.
-  const regionalPts = useMemo(() => regional.query.data?.hotspots ?? [], [regional.query.data]);
-  const densityField = useMemo(
-    () =>
-      regionalPts.length === 0
-        ? null
-        : buildDensityField(
-            regionalPts.map((h) => ({ lat: h.lat, lon: h.lon, weight: hotspotWeight(h.frpMw) })),
-            BORNEO_RENDER_BBOX,
-            {
-              cols: DENSITY_COLS,
-              sigmaWideKm: DENSITY_SIGMA_WIDE_KM,
-              sigmaMidKm: DENSITY_SIGMA_MID_KM,
-              sigmaFineKm: DENSITY_SIGMA_FINE_KM,
-              wideWeight: DENSITY_WIDE_WEIGHT,
-              midWeight: DENSITY_MID_WEIGHT,
-              fineWeight: DENSITY_FINE_WEIGHT,
-            },
-          ),
-    [regionalPts],
-  );
-  const densityCanvas = useMemo(() => {
-    if (!densityField) return null;
-    const values = normalizeField(densityField.values, {
+  // Local detections + the island-wide field, deduped by id.
+  const shown: Hotspot[] = useMemo(() => {
+    const local = hotspots.data?.hotspots ?? [];
+    const region = regional.query.data?.hotspots ?? [];
+    const ids = new Set(region.map((r) => r.id));
+    return [...region, ...local.filter((p) => !ids.has(p.id))];
+  }, [hotspots.data, regional.query.data]);
+
+  const density = useMemo(() => {
+    if (shown.length === 0) return null;
+    const field = buildDensityField(
+      shown.map((h) => ({ lat: h.lat, lon: h.lon, weight: hotspotWeight(h.frpMw) })),
+      BORNEO_RENDER_BBOX,
+      {
+        cols: DENSITY_COLS,
+        sigmaWideKm: DENSITY_SIGMA_WIDE_KM,
+        sigmaMidKm: DENSITY_SIGMA_MID_KM,
+        sigmaFineKm: DENSITY_SIGMA_FINE_KM,
+        wideWeight: DENSITY_WIDE_WEIGHT,
+        midWeight: DENSITY_MID_WEIGHT,
+        fineWeight: DENSITY_FINE_WEIGHT,
+      },
+    );
+    const values = normalizeField(field.values, {
       percentile: DENSITY_PERCENTILE,
       gamma: DENSITY_GAMMA,
     });
-    return renderDensityCanvas({ ...densityField, values });
-  }, [densityField]);
+    return {
+      canvas: renderDensityCanvas({ ...field, values }),
+      coords: densityImageCoords(BORNEO_RENDER_BBOX),
+    };
+  }, [shown]);
 
-  // Regional wind streamlines (flow direction, RK2). Memoized on field data.
   const streamlines = useMemo(() => {
     const field = windField.query.data;
     if (!field) return null;
@@ -101,233 +274,292 @@ export default function MapPage() {
     });
   }, [windField.query.data]);
 
-  // Clear the selected detection when the location (and its hotspots) changes.
+  // Indicative smoke-direction trails from the strongest detections.
+  const plumes = useMemo(() => {
+    const field = windField.query.data;
+    if (!field || shown.length === 0 || plumeHours === 0) return null;
+    const sources = shown
+      .map((h) => ({ lat: h.lat, lon: h.lon, weight: hotspotWeight(h.frpMw) }))
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, PLUME_SOURCES);
+    const maxW = sources[0]?.weight ?? 1;
+    return tracePlumes(
+      sources.map((s) => ({ ...s, weight: 0.35 + 0.65 * (s.weight / maxW) })),
+      field,
+      { hours: plumeHours, stepMinutes: 30 },
+    );
+  }, [windField.query.data, shown, plumeHours]);
+
+  const initialLoc = useRef(location);
   useEffect(() => {
     setSelected(null);
-  }, [location.lat, location.lon]);
+    // A location switch after mount flies to the new area, as before.
+    // (Compared against the mount-time location so StrictMode remounts stay put.)
+    if (
+      initialLoc.current.lat !== location.lat ||
+      initialLoc.current.lon !== location.lon
+    ) {
+      setView('local');
+    }
+  }, [location, location.lat, location.lon]);
+
+  const goTo = (v: 'local' | 'region') => {
+    setView(v);
+    setFitNonce((n) => n + 1);
+  };
+  const windNow =
+    wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
+      ? { ...windSummary(wind.windDirectionFromDeg, t), kmh: msToKmh(wind.windSpeedMs) }
+      : null;
 
   return (
-    <div className="mx-auto w-full max-w-[84rem] space-y-4 px-4 pb-28 pt-2 md:px-6 lg:px-8 lg:pb-12">
-      <h1 className="pt-2 font-heading text-3xl font-bold tracking-tight">{t.map.title}</h1>
-      {hotspots.data?.state === 'demo' && <DemoBanner />}
+    <div
+      ref={containerRef}
+      style={{ '--map-sheet-h': `${chromePad.sheetH}px` } as React.CSSProperties}
+      className="relative h-[calc(var(--app-vh)-var(--mobile-tabbar-h)-env(safe-area-inset-bottom))] w-full overflow-hidden bg-background lg:h-dvh"
+    >
+      {!mapFailed ? (
+        <HotspotMap
+          center={location}
+          hotspots={shown}
+          showHotspots={on('hotspots')}
+          showDensity={on('density')}
+          showWind={on('wind')}
+          density={on('density') ? density : null}
+          fitTo={view === 'region' ? BORNEO_RENDER_BBOX : view === 'local' ? localBox : INDONESIA_BBOX}
+          initialCamera={focus}
+          autoFit={focus == null}
+          fitPadding={fitPadding}
+          streamlines={streamlines}
+          plumes={plumes}
+          showPlumes={on('plumes')}
+          fitNonce={fitNonce}
+          timeZone={tz}
+          controls={false}
+          onError={() => setMapFailed(true)}
+          styleUrl={dark ? DARK_STYLE_URL : undefined}
+          onSelectHotspot={(p) => setSelected(p)}
+          wind={
+            wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
+              ? { fromDeg: wind.windDirectionFromDeg, speedMs: wind.windSpeedMs }
+              : null
+          }
+        />
+      ) : (
+        <MapFallback
+          count={shown.length}
+          items={shown.slice(0, FALLBACK_LIMIT)}
+          truncated={shown.length > FALLBACK_LIMIT}
+          pending={hotspots.isPending || regional.query.isPending}
+          timeZone={tz}
+        />
+      )}
 
-      <div role="group" aria-label="Layer" className="flex flex-wrap gap-2">
-        <button
-          aria-pressed={showDensity}
-          onClick={() => setShowDensity((v) => !v)}
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm',
-            showDensity
-              ? 'border-accent/60 bg-accent/15 font-medium text-accent dark:[box-shadow:var(--pv-glow-accent)]'
-              : 'border-border text-ink-muted',
-          )}
+      {/* Top chrome */}
+      <div
+        ref={topRef}
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 space-y-2 bg-gradient-to-b from-background/80 to-transparent px-3 pb-6 pt-[max(env(safe-area-inset-top),0.75rem)]"
+      >
+        <div className="pointer-events-auto flex items-center gap-2">
+          <div className="glass flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full pl-4 pr-2">
+            <LocationPicker className="min-w-0 flex-1" />
+            {isDemo && <DemoPill />}
+          </div>
+          <DesktopNav className="shrink-0" />
+          <ThemeToggle className="size-11" />
+        </div>
+        <ToggleGroup
+          type="multiple"
+          value={layers}
+          onValueChange={(v) => setLayers(v as Layer[])}
+          aria-label={t.map.layersLabel}
+          className="pointer-events-auto -mx-3 w-[calc(100%+1.5rem)] justify-start gap-2 overflow-x-auto px-3 pb-1 scrollbar-none"
         >
-          <CloudFog className="size-4" aria-hidden />
-          {t.map.layerDensity}
-        </button>
-        <button
-          aria-pressed={showHotspots}
-          onClick={() => setShowHotspots((v) => !v)}
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm',
-            showHotspots
-              ? 'border-accent/60 bg-accent/15 font-medium text-accent dark:[box-shadow:var(--pv-glow-accent)]'
-              : 'border-border text-ink-muted',
-          )}
-        >
-          <Flame className="size-4" aria-hidden />
-          {t.map.layerHotspots}
-        </button>
-        <button
-          aria-pressed={showWind}
-          onClick={() => setShowWind((v) => !v)}
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm',
-            showWind
-              ? 'border-accent/60 bg-accent/15 font-medium text-accent dark:[box-shadow:var(--pv-glow-accent)]'
-              : 'border-border text-ink-muted',
-          )}
-        >
-          <Wind className="size-4" aria-hidden />
-          {t.map.layerWind}
-        </button>
-        <button
-          type="button"
-          onClick={() => setFitNonce((n) => n + 1)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-ink-muted"
-        >
-          <Maximize2 className="size-4" aria-hidden />
-          {t.map.fitKalimantan}
-        </button>
+          <ToggleGroupItem value="hotspots" className={CHIP}>
+            <Icon icon={FireIcon} className="size-4" /> {t.map.layerHotspots}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="plumes" className={CHIP}>
+            <Icon icon={CloudFastWindIcon} className="size-4" /> {t.map.layerPlumes}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="wind" className={CHIP}>
+            <Icon icon={FastWindIcon} className="size-4" /> {t.map.layerWind}
+          </ToggleGroupItem>
+          <ToggleGroupItem value="density" className={CHIP}>
+            <Icon icon={Layers01Icon} className="size-4" /> {t.map.layerDensity}
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
-      <QueryState query={hotspots}>
-        {(h) => {
-          // Same detection can arrive from both queries (overlapping bboxes):
-          // dedupe by id so counts and markers stay honest.
-          const regionalIds = new Set(regionalPts.map((r) => r.id));
-          const shown = showDensity
-            ? [...regionalPts, ...h.hotspots.filter((p) => !regionalIds.has(p.id))]
-            : h.hotspots;
-          const density =
-            showDensity && densityCanvas
-              ? { canvas: densityCanvas, coords: densityImageCoords(BORNEO_RENDER_BBOX) }
-              : null;
-          return (
-            <>
-              <div className="grid items-start gap-4 lg:grid-cols-3 lg:gap-5">
-                <div className="lg:col-span-2">
-                  {!mapFailed ? (
-                    <div className="relative h-[70vh] min-h-80 overflow-hidden rounded-[1.5rem] border border-border bg-canvas shadow-xl dark:border-white/10 dark:[box-shadow:var(--pv-shadow-lift)] lg:h-[min(78vh,47.5rem)] lg:min-h-[35rem]">
-                      <HotspotMap
-                        center={location}
-                        hotspots={shown}
-                        showHotspots={showHotspots}
-                        showDensity={showDensity}
-                        showWind={showWind}
-                        density={density}
-                        fitTo={showDensity ? BORNEO_RENDER_BBOX : null}
-                        streamlines={streamlines}
-                        fitNonce={fitNonce}
-                        timeZone={tz}
-                        onError={() => setMapFailed(true)}
-                        styleUrl={dark ? DARK_STYLE_URL : undefined}
-                        onSelectHotspot={(props) => setSelected(props)}
-                        wind={
-                          wind?.windDirectionFromDeg != null && wind.windSpeedMs != null
-                            ? {
-                                fromDeg: wind.windDirectionFromDeg,
-                                speedMs: wind.windSpeedMs,
-                              }
-                            : null
-                        }
-                      />
-                      {/* Wind summary lives in the side panel (single source, no duplicate). */}
-                    </div>
-                  ) : (
-                    <Card role="status" className="text-sm text-ink-muted">
-                      {t.map.mapError}
-                    </Card>
-                  )}
-                </div>
-
-                <Card
-                  className={cn(
-                    'relative z-10 mx-1 space-y-3 text-sm dark:border-white/10 dark:bg-[var(--pv-glass)] dark:backdrop-blur',
-                    !mapFailed && '-mt-14 lg:mx-0 lg:mt-0',
-                  )}
+      {/* Right-side controls: above the card on mobile (~12px gap from the
+          measured card height), vertically centered on desktop. */}
+      <div className="absolute bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px+var(--map-sheet-h)+12px)] right-3 z-10 flex flex-col gap-2 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => goTo('local')}
+          aria-label={t.map.viewLocal}
+          title={t.map.viewLocal}
+          className={cn('glass size-11 rounded-full', view === 'local' && 'text-haze')}
+        >
+          <Icon icon={Gps01Icon} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => goTo('region')}
+          aria-label={t.map.viewRegion}
+          title={t.map.viewRegion}
+          className={cn('glass size-11 rounded-full', view === 'region' && 'text-haze')}
+        >
+          <Icon icon={MapsGlobal01Icon} />
+        </Button>
+        <div ref={attribRef} className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setAttribOpen((v) => !v)}
+            aria-label={t.map.attribution}
+            aria-expanded={attribOpen}
+            className={cn('glass size-11 rounded-full', attribOpen && 'text-haze')}
+          >
+            <Icon icon={InformationCircleIcon} />
+          </Button>
+          {attribOpen && (
+            <div
+              role="dialog"
+              aria-label={t.map.attribution}
+              className="glass absolute right-[calc(100%+8px)] top-1/2 w-max max-w-[min(280px,100vw-32px)] -translate-y-1/2 whitespace-normal rounded-2xl p-3 text-xs leading-relaxed"
+            >
+              <p>
+                ©{' '}
+                <a
+                  href="https://carto.com/attributions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
                 >
-                  <p className="flex items-center gap-2">
-                    <span
-                      className="size-3 rounded-full border-2 border-white bg-aq-unhealthy shadow"
-                      aria-hidden
-                    />
-                    {t.map.count(showDensity ? shown.length : h.hotspots.length)}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span
-                      className="size-3 rounded-full border-2 border-white bg-primary shadow"
-                      aria-hidden
-                    />
-                    {t.map.legendLocation}: {location.label}
-                  </p>
-                  {showDensity && (
-                    <div className="space-y-1">
-                      <p className="flex items-center gap-2">
-                        <span
-                          aria-hidden
-                          className="h-2.5 w-16 shrink-0 rounded-full"
-                          style={{
-                            background:
-                              'linear-gradient(90deg, #3b82f6, #6366f1, #a855f7, #f472b6)',
-                          }}
-                        />
-                        {t.map.legendDensity}
-                      </p>
-                      <p className="pl-5 text-xs text-ink-muted">{t.map.noDetectionNote}</p>
-                    </div>
-                  )}
-                  {wind?.windDirectionFromDeg != null && wind.windSpeedMs != null && (
-                    <p className="flex items-center gap-2">
-                      <Navigation
-                        className="size-4 shrink-0 text-primary-strong dark:text-accent"
-                        style={{
-                          transform: `rotate(${windFromToFlowBearing(wind.windDirectionFromDeg) - 45}deg)`,
-                        }}
-                        aria-hidden
-                      />
-                      <span>
-                        {t.map.windNow}: {t.map.windFrom}{' '}
-                        {windDirectionLabel(wind.windDirectionFromDeg)},{' '}
-                        {formatNumber(wind.windSpeedMs, 1)} m/s
-                      </span>
-                    </p>
-                  )}
-                  {showWind && windField.query.data && (
-                    <p className="text-xs text-ink-muted">{t.map.windFieldNote}</p>
-                  )}
-                  {selected && (
-                    <div className="space-y-1 rounded-2xl border border-accent/40 bg-accent/10 p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold tabular-nums">
-                          {typeof selected['lat'] === 'number' &&
-                          typeof selected['lon'] === 'number'
-                            ? `${(selected['lat'] as number).toFixed(3)}, ${(selected['lon'] as number).toFixed(3)}`
-                            : String(selected['id'] ?? '')}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setSelected(null)}
-                          className="rounded-full p-1 text-ink-muted hover:bg-surface-muted"
-                          aria-label={t.map.closeDetail}
-                        >
-                          <X className="size-4" aria-hidden />
-                        </button>
-                      </div>
-                      <dl className="space-y-1 text-sm">
-                        <div className="flex justify-between gap-3">
-                          <dt className="text-ink-muted">{t.map.acquired}</dt>
-                          <dd>{formatDateTime(String(selected['acquiredAt']), tz)}</dd>
-                        </div>
-                        <div className="flex justify-between gap-3">
-                          <dt className="text-ink-muted">{t.map.frp}</dt>
-                          <dd>
-                            {selected['frpMw'] == null || selected['frpMw'] === 'null'
-                              ? '—'
-                              : `${selected['frpMw']} MW`}
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-3">
-                          <dt className="text-ink-muted">{t.map.confidence}</dt>
-                          <dd>{String(selected['confidence'] ?? '—')}</dd>
-                        </div>
-                        <div className="flex justify-between gap-3">
-                          <dt className="text-ink-muted">{t.map.satellite}</dt>
-                          <dd>{String(selected['satellite'] ?? '—')}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  )}
-                  <p className="text-xs text-ink-muted">{t.map.hotspotDisclaimer}</p>
-                </Card>
-              </div>
+                  CARTO
+                </a>{' '}
+                · ©{' '}
+                <a
+                  href="https://www.openstreetmap.org/copyright"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  OpenStreetMap
+                </a>{' '}
+                contributors
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
-              {mapFailed && (
-                <Card>
-                  <ul className="divide-y divide-border text-sm">
-                    {h.hotspots.map((s) => (
-                      <li key={s.id} className="py-2">
-                        {s.lat.toFixed(3)}, {s.lon.toFixed(3)} · {formatDateTime(s.acquiredAt, tz)}{' '}
-                        · {s.satellite}
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
+      {/* Bottom sheet */}
+      <div
+        ref={sheetRef}
+        className="absolute inset-x-3 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px)] z-10 mx-auto max-w-lg lg:bottom-6"
+      >
+        {selected ? (
+          <div className="glass rounded-3xl p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {t.map.detailTitle}
+                </p>
+                <p className="mt-1 font-heading text-lg font-semibold tabular">
+                  {typeof selected['lat'] === 'number' && typeof selected['lon'] === 'number'
+                    ? `${(selected['lat'] as number).toFixed(3)}, ${(selected['lon'] as number).toFixed(3)}`
+                    : String(selected['id'] ?? '')}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelected(null)}
+                aria-label={t.map.closeDetail}
+                className="rounded-full"
+              >
+                <Icon icon={Cancel01Icon} className="size-4" />
+              </Button>
+            </div>
+            <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div>
+                <dt className="text-xs text-muted-foreground">{t.map.acquired}</dt>
+                <dd>{formatDateTime(String(selected['acquiredAt']), tz)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t.map.frp}</dt>
+                <dd>
+                  {selected['frpMw'] == null || selected['frpMw'] === 'null'
+                    ? '—'
+                    : `${String(selected['frpMw'])} MW`}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t.map.confidence}</dt>
+                <dd>{String(selected['confidence'] ?? '—')}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">{t.map.satellite}</dt>
+                <dd>{String(selected['satellite'] ?? '—')}</dd>
+              </div>
+            </dl>
+            <p className="mt-3 text-[11px] text-muted-foreground">{t.map.hotspotDisclaimer}</p>
+          </div>
+        ) : (
+          <div className="glass rounded-3xl p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-medium">{t.map.plumesTitle}</p>
+              <p className="tabular text-sm font-semibold text-haze">
+                {t.map.plumesHours(plumeHours)}
+              </p>
+            </div>
+            <Slider
+              className="mt-3"
+              value={[plumeHours]}
+              min={0}
+              max={12}
+              step={1}
+              onValueChange={([v]) => {
+                setPlumeHours(v ?? 0);
+                if (!on('plumes')) setLayers((l) => [...l, 'plumes']);
+              }}
+              aria-label={t.map.plumesTitle}
+            />
+            <div
+              aria-hidden
+              className="mt-3 h-2 rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, #f472b6, #a855f7, rgba(99,102,241,0.15))',
+              }}
+            />
+            <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+              <span>{t.map.plumesFrom}</span>
+              <span>{t.map.plumesHours(plumeHours)}</span>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-aq-unhealthy ring-2 ring-white/80" />
+                {t.map.count(shown.length)}
+              </span>
+              {windNow && (
+                <span className="inline-flex items-center gap-1.5">
+                  <WindArrow toDeg={windNow.toDeg} className="size-3.5 text-haze" />
+                  {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
+                </span>
               )}
-            </>
-          );
-        }}
-      </QueryState>
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              {t.map.plumesNote}
+            </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              {isDemo ? t.map.creditDemo : t.map.creditLive}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

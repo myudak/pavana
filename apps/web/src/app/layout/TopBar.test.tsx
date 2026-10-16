@@ -41,22 +41,25 @@ describe('Top bar nav', () => {
     }
   });
 
-  it('switches the active item when navigating', async () => {
+  it('shows the bottom tab bar on the map route with Peta active', async () => {
     renderAt('/peta');
+    // The map keeps its own top chrome, but the bottom tab bar stays like other pages.
+    const navs = await screen.findAllByRole('navigation', { name: 'Navigasi utama' });
+    expect(navs.length).toBeGreaterThanOrEqual(1);
     const mapLinks = await screen.findAllByRole('link', { name: 'Peta' });
-    expect(mapLinks.length).toBeGreaterThanOrEqual(2);
+    expect(mapLinks.length).toBeGreaterThanOrEqual(1);
     for (const link of mapLinks) {
       expect(link).toHaveAttribute('aria-current', 'page');
     }
   });
 
-  it('renders the bell as honestly non-functional with no notification dot', async () => {
+  it('renders a functional notification bell (no fake disabled state)', async () => {
     renderAt('/');
-    const bell = await screen.findByRole('button', { name: 'Segera hadir' });
-    expect(bell).toHaveAttribute('aria-disabled', 'true');
-    expect(bell).toHaveAttribute('title', 'Segera hadir');
-    // No real notification state → no pink dot badge inside the button.
-    expect(bell.querySelector('span')).toBeNull();
+    const bells = await screen.findAllByRole('button', { name: /Notifikasi/ });
+    expect(bells.length).toBeGreaterThanOrEqual(1);
+    for (const bell of bells) {
+      expect(bell).not.toHaveAttribute('aria-disabled', 'true');
+    }
   });
 
   it('shows the location pill trigger', async () => {

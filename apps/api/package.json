@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "lint": "eslint src test",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke:live": "tsx scripts/smoke-live.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",

@@ -24,7 +24,11 @@ function provenance(kind: ProvenanceKind, validAt = '2026-09-15T00:00:00Z'): Pro
   };
 }
 
-function hour(offsetH: number, pm25: number | null, kind: ProvenanceKind = 'forecast'): ForecastHour {
+function hour(
+  offsetH: number,
+  pm25: number | null,
+  kind: ProvenanceKind = 'forecast',
+): ForecastHour {
   const validAt = new Date(Date.UTC(2026, 8, 15, 0, 0, 0) + offsetH * 3_600_000).toISOString();
   return {
     validAt,

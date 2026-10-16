@@ -70,13 +70,10 @@ export function useTheme(): Ctx {
 export function useDarkMode(): boolean {
   const { pref } = useTheme();
   const [dark, setDark] = useState(
-    () =>
-      typeof document !== 'undefined' &&
-      document.documentElement.dataset.theme === 'dark',
+    () => typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark',
   );
   useEffect(() => {
-    const update = () =>
-      setDark(document.documentElement.dataset.theme === 'dark');
+    const update = () => setDark(document.documentElement.dataset.theme === 'dark');
     update();
     const obs = new MutationObserver(update);
     obs.observe(document.documentElement, {

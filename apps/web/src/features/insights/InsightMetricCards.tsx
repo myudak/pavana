@@ -6,8 +6,8 @@ import {
   Minus,
   TrendingDown,
   TrendingUp,
-  type LucideIcon,
-} from 'lucide-react';
+  type AppIcon,
+} from '@/components/icons';
 import { Link } from 'react-router';
 import { AqCategoryPill } from '@/components/AqCategoryPill';
 import { InfoChip } from '@/components/InfoChip';
@@ -18,11 +18,11 @@ import { categoryOf } from '@/lib/aq';
 import { formatNumber } from '@/lib/format';
 import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { windDirectionLabel } from '@/lib/wind-label';
 import { bearingToCompass8, factorNumber } from './insight-derive';
+import { TREND_URL } from '@/features/fire/trend-link';
 
 /** Trend as a coloured glyph (text lives in the tooltip + screen-reader label). */
-const TREND: Record<Trend, { Icon: LucideIcon; className: string }> = {
+const TREND: Record<Trend, { Icon: AppIcon; className: string }> = {
   worsening: { Icon: TrendingUp, className: 'text-warning-strong' },
   improving: { Icon: TrendingDown, className: 'text-aq-good' },
   stable: { Icon: Minus, className: 'text-ink-muted' },
@@ -51,15 +51,15 @@ function AirCard({ conditions }: { conditions: ConditionsResponse }) {
   const timeZone = conditions.location.timezone;
   const pm25 = conditions.airQuality.pm25UgM3;
   return (
-    <Card className="flex flex-col gap-2">
+    <Card className="flex h-full flex-col gap-2 p-5">
       <CardHeader className="mb-0">
-        <CardTitle>{t.insights.cards.airTitle}</CardTitle>
+        <CardTitle className="text-[11px]">{t.insights.cards.airTitle}</CardTitle>
       </CardHeader>
       {pm25 === null ? (
         <p className="text-sm text-ink-muted">{t.today.noData}</p>
       ) : (
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="font-heading text-3xl font-semibold tabular-nums tracking-tight">
+          <span className="font-heading text-[2rem] font-semibold tabular-nums tracking-tight">
             {formatNumber(pm25)}
           </span>
           <span className="text-sm text-ink-muted">{t.today.unit}</span>
@@ -67,13 +67,17 @@ function AirCard({ conditions }: { conditions: ConditionsResponse }) {
           <TrendGlyph trend={conditions.trend} />
         </p>
       )}
-      <ProvenanceChip provenance={conditions.airQuality.provenance} timeZone={timeZone} />
-      <a
-        href="#prakiraan-pm25"
-        className="mt-auto inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
-      >
-        {t.insights.cards.seeChart} <ArrowRight className="size-4" aria-hidden />
-      </a>
+      <div className="flex flex-wrap gap-1.5">
+        <ProvenanceChip provenance={conditions.airQuality.provenance} timeZone={timeZone} />
+      </div>
+      <div className="mt-auto border-t border-hairline pt-2">
+        <a
+          href="#prakiraan-pm25"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
+        >
+          {t.insights.cards.seeChart} <ArrowRight className="size-4" aria-hidden />
+        </a>
+      </div>
     </Card>
   );
 }
@@ -85,19 +89,18 @@ function WindCard({ factor, timeZone }: { factor: Factor | undefined; timeZone: 
   const provenance = factor?.provenance[0];
 
   return (
-    <Card className="flex flex-col gap-2">
+    <Card className="flex h-full flex-col gap-2 p-5">
       <CardHeader className="mb-0">
-        <CardTitle>{t.insights.cards.windTitle}</CardTitle>
+        <CardTitle className="text-[11px]">{t.insights.cards.windTitle}</CardTitle>
       </CardHeader>
       {fromDeg === null ? (
         <p className="text-sm text-ink-muted">{t.insights.cards.windMissing}</p>
       ) : (
         <>
-          <p className="font-heading text-2xl font-semibold">
+          <p className="font-heading text-[2rem] font-semibold">
             {(() => {
-              const name =
-                windDirectionLabel(fromDeg) ?? t.insights.compass8[bearingToCompass8(fromDeg)];
-              return t.insights.cards.windFrom(name);
+              const compass = bearingToCompass8(fromDeg);
+              return t.insights.cards.windFrom(t.insights.compass8[compass]);
             })()}
           </p>
           {speedMs !== null && (
@@ -107,14 +110,18 @@ function WindCard({ factor, timeZone }: { factor: Factor | undefined; timeZone: 
           )}
         </>
       )}
-      <InfoChip label={t.insights.cards.windScope} detail={t.insights.cards.windRelevance} />
-      {provenance && <ProvenanceChip provenance={provenance} timeZone={timeZone} />}
-      <Link
-        to="/peta"
-        className="mt-auto inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
-      >
-        {t.insights.cards.seeMap} <ArrowRight className="size-4" aria-hidden />
-      </Link>
+      <div className="flex flex-wrap gap-1.5">
+        <InfoChip label={t.insights.cards.windScope} detail={t.insights.cards.windRelevance} />
+        {provenance && <ProvenanceChip provenance={provenance} timeZone={timeZone} />}
+      </div>
+      <div className="mt-auto border-t border-hairline pt-2">
+        <Link
+          to="/peta"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
+        >
+          {t.insights.cards.seeMap} <ArrowRight className="size-4" aria-hidden />
+        </Link>
+      </div>
     </Card>
   );
 }
@@ -127,9 +134,9 @@ function HotspotCard({ factor, timeZone }: { factor: Factor | undefined; timeZon
   const provenance = count !== null && count > 0 ? factor?.provenance[0] : undefined;
 
   return (
-    <Card className="flex flex-col gap-2">
+    <Card className="flex h-full flex-col gap-2 p-5">
       <CardHeader className="mb-0">
-        <CardTitle>{t.insights.cards.hotspotTitle}</CardTitle>
+        <CardTitle className="text-[11px]">{t.insights.cards.hotspotTitle}</CardTitle>
       </CardHeader>
       {count === null ? (
         <p className="text-sm text-ink-muted">{t.insights.cards.hotspotError}</p>
@@ -138,7 +145,7 @@ function HotspotCard({ factor, timeZone }: { factor: Factor | undefined; timeZon
       ) : (
         <>
           <p className="flex items-baseline gap-2">
-            <span className="font-heading text-3xl font-semibold tabular-nums tracking-tight">
+            <span className="font-heading text-[2rem] font-semibold tabular-nums tracking-tight">
               {formatNumber(count)}
             </span>
           </p>
@@ -149,13 +156,23 @@ function HotspotCard({ factor, timeZone }: { factor: Factor | undefined; timeZon
           </p>
         </>
       )}
-      {provenance && <ProvenanceChip provenance={provenance} timeZone={timeZone} />}
-      <Link
-        to="/peta"
-        className="mt-auto inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
-      >
-        {t.insights.cards.seeMap} <ArrowRight className="size-4" aria-hidden />
-      </Link>
+      <div className="flex flex-wrap gap-1.5">
+        {provenance && <ProvenanceChip provenance={provenance} timeZone={timeZone} />}
+      </div>
+      <div className="mt-auto flex flex-wrap gap-x-4 border-t border-hairline pt-2">
+        <Link
+          to="/peta"
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
+        >
+          {t.insights.cards.seeMap} <ArrowRight className="size-4" aria-hidden />
+        </Link>
+        <Link
+          to={TREND_URL}
+          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary-strong"
+        >
+          {t.fire.seeTrend} <ArrowRight className="size-4" aria-hidden />
+        </Link>
+      </div>
     </Card>
   );
 }
@@ -174,7 +191,7 @@ export function InsightMetricCards({
 }) {
   const timeZone = conditions.location.timezone;
   return (
-    <div className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid items-stretch gap-4 md:grid-cols-3">
       <AirCard conditions={conditions} />
       <QueryState query={insights}>
         {(i) => <WindCard factor={i.factors.find((f) => f.id === 'wind')} timeZone={timeZone} />}

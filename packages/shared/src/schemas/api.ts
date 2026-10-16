@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { AirQualityPointSchema } from './air-quality';
 import { DataState } from './data-state';
 import { HotspotSchema } from './hotspot';
+import { StationReadingSchema } from './sources';
 import { FactorSchema, ModelStatusSchema } from './insights';
 import { BBoxSchema, LatSchema, LocationSchema, LonSchema } from './location';
 import { IsoDateTime } from './provenance';
@@ -28,6 +29,8 @@ export const ConditionsResponseSchema = z.object({
   weather: WeatherPointSchema.nullable(),
   /** Direction of change over the next ~12h, from forecast data. */
   trend: TrendSchema,
+  /** Nearest fresh ground-station reading (observation), when one exists nearby. */
+  station: StationReadingSchema.nullable().optional(),
 });
 export type ConditionsResponse = z.infer<typeof ConditionsResponseSchema>;
 

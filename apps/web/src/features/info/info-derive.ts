@@ -34,9 +34,7 @@ export function deriveInfoCards(input: {
     input.hotspotCount !== null && input.hotspotCount > 0 ? 'watch' : 'info';
   const official: Priority = input.linkCount > 0 ? 'info' : 'watch';
   const data: Priority =
-    input.dataState === 'stale' ||
-    input.dataState === 'insufficient' ||
-    input.dataState === 'error'
+    input.dataState === 'stale' || input.dataState === 'insufficient' || input.dataState === 'error'
       ? 'attention'
       : 'info';
   return [
