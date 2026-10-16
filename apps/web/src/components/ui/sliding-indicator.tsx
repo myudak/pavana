@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { getIndicatorLocalBounds } from './sliding-indicator-geometry';
 
 /** Slides behind the selected item in a pill-shaped single-selection control. */
 export function SlidingIndicator({
@@ -28,11 +29,18 @@ export function SlidingIndicator({
 
         const rootRect = root.getBoundingClientRect();
         const activeRect = active.getBoundingClientRect();
-        const x = activeRect.left - rootRect.left - root.clientLeft + root.scrollLeft;
-        const y = activeRect.top - rootRect.top - root.clientTop + root.scrollTop;
-        indicator.style.width = `${activeRect.width}px`;
-        indicator.style.height = `${activeRect.height}px`;
-        indicator.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        const rootStyle = getComputedStyle(root);
+        const bounds = getIndicatorLocalBounds(rootRect, activeRect, {
+          offsetWidth: root.offsetWidth,
+          offsetHeight: root.offsetHeight,
+          scrollLeft: root.scrollLeft,
+          scrollTop: root.scrollTop,
+          borderLeft: Number.parseFloat(rootStyle.borderLeftWidth) || 0,
+          borderTop: Number.parseFloat(rootStyle.borderTopWidth) || 0,
+        });
+        indicator.style.width = `${bounds.width}px`;
+        indicator.style.height = `${bounds.height}px`;
+        indicator.style.transform = `translate3d(${bounds.left}px, ${bounds.top}px, 0)`;
         indicator.style.opacity = '1';
       });
     };
