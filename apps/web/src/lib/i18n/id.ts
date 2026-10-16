@@ -447,6 +447,7 @@ wind: (from: string, speed: string, to: string) =>
     windFrom: 'dari',
     windTo: 'bertiup ke',
     mapError: 'Peta tidak dapat dimuat. Menampilkan daftar titik panas.',
+    fallbackMore: (n: string) => `+${n} deteksi lainnya dalam area`,
 layersLabel: 'Lapisan peta',
     layerPlumes: 'Arah asap',
     plumesTitle: 'Arah sebaran asap',
@@ -456,8 +457,32 @@ layersLabel: 'Lapisan peta',
       'Garis mengikuti prakiraan angin dari tiap titik panas, indikatif, bukan model sebaran asap dan bukan konsentrasi.',
     viewLocal: 'Sekitarku',
     viewRegion: 'Kalimantan',
+    attribution: 'Atribusi peta',
     detailTitle: 'Detail deteksi',
     count: (n: number) => `${n} deteksi anomali panas satelit dalam area`,
+  },
+
+  fire: {
+    nearestTitle: 'Titik panas terdekat',
+    summary: (n: string, radius: string, window: string) =>
+      `${n} titik · radius ${radius} km · ${window} jam terakhir`,
+    summaryUnknown: 'Jumlah titik panas belum tersedia.',
+    disclaimer: 'Deteksi satelit, bukan konfirmasi kebakaran.',
+    seeTrend: 'Lihat tren',
+    km: (n: string) => `${n} km`,
+    justNow: 'Baru saja',
+    minutesAgo: (n: number) => `${n} mnt lalu`,
+    hoursAgo: (n: number) => `${n} jam lalu`,
+    none: 'Belum ada deteksi di sekitar lokasi. Tidak adanya deteksi bukan berarti tidak ada kebakaran.',
+    trendTitle: 'Tren titik panas',
+    trendTotal: 'Total 48 jam',
+    trendPeak: 'Puncak',
+    trendUp: (pct: string) => `Naik ${pct}%`,
+    trendDown: (pct: string) => `Turun ${pct}%`,
+    trendUpNoBase: 'Naik',
+    trendFlat: 'Stabil',
+    trendVs: 'vs 24 jam sebelumnya',
+    detections: 'deteksi',
   },
 
   insights: {
@@ -775,19 +800,19 @@ dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
 
   forecast: {
     title: 'Prakiraan',
-    tabs: { air: 'Kualitas udara', smoke: 'Asap', weather: 'Cuaca' },
+    hero: {
+      locationLabel: 'Lokasi terpilih',
+      range: (max: string, min: string) => `Puncak ${max} · Terendah ${min}`,
+      hotspots: (n: string) => `${n} titik panas, 48 jam terakhir`,
+      windFrom: (dir: string) => `Angin dari ${dir}`,
+    },
+    tabs: { air: 'Kualitas udara', fire: 'Titik api' },
     airTitle: 'PM2.5 per jam',
-    smokeTitle: 'Potensi paparan asap per jam',
-    weatherTitle: 'Angin per jam',
     factorsTitle: 'Faktor yang berpengaruh',
     modelTitle: 'Model AI prakiraan PM2.5',
     modelStatus: 'Dalam pengembangan',
     modelBody:
       'Model LightGBM dengan fitur titik panas berbasis arah angin sedang dikembangkan dan belum dievaluasi. Angka di sini berasal dari prakiraan PM2.5 dan indikator deterministik, bukan dari model tersebut.',
-    windSpeed: 'Kecepatan',
-    windLegend: 'Angin dalam km/j · panah = arah angin bertiup',
-    temperature: 'Suhu',
-    humidity: 'Kelembapan',
   },
 
   /** Display names for provenance `provider` ids (unknown ids are shown as-is). */
@@ -807,6 +832,10 @@ dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
       'Prakiraan dan pengamatan terbaru dari Open-Meteo (CAMS), NASA FIRMS, OpenAQ, dan BMKG.',
     demoBody: 'Skenario sintetis Kubu Raya (September) untuk demonstrasi. Semua angka ilustratif.',
     exitDemo: 'Lihat data langsung',
+    demoChipLabel: 'Mode demo aktif',
+    demoPopTitle: 'Mode Demo',
+    demoPopBody:
+      'Semua angka di halaman ini adalah skenario sintetis untuk demonstrasi, bukan pengamatan nyata.',
   },
 
   sources: {
@@ -826,13 +855,6 @@ dataStale: 'Data terlambat, jangan simpulkan kondisi aman.',
 
   hotspotsUnavailable:
     'Data titik panas sedang tidak tersedia, potensi dihitung dari prakiraan PM2.5 saja.',
-
-  reference: {
-    title: 'Pembanding: BMKG',
-    none: 'Belum ada titik prakiraan BMKG yang tercakup di dekat lokasi ini.',
-    note: (place: string) =>
-      `Prakiraan 3-jam BMKG untuk ${place}. Ditampilkan apa adanya, tidak dicampur dengan angka Pavana.`,
-  },
 
   // Notifikasi, DEMO: hanya berjalan saat Pavana terbuka di peramban (lihat docs/backlog.md).
   alerts: {
