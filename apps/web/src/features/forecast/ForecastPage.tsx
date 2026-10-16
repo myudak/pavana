@@ -1,4 +1,5 @@
 import { AiBrain01Icon } from '@hugeicons/core-free-icons';
+import { Link } from 'react-router';
 import { DemoBanner, DemoPill } from '@/components/DemoBanner';
 import { Icon } from '@/components/Icon';
 import { Panel } from '@/components/Panel';
@@ -142,10 +143,14 @@ export default function ForecastPage() {
                   {t.forecast.modelStatus}
                 </span>
               </div>
-              {/* SHAP / intervals render only when model.evaluated is true — never faked. */}
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {t.forecast.modelBody}
-              </p>
+              {/* Historical explanations have their own research route; live serving stays gated. */}
+              <p className="text-sm leading-relaxed text-muted-foreground">{t.lab.liveNote}</p>
+              <Link
+                to="/lab-ml"
+                className="inline-flex pt-2 text-sm font-medium text-primary-strong underline underline-offset-4"
+              >
+                {t.lab.open}
+              </Link>
             </div>
           </div>
           <details className="group mt-4 rounded-2xl bg-foreground/5 p-3 text-sm">
