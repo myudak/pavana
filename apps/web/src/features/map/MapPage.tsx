@@ -1,4 +1,5 @@
 import {
+  ArrowDown01Icon,
   Cancel01Icon,
   FastWindIcon,
   FireIcon,
@@ -155,6 +156,8 @@ export default function MapPage() {
   const [view, setView] = useState<'indonesia' | 'local' | 'region'>('indonesia');
   const [fitNonce, setFitNonce] = useState(0);
   const [plumeHours, setPlumeHours] = useState(6);
+  /** The smoke-direction card can fold away so it stops covering the map. */
+  const [plumesOpen, setPlumesOpen] = useState(true);
   const [searchParams] = useSearchParams();
   // One-shot deep-link focus: honored once at creation, never refit afterwards.
   const [focus] = useState(() => parseFocus(searchParams));
@@ -390,9 +393,9 @@ export default function MapPage() {
         </ToggleGroup>
       </div>
 
-      {/* Right-side controls: above the card on mobile (~12px gap from the
-          measured card height), vertically centered on desktop. */}
-      <div className="absolute bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px+var(--map-sheet-h)+12px)] right-3 z-10 flex flex-col gap-2 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2">
+      {/* Right-side controls: stacked just above the card, the same way on both
+          breakpoints (card bottom gap + card height + 12px). */}
+      <div className="absolute bottom-[calc(var(--map-sheet-h)+1.5rem)] right-3 z-10 flex flex-col gap-2 lg:bottom-[calc(var(--map-sheet-h)+3rem)]">
         <Button
           variant="ghost"
           size="icon"
@@ -456,10 +459,12 @@ export default function MapPage() {
         </div>
       </div>
 
-      {/* Bottom sheet */}
+      {/* Bottom sheet. The map container already subtracts the mobile tab bar, so the
+          12px gap is measured from the container edge; adding --bottom-nav-h here again
+          would float the card ~tab bar higher than it needs to be. */}
       <div
         ref={sheetRef}
-        className="absolute inset-x-3 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px)] z-10 mx-auto max-w-lg lg:bottom-6"
+        className="absolute inset-x-3 bottom-3 z-10 mx-auto max-w-lg lg:bottom-6"
       >
         {selected ? (
           <div className="glass rounded-3xl p-4">
@@ -512,51 +517,66 @@ export default function MapPage() {
           <div className="glass rounded-3xl p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="font-medium">{t.map.plumesTitle}</p>
-              <p className="tabular text-sm font-semibold text-haze">
-                {t.map.plumesHours(plumeHours)}
-              </p>
+              <div className="flex items-center gap-1">
+                <p className="tabular text-sm font-semibold text-haze">
+                  {t.map.plumesHours(plumeHours)}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPlumesOpen((v) => !v)}
+                  aria-expanded={plumesOpen}
+                  aria-controls="plumes-body"
+                  aria-label={t.map.plumesTitle}
+                  title={t.map.plumesTitle}
+                  className="size-8 rounded-full"
+                >
+                  <Icon
+                    icon={ArrowDown01Icon}
+                    className={cn('size-4 transition-transform', plumesOpen && 'rotate-180')}
+                  />
+                </Button>
+              </div>
             </div>
-            <Slider
-              className="mt-3"
-              value={[plumeHours]}
-              min={0}
-              max={12}
-              step={1}
-              onValueChange={([v]) => {
-                setPlumeHours(v ?? 0);
-                if (!on('plumes')) setLayers((l) => [...l, 'plumes']);
-              }}
-              aria-label={t.map.plumesTitle}
-            />
-            <div
-              aria-hidden
-              className="mt-3 h-2 rounded-full"
-              style={{
-                background: 'linear-gradient(90deg, #f472b6, #a855f7, rgba(99,102,241,0.15))',
-              }}
-            />
-            <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
-              <span>{t.map.plumesFrom}</span>
-              <span>{t.map.plumesHours(plumeHours)}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2.5 rounded-full bg-aq-unhealthy ring-2 ring-white/80" />
-                {t.map.count(shown.length)}
-              </span>
-              {windNow && (
-                <span className="inline-flex items-center gap-1.5">
-                  <WindArrow toDeg={windNow.toDeg} className="size-3.5 text-haze" />
-                  {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
-                </span>
-              )}
-            </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-              {t.map.plumesNote}
-            </p>
-            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-              {isDemo ? t.map.creditDemo : t.map.creditLive}
-            </p>
+
+            {plumesOpen && (
+              <div id="plumes-body">
+                <Slider
+                  className="mt-2"
+                  value={[plumeHours]}
+                  min={0}
+                  max={12}
+                  step={1}
+                  onValueChange={([v]) => {
+                    setPlumeHours(v ?? 0);
+                    if (!on('plumes')) setLayers((l) => [...l, 'plumes']);
+                  }}
+                  aria-label={t.map.plumesTitle}
+                />
+                <div
+                  aria-hidden
+                  className="mt-2 h-1.5 rounded-full"
+                  style={{
+                    background: 'linear-gradient(90deg, #f472b6, #a855f7, rgba(99,102,241,0.15))',
+                  }}
+                />
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="size-2.5 rounded-full bg-aq-unhealthy ring-2 ring-white/80" />
+                    {t.map.count(shown.length)}
+                  </span>
+                  {windNow && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <WindArrow toDeg={windNow.toDeg} className="size-3.5 text-haze" />
+                      {t.tiles.windFrom(windNow.fromName)}, {formatNumber(windNow.kmh)} km/j
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                  {t.map.plumesNote} {isDemo ? t.map.creditDemo : t.map.creditLive}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -452,7 +452,6 @@ layersLabel: 'Lapisan peta',
     layerPlumes: 'Arah asap',
     plumesTitle: 'Arah sebaran asap',
     plumesHours: (h: number) => (h === 0 ? 'Kini' : `+${h} jam`),
-    plumesFrom: 'Titik panas',
     plumesNote:
       'Garis mengikuti prakiraan angin dari tiap titik panas, indikatif, bukan model sebaran asap dan bukan konsentrasi.',
     viewLocal: 'Sekitarku',
