@@ -170,6 +170,7 @@ def baselines(train: pd.DataFrame, test: pd.DataFrame) -> dict[str, np.ndarray]:
     tm = pd.to_datetime(test["issue_day"]).dt.month
     climatology = clim.reindex(pd.MultiIndex.from_arrays([test["cell"], tm])).to_numpy()
     climatology = np.where(np.isnan(climatology), float(train["y"].mean()), climatology)
+
     # Recent activity: train rate per (cell detections, neighbourhood detections) over the last
     # DET_DAYS days, binned. A stronger, still model-free reference than one-day persistence: it
     # ranks cells by how active they and their surroundings have been.
