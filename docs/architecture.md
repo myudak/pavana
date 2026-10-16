@@ -10,13 +10,17 @@
   browser                   ▼                   ▼
  ┌────────────┐   /api/*  ┌──────────────────────────────┐    ┌──────────────────────┐
  │ apps/web   │ ────────▶ │ apps/api (Fastify)           │ ─▶ │ providers/*          │
- │ React SPA  │ ◀──────── │ routes → services → providers│    │ fixture  ✅           │
+ │ React SPA  │ ◀──────── │ routes → services → providers│    │ fixture    ✅         │
  └────────────┘  JSON     │ validates query + response   │    │ open-meteo ✅         │
- ┌────────────┐           └──────────────────────────────┘    │ firms      🔶 key     │
- │apps/landing│ static                                         │ openaq     🔶 key     │
- └────────────┘                                                └──────────────────────┘
+ ┌────────────┐           │ /api/model/* · /api/chat     │    │ firms      ✅ key     │
+ │apps/landing│ static    └──────────────────────────────┘    │ openaq     ✅ key     │
+ └────────────┘                                                │ bmkg, metar ✅        │
+ ┌────────────┐                                                │ openrouter ✅ key     │
+ │apps/mobile │ Expo, same API                                 └──────────────────────┘
+ └────────────┘
 
- ml/ (offline Python) ── shares fixtures/ + test vectors; not called by the API yet
+ ml/ (Python, Kaggle) ── trains boosters → exported JSON in apps/api/src/models
+                          evaluated in TS by packages/shared/src/model/gbdt.ts
 ```
 
 ## Request flow (`GET /api/conditions?lat&lon`)

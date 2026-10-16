@@ -53,8 +53,12 @@ Limits of the demo:
 
 ## Tanya Pavi: real LLM backend
 
-**Status: demo UI.** The chat at `/tanya` uses a scripted conversation. No LLM is called
-and nothing is sent to a server.
+**Status: beta, live.** `POST /api/chat` (`apps/api/src/services/chat.ts`) calls an LLM through
+OpenRouter (`OPENROUTER_API_KEY`, server-side; default model `google/gemini-2.5-flash`). Each request
+is grounded in a JSON snapshot of the selected location's conditions, insights and experimental
+model outputs; missing data stays null. Demo mode keeps the scripted conversation below.
+Remaining: per-IP rate-limit tuning, an evaluation set of questions with forbidden claims, and a
+privacy note in the UI.
 
 ### What exists (demo)
 
@@ -107,5 +111,9 @@ and nothing is sent to a server.
 
 ## Other open items
 
-- **AI forecast (LightGBM):** offline in `ml/`, not evaluated and not wired into the API. The UI says "Dalam pengembangan". See `docs/modeling-methodology.md`.
-- **Live data in production:** the code is done. Production stays on `PAVANA_MODE=demo` until `FIRMS_MAP_KEY` and `OPENAQ_API_KEY` are added in Vercel. Remove the app's `noindex` only after live data is verified.
+- **ML models:** six evaluated, experimental LightGBM boosters are served through `/api/model/*`
+  (hotspot risk, haze 6/24 h, wind; PM2.5 stays research-only in `/lab-ml`). Next: observed PM2.5
+  archive (forward collection), calibration review, retraining cadence. See `docs/ML_LIVE_HANDOFF.md`.
+- **Live data in production:** done. Production runs `PAVANA_MODE=live` and `/api/sources`
+  reports Open-Meteo, CAMS, NASA FIRMS, OpenAQ and BMKG as ok (checked 16 Oct 2026). Still open:
+  the app keeps `noindex` (`apps/web/index.html`); remove it when the team wants the app indexed.
