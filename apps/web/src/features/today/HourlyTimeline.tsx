@@ -60,7 +60,7 @@ export function HourlyTimeline({
             <li
               key={h.validAt}
               className={cn(
-                'relative flex min-h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 snap-start flex-col items-center justify-center gap-1 rounded-xl border border-transparent bg-transparent p-2 text-center max-[359px]:min-w-[3.5rem] md:min-h-0 md:gap-0.5 md:rounded-2xl md:border-glass-border md:bg-glass-hero md:px-2 md:py-0.5 md:backdrop-blur-xl md:dark:[box-shadow:var(--pv-shadow-soft)] lg:min-h-[clamp(4.125rem,9svh,5.125rem)] [@media((max-width:767px)_and_(max-height:760px))]:p-1',
+                'relative flex min-h-[clamp(5rem,11svh,6.25rem)] min-w-0 flex-1 snap-start flex-col items-center justify-center gap-1.5 rounded-xl border border-transparent bg-transparent p-2 text-center max-[359px]:min-w-[3.5rem] md:min-h-[5.625rem] md:rounded-2xl md:border-glass-border md:bg-glass-hero md:px-2 md:py-0.5 md:backdrop-blur-xl md:dark:[box-shadow:var(--pv-shadow-soft)] lg:min-h-[clamp(4.125rem,9svh,5.125rem)] [@media((max-width:767px)_and_(max-height:760px))]:p-1',
                 i === 0 && 'bg-accent/[0.16] font-bold dark:[box-shadow:var(--pv-glow-accent)]',
               )}
             >
