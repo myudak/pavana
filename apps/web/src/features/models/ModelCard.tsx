@@ -270,7 +270,7 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
               {hs?.p6h == null && <Missing codes={hs?.missing ?? h?.missing} />}
               {!compact && (
                 <RunDetails
-                  version={h?.models.h6.version}
+                  version={h ? `${h.models.h6.version} · ${h.models.h24.version}` : undefined}
                   input={hs?.issueAt}
                   report={hs?.reportAt}
                   source={hs?.inputProvider}
@@ -279,7 +279,12 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {t.in24h}: {stamp(hs?.target24hAt)}
                   </p>
-                  {hs && <Factors factors={hs.factors6h} unit={t.logOdds} />}
+                  {hs && (
+                    <>
+                      <Factors factors={hs.factors6h} unit={`${t.in6h} · ${t.logOdds}`} />
+                      <Factors factors={hs.factors24h} unit={`${t.in24h} · ${t.logOdds}`} />
+                    </>
+                  )}
                 </RunDetails>
               )}
             </>
@@ -298,6 +303,11 @@ export function ModelCard({ compact = false }: { compact?: boolean }) {
                 value={r?.focus?.cell.probability == null ? null : pct(r.focus.cell.probability)}
               />
               {r && <p className="mt-1 text-xs text-muted-foreground">{t.riskWhen(r.targetDay)}</p>}
+              {r?.focus && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t.gridReference(r.focus.cell.lat, r.focus.cell.lon)}
+                </p>
+              )}
               {r && !r.focus ? (
                 <p className="mt-1 text-xs text-muted-foreground">{t.outsideGrid}</p>
               ) : (

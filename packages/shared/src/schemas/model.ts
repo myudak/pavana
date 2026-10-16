@@ -39,7 +39,7 @@ export type ModelInfo = z.infer<typeof ModelInfoSchema>;
 export const ModelFactorSchema = z.object({
   feature: z.string(),
   value: z.number().nullable(),
-  /** SHAP contribution in log-odds; > 0 raised the model's probability. */
+  /** SHAP in the response's stated output unit (classifiers: log-odds). */
   shap: z.number(),
 });
 export type ModelFactor = z.infer<typeof ModelFactorSchema>;

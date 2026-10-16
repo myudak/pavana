@@ -1149,6 +1149,8 @@ export const id = {
       )[code] ?? 'Data masukan belum tersedia.',
     riskTitle: 'Peluang titik panas terdeteksi',
     riskWhen: (day: string) => `di kotak grid ~28 km yang memuat lokasi, ${day} (UTC)`,
+    gridReference: (lat: number, lon: number) =>
+      `Pusat sel referensi: ${lat.toFixed(3)}°, ${lon.toFixed(3)}°`,
     riskNote:
       'Titik panas adalah deteksi satelit Suomi NPP, bukan kebakaran terkonfirmasi. Tidak terdeteksi bukan berarti tidak ada api.',
     hazeTitle: 'Peluang jarak pandang < 3 km karena kabut asap',
