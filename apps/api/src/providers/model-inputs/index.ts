@@ -18,6 +18,7 @@ import { parseNoaaMetar } from './noaa-metar';
 const FIRMS_7D =
   'https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_SouthEast_Asia_7d.csv';
 const OM_FORECAST = 'https://api.open-meteo.com/v1/forecast';
+const OM_ARCHIVE = 'https://archive-api.open-meteo.com/v1/archive';
 const IEM_ASOS = 'https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py';
 /** (west, south, east, north) — same region as the training archive (sensor-gap test). */
 const REGION = [93, -9, 122, 9] as const;
@@ -62,6 +63,17 @@ const num = (s: string | undefined) => {
   const v = Number(t);
   return Number.isFinite(v) ? v : null;
 };
+
+function weatherNumber(field: string, value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  if (field === 'relative_humidity_2m_min' && (value < 0 || value > 100)) return null;
+  if (
+    ['precipitation_sum', 'wind_speed_10m_max', 'vapour_pressure_deficit_max'].includes(field) &&
+    value < 0
+  )
+    return null;
+  return value;
+}
 
 /** IEM quotes raw reports containing commas; retain their fields as a whole. */
 function csvFields(line: string): string[] {
@@ -144,12 +156,15 @@ export function parseAsos(csv: string): Map<string, MetarReport[]> {
     const report: MetarReport = {
       provider: 'iem',
       validAt: `${f[i('valid')]!.trim().replace(' ', 'T')}:00Z`,
-      vsbyKm: vsby === null ? null : vsby * 1.609344,
+      vsbyKm: vsby === null || vsby < 0 ? null : vsby * 1.609344,
       wxcodes: normaliseMetarWx(wx === 'M' ? null : wx, f[i('metar')]),
       tmpc: f2c(num(f[i('tmpf')])),
       dwpc: f2c(num(f[i('dwpf')])),
-      windDirFromDeg: num(f[i('drct')]),
-      windSpeedMs: sknt === null ? null : sknt * 0.514444,
+      windDirFromDeg: (() => {
+        const v = num(f[i('drct')]);
+        return v !== null && v >= 0 && v <= 360 ? v : null;
+      })(),
+      windSpeedMs: sknt === null || sknt < 0 ? null : sknt * 0.514444,
     };
     if (!Number.isFinite(Date.parse(report.validAt))) continue;
     if (!out.has(station)) out.set(station, []);
@@ -173,7 +188,7 @@ export function createModelInputs(
         const csv = await fetchText(FIRMS_7D, {
           fetch: deps.fetch,
           source: 'nasa-firms-7d',
-          timeoutMs: 45_000,
+          timeoutMs: 90_000,
         });
         const detections = parseFirms7d(csv);
         return {
@@ -225,7 +240,7 @@ export function createModelInputs(
                     .slice(0, 10);
                   const i = index.get(date);
                   const value = i === undefined ? null : d[k2]?.[i];
-                  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+                  return weatherNumber(k2, value);
                 });
               out.set(pointKey(p), {
                 precipMm: take('precipitation_sum'),
@@ -235,6 +250,59 @@ export function createModelInputs(
                 vpdMaxKpa: take('vapour_pressure_deficit_max'),
               });
             });
+            // Forecast history has a shorter usable precipitation edge than its date array.
+            // Backfill only missing old dates from the same historical archive used in training.
+            // This is a few days × the existing points, not a second multi-year fetch.
+            const endMs = Date.parse(`${endDay}T00:00:00Z`);
+            const requiredDays = Array.from({ length: 61 }, (_, i) =>
+              new Date(endMs - (60 - i) * 86_400_000).toISOString().slice(0, 10),
+            );
+            const gaps = requiredDays.filter(
+              (date, i) =>
+                Date.parse(date) <= endMs - 5 * 86_400_000 &&
+                chunk.some((p) => {
+                  const values = out.get(pointKey(p));
+                  return values && Object.values(values).some((v) => v[i] === null);
+                }),
+            );
+            if (gaps.length) {
+              const archive = await fetchJson<unknown>(
+                `${OM_ARCHIVE}?latitude=${chunk.map((p) => p.lat).join(',')}` +
+                  `&longitude=${chunk.map((p) => p.lon).join(',')}` +
+                  `&start_date=${gaps[0]}&end_date=${gaps.at(-1)}` +
+                  '&daily=precipitation_sum,relative_humidity_2m_min,temperature_2m_max,wind_speed_10m_max,vapour_pressure_deficit_max' +
+                  '&timezone=GMT&wind_speed_unit=ms',
+                { fetch: deps.fetch, source: 'open-meteo-archive', timeoutMs: 20_000 },
+              ).catch(() => null);
+              const historical = (Array.isArray(archive) ? archive : [archive]) as (
+                (typeof blocks)[number] | null
+              )[];
+              const fields = {
+                precipMm: 'precipitation_sum',
+                rhMinPct: 'relative_humidity_2m_min',
+                tmaxC: 'temperature_2m_max',
+                windMaxMs: 'wind_speed_10m_max',
+                vpdMaxKpa: 'vapour_pressure_deficit_max',
+              } as const;
+              chunk.forEach((p, j) => {
+                const values = out.get(pointKey(p)),
+                  daily = historical[j]?.daily;
+                if (!values || !daily || !Array.isArray(daily['time'])) return;
+                const dates = daily['time'] as string[];
+                if (new Set(dates).size !== dates.length) return;
+                for (const [key, field] of Object.entries(fields) as [
+                  keyof typeof fields,
+                  string,
+                ][]) {
+                  requiredDays.forEach((date, i) => {
+                    if (values[key][i] !== null || !gaps.includes(date)) return;
+                    const n = dates.indexOf(date),
+                      value = n < 0 ? null : daily[field]?.[n];
+                    values[key][i] = weatherNumber(field, value);
+                  });
+                }
+              });
+            }
           }
           return out;
         },

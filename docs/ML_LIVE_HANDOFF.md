@@ -54,6 +54,11 @@ complete actual weather coverage.
 The historical weather request did not set `models=era5`; it is therefore recorded as
 Open-Meteo's default historical model blend, not pure ERA5. Serving uses daily forecast/analysis
 history from the forecast endpoint. That product difference remains unvalidated.
+The forecast endpoint's old precipitation edge is shorter than its advertised date array.
+Serving fills only missing dates at least five days old from the historical archive, for the
+same 28 points and the bounded missing date range. Existing values and recent gaps are never
+overwritten; archive failure leaves null. This small serving request is distinct from the
+completed multi-year cache fetch.
 
 FIRMS uses Claude's 2015–2025 Indonesia/Malaysia Suomi NPP archive loader and pinned HF snapshot
 for 2026. METAR uses the same twelve IEM airports, now including raw reports to distinguish absent
@@ -152,6 +157,35 @@ The shared TS tests compare every booster and TreeSHAP output against Python Lig
 
 Run `pnpm check`, `pnpm build`, ML pytest, ruff lint/format, and nbstripout verification before
 handing over. See the run report and PR for the actual trained versions, metrics, and check results.
+
+## Completed training and held-out results
+
+Kaggle training kernel version **1**, internet disabled, completed all six boosters with
+Python 3.13.15 / LightGBM 4.6.0. Source bundle:
+`55fdce1601ea6a2c7f952dbbef118f125bede6345fc8e44f03b3695698ce922c`.
+The installer recomputed every reported test metric from the exported prediction parquet before
+installing the JSON. All six TypeScript prediction/TreeSHAP parity cases passed, including missing
+inputs and boundary rows. Full precision results, versions and checksums live in
+[`ml-live-run.json`](../ml/reports/ml-live-run.json).
+
+| Held-out measure                 |  LightGBM | Persistence | Train climatology |     Common rows |
+| -------------------------------- | --------: | ----------: | ----------------: | --------------: |
+| Hotspot PR-AUC (AP), 2024–2025   |  0.368446 |    0.125674 |          0.163767 |         621,437 |
+| Hotspot Brier, 2024–2025         |  0.023884 |    0.027980 |          0.029285 |         621,437 |
+| Haze +6h PR-AUC (AP)             |  0.037112 |    0.002058 |          0.004681 |         193,036 |
+| Haze +24h PR-AUC (AP)            |  0.033815 |    0.002971 |          0.004193 |         194,938 |
+| PM2.5 MAE, µg/m³, 2026           | 21.765695 |   14.388942 |         25.421927 |           6,882 |
+| PM2.5 RMSE, µg/m³, 2026          | 43.609432 |   28.377043 |         47.094647 |           6,882 |
+| Wind vector RMSE, m/s            |  2.103496 |    3.143955 |          2.219324 |         126,651 |
+| Wind speed MAE, m/s              |  1.157072 |    1.422260 |          1.183757 |         126,651 |
+| Wind direction MAE, degrees FROM | 38.544582 |   60.800860 |         42.439353 | 70,724 non-calm |
+
+PM2.5 loses to persistence; it is an explicitly permitted experimental CAMS proxy, not an
+accuracy improvement. Haze events are very rare (230 positives per horizon in the test cohorts);
+high ROC-AUC does not imply useful precision. Haze Brier skill against test prevalence is negative
+(-0.0062 / -0.0228), despite improving over the two fitted baselines. The different 2026 regime,
+provider publication latency, station coverage and weather-product mismatch remain limitations.
+Do not retune against these test results.
 
 Source operations note: NASA currently announces that Suomi NPP product delivery will cease on
 1 November 2026 on its [active-fire download page](https://firms.modaps.eosdis.nasa.gov/active_fire).

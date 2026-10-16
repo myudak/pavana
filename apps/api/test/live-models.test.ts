@@ -177,7 +177,7 @@ describe('experimental live model contracts', () => {
     const a = await live.dailyWeather([{ lat: 0, lon: 110 }], '2025-09-04');
     expect(a.get('0.00,110.00')!.precipMm.slice(-3)).toEqual([1, null, 3]);
     await live.dailyWeather([{ lat: 2, lon: 112 }], '2025-09-04');
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher).toHaveBeenCalledTimes(4); // forecast + old missing-date archive per point
   });
   it('fetches CAMS only at the fixed reference and excludes future METAR rows', async () => {
     const fetcher = vi.fn(async (url: string) => {

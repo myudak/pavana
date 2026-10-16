@@ -253,7 +253,7 @@ export async function getHotspotRisk(
       fetchedAt,
       validAt: `${targetDay}T00:00:00Z`,
       isDemo: !inputs,
-      notes: `${RM.version} (eksperimental). Probabilitas deteksi satelit Suomi NPP, bukan kebakaran terkonfirmasi.${inputs ? '' : ' Demo: replay input arsip nyata.'}`,
+      notes: `${RM.version} (eksperimental). Probabilitas deteksi satelit Suomi NPP, bukan kebakaran terkonfirmasi.${inputs ? ' Fitur cuaca Open-Meteo harian; tanggal lama yang kosong dilengkapi dari arsip historis.' : ' Demo: replay input arsip nyata.'}`,
     },
   };
 }

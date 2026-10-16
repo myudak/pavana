@@ -142,7 +142,8 @@ function RegressionPanel({ m }: { m: RegressionEvaluation }) {
 
 /** Evaluation of the models the app serves (observed targets), beside the CAMS research. */
 export function ServedModelsEvaluation() {
-  const t = useCopy().modelLab;
+  const copy = useCopy();
+  const t = copy.modelLab;
   const query = useModelEvaluation();
   if (query.error instanceof ApiRequestError && query.error.status === 404) {
     return (
@@ -175,7 +176,7 @@ export function ServedModelsEvaluation() {
                 <ol className="mt-1 space-y-0.5 text-xs">
                   {m.importance.slice(0, 8).map((r) => (
                     <li key={r.feature} className="flex justify-between gap-2 tabular-nums">
-                      <span>{r.feature}</span>
+                      <span>{copy.model.factorLabel(r.feature)}</span>
                       <span className="text-muted-foreground">{r.meanAbsShap.toFixed(3)}</span>
                     </li>
                   ))}

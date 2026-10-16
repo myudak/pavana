@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { hourlyReports } from '@pavana/shared';
-import { createModelInputs } from '../src/providers/model-inputs';
+import { createModelInputs, parseAsos } from '../src/providers/model-inputs';
 import { parseNoaaMetar } from '../src/providers/model-inputs/noaa-metar';
 
 const now = new Date('2026-10-16T10:40:00Z');
@@ -17,6 +17,16 @@ const report = {
   rawOb: 'METAR WIOO 160930Z 24004KT 1800 FU BKN011 28/26 Q1009 NOSIG',
 };
 describe('recent NOAA METAR gap fallback', () => {
+  it('rejects negative visibility/speed and invalid wind direction at ingestion', () => {
+    const rows = parseAsos(
+      'station,valid,vsby,wxcodes,tmpf,dwpf,drct,sknt\nWIOO,2026-10-16 09:30,-1,FU,80,78,999,-3',
+    );
+    expect(rows.get('WIOO')![0]).toMatchObject({
+      vsbyKm: null,
+      windSpeedMs: null,
+      windDirFromDeg: null,
+    });
+  });
   it('converts units and retains provenance of the complete report', () => {
     const r = parseNoaaMetar([report], now).get('WIOO')![0]!;
     expect(r).toMatchObject({
