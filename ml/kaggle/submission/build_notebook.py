@@ -1,6 +1,7 @@
 """Generate the public submission notebook (pavana_ml_submission.ipynb) for Kaggle.
 
     uv run --project ml python ml/kaggle/submission/build_notebook.py <commit>
+    uv run --project ml ruff format ml/kaggle/submission/pavana_ml_submission.ipynb
     kaggle kernels push -p ml/kaggle/submission
 
 The notebook installs `pavana_ml` from the public GitHub repo at <commit> and reads the output of
@@ -57,17 +58,24 @@ dipasang pada commit yang dipin supaya hasil bisa direproduksi. Data berasal dar
 """
 
 SETUP = f"""
-import subprocess, sys
+import subprocess
+import sys
+
 COMMIT = "{SHA}"
 subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-deps",
                 f"git+https://github.com/myudak/pavana@{{COMMIT}}#subdirectory=ml"], check=True)
 
 import json
 from pathlib import Path
-import numpy as np, pandas as pd, matplotlib.pyplot as plt, lightgbm as lgb
-from pavana_ml.pipelines import hotspot_risk, haze_nowcast
-from pavana_ml.features import hotspot_grid, haze_station
+
+import lightgbm as lgb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
 from pavana_ml.evaluation import classification as cm
+from pavana_ml.features import haze_station, hotspot_grid
+from pavana_ml.pipelines import haze_nowcast, hotspot_risk
 
 DATA = next(Path("/kaggle/input").rglob("snapshot.json")).parent
 OUT = Path("/kaggle/working/models")
@@ -157,7 +165,8 @@ CURVES = [
     code(
         """
 def curves(y, p):
-    o = np.argsort(-p, kind="mergesort"); y, p = y[o], p[o]
+    o = np.argsort(-p, kind="mergesort")
+    y, p = y[o], p[o]
     tp, fp = np.cumsum(y), np.cumsum(1 - y)
     last = np.r_[np.nonzero(np.diff(p))[0], len(p) - 1]
     tpr, fpr = tp[last] / tp[-1], fp[last] / fp[-1]
@@ -179,14 +188,19 @@ for col, (title, (df, ycol, methods)) in enumerate(sets.items()):
         p = df[m].to_numpy(float)
         fpr, tpr, rec, prec = curves(y, p)
         lw = 3 if m == "model" else 1.5
-        axes[0, col].plot(fpr, tpr, color=colors[m], lw=lw, label=f"{m} (AUC {cm.roc_auc(y, p):.3f})")
+        auc = cm.roc_auc(y, p)
+        axes[0, col].plot(fpr, tpr, color=colors[m], lw=lw, label=f"{m} (AUC {auc:.3f})")
         axes[1, col].plot(rec, prec, color=colors[m], lw=lw,
                           label=f"{m} (AP {cm.average_precision(y, p):.3f})")
     axes[0, col].plot([0, 1], [0, 1], "--", color="#B9B2A6")
-    axes[0, col].set(title=f"ROC — {title}", xlabel="False positive rate", ylabel="True positive rate")
+    axes[0, col].set(
+        title=f"ROC — {title}", xlabel="False positive rate", ylabel="True positive rate"
+    )
     axes[1, col].set(title=f"Precision-Recall — {title}", xlabel="Recall", ylabel="Precision")
-    axes[0, col].legend(); axes[1, col].legend()
-plt.tight_layout(); plt.show()
+    axes[0, col].legend()
+    axes[1, col].legend()
+plt.tight_layout()
+plt.show()
 """
     ),
     md("## 6. Kalibrasi\n\nJika model bilang 30%, apakah kejadiannya memang sekitar 30%?"),
@@ -195,12 +209,13 @@ plt.tight_layout(); plt.show()
 cals = [("Titik panas", hot["calibration"])] + [
     (f"Kabut asap +{h}", haze["horizons"][h]["calibration"]) for h in ("6h", "24h")]
 fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
-for ax, (title, bins) in zip(axes, cals):
+for ax, (title, bins) in zip(axes, cals, strict=True):
     b = pd.DataFrame(bins)
     ax.plot([0, 1], [0, 1], "--", color="#B9B2A6")
     ax.plot(b.meanPredicted, b.observedRate, "o-", color="#E8743B")
     ax.set(title=title, xlabel="Peluang prediksi", ylabel="Proporsi kejadian nyata")
-plt.tight_layout(); plt.show()
+plt.tight_layout()
+plt.show()
 """
     ),
 ]
@@ -214,6 +229,7 @@ SHAP = [
     code(
         """
 import shap
+
 booster = lgb.Booster(model_file=str(OUT / "hotspot-risk.lgb.txt"))
 table, _ = hotspot_risk.build_table(DATA)
 feats = list(hotspot_grid.FEATURES)
@@ -221,14 +237,17 @@ test = table[table.issue_day > pd.Timestamp(hotspot_risk.VALID_END)].dropna(subs
 sample = test.sample(5000, random_state=20261016)[feats]
 contrib = booster.predict(sample, pred_contrib=True)
 shap.summary_plot(contrib[:, :-1], sample, show=False)
-plt.title("SHAP — model risiko titik panas (5.000 baris uji)"); plt.show()
+plt.title("SHAP — model risiko titik panas (5.000 baris uji)")
+plt.show()
 """
     ),
     code(
         """
 imp = pd.DataFrame(haze["horizons"]["6h"]["globalImportance"]).head(10)
 imp.plot.barh(x="feature", y="meanAbsShap", color="#2F6FA8", legend=False, figsize=(8, 5))
-plt.gca().invert_yaxis(); plt.title("Rata-rata |SHAP| — kabut asap +6 jam"); plt.xlabel("log-odds")
+plt.gca().invert_yaxis()
+plt.title("Rata-rata |SHAP| — kabut asap +6 jam")
+plt.xlabel("log-odds")
 plt.show()
 """
     ),
@@ -251,8 +270,17 @@ OUTRO = """
 - NASA menghentikan produk Suomi NPP 1 November 2026, jadi model akan dilatih ulang dengan NOAA-20.
 """
 
-cells = [md(INTRO), md(SETUP_MD), code(SETUP), *DATA_CELLS, md(METHOD_MD), *TRAIN_CELLS, *CURVES,
-         *SHAP, md(OUTRO)]
+cells = [
+    md(INTRO),
+    md(SETUP_MD),
+    code(SETUP),
+    *DATA_CELLS,
+    md(METHOD_MD),
+    *TRAIN_CELLS,
+    *CURVES,
+    *SHAP,
+    md(OUTRO),
+]
 for i, c in enumerate(cells):
     c["id"] = f"c{i:02d}"
 nb = {

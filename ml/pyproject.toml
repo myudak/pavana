@@ -49,3 +49,6 @@ select = ["E", "F", "I", "B", "UP", "NPY"]
 
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*.ipynb" = ["E402"]
+# Kaggle notebook installs pavana_ml before importing it; its builder holds markdown prose.
+"kaggle/submission/*.ipynb" = ["E402"]
+"kaggle/submission/build_notebook.py" = ["E501"]
