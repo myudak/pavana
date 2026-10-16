@@ -6,7 +6,7 @@ import {
   Sun03Icon,
 } from '@hugeicons/core-free-icons';
 import { useState } from 'react';
-import { PageContainer, ScrollScrim } from '@/app/layout/PageContainer';
+import { PageContainer } from '@/app/layout/PageContainer';
 import { AlertTriangle } from '@/components/icons';
 import { AtmosphereSection } from '@/components/AtmosphereSection';
 import { DataStateBadge } from '@/components/DataStateBadge';
@@ -68,7 +68,6 @@ export function InfoPage() {
 
   return (
     <PageContainer className="pt-3 lg:pt-[calc(var(--topbar-h)+16px)]">
-      <ScrollScrim />
       <AtmosphereSection labelledBy="info-title" className="scroll-mt-24 p-4">
         <header className="flex flex-wrap items-start justify-between gap-3 pb-1 pt-2">
           <div className="space-y-1">

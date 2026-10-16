@@ -13,6 +13,7 @@ import { useCopy } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { NAV_ITEMS } from '../nav';
 import { DesktopNav } from './DesktopNav';
+import { ScrollScrim } from './ScrollScrim';
 
 /**
  * Global shell: transparent top bar over every route (desktop bar floats
@@ -45,6 +46,10 @@ export function AppShell() {
 
       {(isChat || isForecast) && <SceneBackground />}
       <AlertNotifier />
+
+      {/* Frosted backdrop for the whole bar (wordmark, pill nav, buttons) once
+          the page scrolls. The map draws its own chrome. */}
+      {!isMap && <ScrollScrim />}
 
       {/* The map draws its own chrome; the shell header, location row and tab bar stay out. */}
       {!isMap && (

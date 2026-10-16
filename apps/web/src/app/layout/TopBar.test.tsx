@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { AppShell } from '@/app/layout/AppShell';
@@ -24,6 +24,12 @@ function renderAt(path: string) {
       <RouterProvider router={router} />
     </AppProviders>,
   );
+}
+
+/** jsdom keeps `scrollY` at 0, so pin it before firing the scroll event. */
+function scrollTo(y: number) {
+  Object.defineProperty(window, 'scrollY', { value: y, writable: true, configurable: true });
+  fireEvent.scroll(window);
 }
 
 describe('Top bar nav', () => {
@@ -67,5 +73,20 @@ describe('Top bar nav', () => {
     // Desktop header pill (hidden on mobile) + compact mobile row pill.
     const pills = await screen.findAllByRole('button', { name: 'Sungai Raya' });
     expect(pills.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('frosts the whole top bar on scroll, not just the nav pill', async () => {
+    renderAt('/');
+    // Full-width layer behind the bar (wordmark, pill nav, header buttons).
+    const scrim = await screen.findByTestId('scroll-scrim');
+    expect(scrim.className).toContain('backdrop-blur');
+    expect(scrim.className).toContain('inset-x-0');
+    expect(scrim.className).not.toContain('opacity-100');
+
+    scrollTo(400);
+    expect(screen.getByTestId('scroll-scrim').className).toContain('opacity-100');
+
+    scrollTo(0);
+    expect(screen.getByTestId('scroll-scrim').className).not.toContain('opacity-100');
   });
 });
