@@ -5,10 +5,11 @@ due to hazy or smoky conditions (henceforth haze-limited visibility events). The
 whether including wind-directional features of satellite fire detections (from the VIIRS active
 fire product) could improve 6 and 24 hour forecasts of haze-limited visibility events. To that end
 we built an eleven-year dataset (2015--2025) and used leave-one-year-out cross-validation to assess
-model skill. As baselines, we used: time-shifted data; randomising wind direction; categories of
-wind reporting; a bootstrap method at regional and station-level; and a model without
-wind-directional features (matched for missing data). The directional model did improve 24-hour
-forecasts a little bit (\pv{loyo24.d.E-D0} average precision), but this was driven by a lot of
+model skill. As controls, we used: time-shifted wind directions; randomised (permuted) wind
+directions; categories of wind reporting; and a model without wind-directional features (matched
+for missing data). Uncertainty was estimated with a block bootstrap at station and regional level.
+In single model runs, the directional model appeared to improve 24-hour forecasts substantially
+(\pv{loyo24.d.E-D0} average precision), but this was driven by a lot of
 seed-to-seed variation in one extreme season, where different runs of the same model differ by
 almost 0.1 average precision. When we did five-seed ensembles, the directional model was only a
 few thousandths of average precision better than the permuted-wind placebo
