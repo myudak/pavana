@@ -1,0 +1,83 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{No detectable directional contribution.}
+A wind-weighted fire-exposure feature looks like a direct encoding of smoke transport. In our
+data, once seed noise is averaged out, it is at most a few thousandths of average precision better
+than the same exposure combined with a wind from another time, with directions permuted within
+the month, or with no direction at all but the same missingness, and not consistently so. Within
+the precision of an eleven-season record, the alignment between the reported wind and the fire
+positions adds little or nothing that these controls do not also provide.
+This is a statement about this feature, this target and this evaluation, not a proof that
+direction never matters for smoke.
+
+\paragraph{Single fits of tree models are not enough.}
+Our first, pre-specified analysis compared single LightGBM fits and found a large, significant
+directional gain, which several placebos then appeared to reproduce. We first read that as a
+mechanism: fire exposure behaving differently in calm, stagnant air. It was neither. The
+differences between variants were mostly differences between random seeds, concentrated in one
+extreme test year that the trees had to extrapolate to. A paired bootstrap does not catch this,
+because it resamples test rows for fixed fitted models and says nothing about how much the fitted
+models themselves would change with another seed. For rare, clustered events evaluated across
+seasons, we recommend at least a seed ensemble, or a report of the spread over seeds, before
+comparing feature sets.
+
+\paragraph{Placebo design.}
+The obvious placebo, rotating the wind, is not a clean null: it keeps the current wind axis and
+the exact missingness pattern of the directional feature. Time-shifted winds are better but not
+independent of the current wind. The 168\,h-shifted direction still has a mean cosine similarity
+of \pv{shiftdiag.168h.cos} with the current one, and even 720\,h earlier it is
+\pv{shiftdiag.720h.cos}, because monsoon flow persists for weeks; its missingness matches the
+current report in only \pv{shiftdiag.168h.mask}\% of hours. Permuting directions within the month
+keeps the missingness exactly and lowers the similarity to \pv{shiftdiag.perm1.cos}. We recommend
+mask-preserving placebos of this kind, together with a missingness-matched non-directional
+control, for any study that credits wind-aware fire features.
+
+\paragraph{Why direction may not matter here.}
+Several explanations are plausible, and our data cannot separate them. The airport's surface wind
+is a poor proxy for transport in the boundary layer, especially at night and near the coast,
+where sea breezes dominate several of our stations. Smoke from large peat fires is regional: in
+strong seasons the whole region is covered, so the direction of the nearest fires matters less
+than the total. The 300\,km and 72\,h window is long relative to how fast surface winds change.
+The persistent-flow variant was meant to address the last two points; it was run only as single
+fits and is not interpretable on its own. Trajectory- or reanalysis-based transport features are
+the natural next test.
+
+\paragraph{Model families depend on the split.}
+Logistic regression on station state beats every gradient-boosted model under leave-one-year-out,
+yet on the operational split gradient boosting is ahead (AP \pv{eop24.AP.D} for counts against
+\pv{eop24.AP.lgC}). The ranking depends on whether the test period lies inside or outside the
+range seen in training. Leave-one-year-out trains on later years to score earlier ones, so it
+measures generalisation across seasons, not operational skill; for deployment decisions the
+forward-in-time split is the more relevant one.
+
+\paragraph{Implications for Pavana.}
+The deployed model uses detection counts plus the directional exposure. Our results support
+keeping the counts and suggest the directional term can be dropped with no measurable loss. We
+report this as found and have not changed the deployed system as part of this study.
+
+\paragraph{Limitations.}
+Visibility with a haze or smoke code is an observer-reported marker, not a smoke measurement; HZ
+is also used for dust and urban pollution, coding differs between countries and changes over
+time, and IEM applies little quality control. Several Indonesian stations have long reporting
+gaps before 2021, and Palangka Raya, in the most fire-affected province, is absent. We use one
+satellite sensor and processed archive detections rather than the near-real-time records that
+were available operationally; our latency shift moves detection times but cannot reproduce
+differences between the two versions. The exposure kernel is fixed from the deployed model; other
+distance or age scales might behave differently. Detections are not confirmed fires, and their
+absence under thick smoke or cloud biases exposure downward exactly when haze is worst. Bootstrap
+intervals treat the fitted models as fixed, and five seeds leave residual seed noise; intervals
+with all-station blocks are wider than the station-level ones, and eleven years are far from
+eleven independent episodes. Finally, most controls in this paper were added after the first
+results (Appendix~\ref{app:protocol}); they were added to test the first result, and they removed
+it.
+
+\section{Conclusion}
+
+Across eleven years and twelve airports in Borneo and Sumatra, satellite fire counts modestly
+improve 24\,h forecasts of haze-limited visibility, but wind-directional fire exposure adds at
+most a few thousandths of average precision, inconsistently, over a time-shifted or permuted-wind
+placebo or a non-directional exposure with the same missingness. A single-fit comparison would have suggested a large
+directional gain; it was seed noise in one extreme season. Studies of wind-aware fire features
+should average over seeds and compare against mask-preserving placebos before attributing skill
+to direction.

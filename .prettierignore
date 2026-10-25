@@ -6,3 +6,6 @@ coverage
 ml
 apps/api/src/models/*.json
 docs/PAVANA_HANDOFF.md
+research/*/data
+research/*/results/preds
+research/*/results/cache

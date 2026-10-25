@@ -1,0 +1,3 @@
+# Paper scripts: same rules as ml/, wider lines for the dense tables of variants and contrasts.
+extend = "../../ml/pyproject.toml"
+line-length = 120

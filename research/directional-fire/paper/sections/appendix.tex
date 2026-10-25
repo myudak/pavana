@@ -1,0 +1,102 @@
+\section{Protocol and deviations}
+\label{app:protocol}
+
+The study protocol was committed on 17 October 2026, before any result in this paper was
+computed. It fixed the question, data snapshot, target, nested feature groups (C, D, D0, E, R180,
+R90), fire-data latencies, model and hyperparameters (one LightGBM fit with fixed seed and 400
+rounds for every variant), leave-one-year-out and operational evaluation, metrics, the block
+bootstrap and hypotheses H1--H4. Changes made afterwards, in order:
+
+\begin{enumerate}
+  \item \emph{hit@2\% ties (17 Oct).} Binary predictors such as persistence produced ties that
+        flagged more than 2\% of hours. Exactly $k$ hours are now alerted, ties broken at random.
+        AP, ROC-AUC and Brier scores are unaffected.
+  \item \emph{Persistent flow (17 Oct, exploratory).} Variants Ep and Rp180, using the 24\,h
+        vector-mean wind. Single fits only.
+  \item \emph{Shifted-wind placebo (18 Oct, after the first leave-one-year-out results).} Rshift
+        and Rpshift (wind from 168\,h earlier), the logistic-regression family, and per-season
+        mean $\Delta$AP; the missingness control D0m.
+  \item \emph{Review round 1 (25 Oct, before computing them).} Wind-report categories (D0cat,
+        Ecat), mask-preserving placebos (Rperm1--3, Rshiftm168), further shifts (72, 336,
+        720\,h) with similarity diagnostics, vegetation-only fires (D0v, Ev, Rshiftv, D0mv),
+        all-station bootstrap blocks, and logistic versions lgD0cat, lgEcat, lgRperm1.
+  \item \emph{Seed ensembles (25 Oct, after item 4's results).} Single fits were found to vary
+        strongly with the seed (Section~\ref{sec:seeds}). Main LightGBM results now use five-seed
+        ensembles for C, D, D0, E, Rshift, Rperm1, D0m, D0cat, Ecat, D0v and Ev, and for the
+        latency runs. Single-fit results are kept below.
+\end{enumerate}
+
+The decision rule for the directional claim did not change: direction counts as helping only if
+E beats the placebos and the non-directional controls, not only D0.
+
+\section{Additional results}
+\label{app:extra}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{2}{c}{single fit} & \multicolumn{2}{c}{five-seed ensemble} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Contrast (24\,h) & pooled & per-season & pooled & per-season \\
+\midrule
+D$-$C & \pv{loyo24.d.D-C} & \pv{loyo24.sd.D-C} & \pv{ens24.d.D-C} & \pv{ens24.sd.D-C} \\
+D0$-$D & \pv{loyo24.d.D0-D} & \pv{loyo24.sd.D0-D} & \pv{ens24.d.D0-D} & \pv{ens24.sd.D0-D} \\
+E$-$D0 & \pv{loyo24.d.E-D0} & \pv{loyo24.sd.E-D0} & \pv{ens24.d.E-D0} & \pv{ens24.sd.E-D0} \\
+Rshift$-$D0 & \pv{loyo24.d.Rshift-D0} & \pv{loyo24.sd.Rshift-D0} & \pv{ens24.d.Rshift-D0} & \pv{ens24.sd.Rshift-D0} \\
+E$-$Rshift & \pv{loyo24.d.E-Rshift} & \pv{loyo24.sd.E-Rshift} & \pv{ens24.d.E-Rshift} & \pv{ens24.sd.E-Rshift} \\
+E$-$Rperm1 & \pv{loyo24.d.E-Rperm1} & \pv{loyo24.sd.E-Rperm1} & \pv{ens24.d.E-Rperm1} & \pv{ens24.sd.E-Rperm1} \\
+D0m$-$D0 & \pv{loyo24.d.D0m-D0} & \pv{loyo24.sd.D0m-D0} & \pv{ens24.d.D0m-D0} & \pv{ens24.sd.D0m-D0} \\
+E$-$D0m & \pv{loyo24.d.E-D0m} & \pv{loyo24.sd.E-D0m} & \pv{ens24.d.E-D0m} & \pv{ens24.sd.E-D0m} \\
+D0cat$-$D0 & \pv{loyo24.d.D0cat-D0} & \pv{loyo24.sd.D0cat-D0} & \pv{ens24.d.D0cat-D0} & \pv{ens24.sd.D0cat-D0} \\
+Ecat$-$D0cat & \pv{loyo24.d.Ecat-D0cat} & \pv{loyo24.sd.Ecat-D0cat} & \pv{ens24.d.Ecat-D0cat} & \pv{ens24.sd.Ecat-D0cat} \\
+Ev$-$D0v & \pv{loyo24.d.Ev-D0v} & \pv{loyo24.sd.Ev-D0v} & \pv{ens24.d.Ev-D0v} & \pv{ens24.sd.Ev-D0v} \\
+\bottomrule
+\end{tabular}
+\caption{The same contrasts as single LightGBM fits (the pre-specified design) and as five-seed
+ensembles, leave-one-year-out, 24\,h, $L=3$\,h. Single fits show large pooled gains for E and for
+its controls alike; ensembles show none beyond the controls.}
+\label{tab:single-vs-ens}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Contrast (24\,h) & station $\times$ week & all-station week & all-station month & year \\
+\midrule
+D$-$C & \pv{erb.24.station-week.D-C.ci} & \pv{erb.24.week.D-C.ci} & \pv{erb.24.month.D-C.ci} & \pv{erb.24.year.D-C.ci} \\
+E$-$D0 & \pv{erb.24.station-week.E-D0.ci} & \pv{erb.24.week.E-D0.ci} & \pv{erb.24.month.E-D0.ci} & \pv{erb.24.year.E-D0.ci} \\
+E$-$D & \pv{erb.24.station-week.E-D.ci} & \pv{erb.24.week.E-D.ci} & \pv{erb.24.month.E-D.ci} & \pv{erb.24.year.E-D.ci} \\
+E$-$Rshift & \pv{erb.24.station-week.E-Rshift.ci} & \pv{erb.24.week.E-Rshift.ci} & \pv{erb.24.month.E-Rshift.ci} & \pv{erb.24.year.E-Rshift.ci} \\
+E$-$Rperm1 & \pv{erb.24.station-week.E-Rperm1.ci} & \pv{erb.24.week.E-Rperm1.ci} & \pv{erb.24.month.E-Rperm1.ci} & \pv{erb.24.year.E-Rperm1.ci} \\
+E$-$D0m & \pv{erb.24.station-week.E-D0m.ci} & \pv{erb.24.week.E-D0m.ci} & \pv{erb.24.month.E-D0m.ci} & \pv{erb.24.year.E-D0m.ci} \\
+lgE$-$lgD0 & \pv{erb.24.station-week.lgE-lgD0.ci} & \pv{erb.24.week.lgE-lgD0.ci} & \pv{erb.24.month.lgE-lgD0.ci} & \pv{erb.24.year.lgE-lgD0.ci} \\
+\bottomrule
+\end{tabular}
+\caption{95\% intervals for pooled $\Delta$AP under different bootstrap blocks (500 resamples;
+five-seed ensembles). The year column has only eleven clusters.}
+\label{tab:blocks}
+\end{table}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+ & 72\,h & 168\,h & 336\,h & 720\,h & permuted \\
+\midrule
+Mean $\cos(\theta_t-\theta_{t-k})$ & \pv{shiftdiag.72h.cos} & \pv{shiftdiag.168h.cos} & \pv{shiftdiag.336h.cos} & \pv{shiftdiag.720h.cos} & \pv{shiftdiag.perm1.cos} \\
+Missingness agrees (\%) & \pv{shiftdiag.72h.mask} & \pv{shiftdiag.168h.mask} & \pv{shiftdiag.336h.mask} & \pv{shiftdiag.720h.mask} & \pv{shiftdiag.perm1.mask} \\
+AP, single fit (24\,h) & \pv{loyo24.AP.Rshift72} & \pv{loyo24.AP.Rshift} & \pv{loyo24.AP.Rshift336} & \pv{loyo24.AP.Rshift720} & \pv{loyo24.AP.Rperm1} \\
+\bottomrule
+\end{tabular}
+\caption{How similar the placebo winds are to the current wind (mean over stations), and the
+single-fit AP of each placebo variant. Other single-fit placebo variants: Rperm2
+\pv{loyo24.AP.Rperm2}, Rperm3 \pv{loyo24.AP.Rperm3}, Rshiftm168 \pv{loyo24.AP.Rshiftm168}; E
+\pv{loyo24.AP.E}, D0 \pv{loyo24.AP.D0}. Single fits are not comparable to each other at this
+precision (Section~\ref{sec:seeds}).}
+\label{tab:shifts}
+\end{table}

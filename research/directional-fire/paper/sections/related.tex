@@ -1,0 +1,34 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Haze forecasting in Equatorial Asia.}
+Regional haze warnings rely on dispersion models and on satellite hotspot and smoke-plume analyses
+from the ASEAN Specialised Meteorological Centre. Process studies link the transport of Indonesian
+smoke to Singapore to south-easterly low-level jets and boundary-layer mixing
+\citep{huang2024haze}. On the data-driven side, \citet{wang2020haze} trained a convolutional network
+on 35 years of meteorological and hydrological fields to forecast severe haze at Singapore. They
+found skill above climatology but many missed events, and they used no fire data. Fire-to-PM
+modelling in Riau and Pontianak with gradient boosting and ensembles exists \citep{pontianak2026},
+but it targets PM\textsubscript{2.5} at a single city and does not isolate directional fire
+information.
+
+\paragraph{Visibility as an observed target.}
+Airport visibility has long been used as a proxy for particulate pollution where monitors are
+scarce, including reconstructions of PM\textsubscript{2.5} from near-surface visibility across
+the Northern Hemisphere since 1959 \citep{metarpm2024}. In Central Kalimantan, visibility at Palangka Raya falls non-linearly with
+PM\textsubscript{2.5} and PM\textsubscript{10}, dropping below 0.2 miles during the 2015 fires
+\citep{palangka2022}. Tree ensembles also forecast airport fog and low visibility from METAR and
+reanalysis \citep{fogtransfer2025}. We use visibility with haze codes as the forecast target
+itself.
+
+\paragraph{Wind-aware fire exposure.}
+Weighting fire radiative power by distance and by the angle between wind and fire-to-receptor
+direction is an established feature-engineering choice. \citet{gnnfire2023} use inverse-distance
+and wind-angle weighting in graph-network PM\textsubscript{2.5} forecasts, and \citet{sci2026exposure}
+evaluate distance- and direction-aware exposure metrics. Epidemiological work defines upwind
+exposure from wind direction and fire location \citep{aguilera2021}. In contrast, a recent
+site-level forecasting study found that inverse-distance fire features added nothing beyond
+prior-day PM\textsubscript{2.5} and weather \citep{santacruz2026}. To our knowledge, no study has
+isolated the \emph{directional} term against a non-directional control with identical weighting,
+checked it with rotated-wind placebos, and repeated the test across several haze seasons and
+fire-data latencies. That is the gap this paper fills.

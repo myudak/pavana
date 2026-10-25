@@ -1,0 +1,17 @@
+Wind-weighted satellite fire exposure is a common predictor in smoke forecasting, but its
+directional component is rarely tested on its own. We build an eleven-year (2015--2025) benchmark
+of haze-limited visibility events (visibility below 3\,km with a haze or smoke code) at twelve
+airports in Borneo and Sumatra from public METAR archives and VIIRS active-fire detections, and
+ask whether wind-directional fire features improve 6\,h and 24\,h forecasts beyond a matched
+non-directional exposure. We compare against time-shifted and permuted-wind placebos, controls
+with the same missingness as the directional feature, and wind-report categories, under
+leave-one-year-out evaluation with station- and region-level block bootstrap. A pre-specified
+comparison of single gradient-boosted fits showed a large directional gain at 24\,h
+(\pv{loyo24.d.E-D0} average precision), but it was driven by seed-to-seed variation in one
+extreme season: single fits of the same model differ by almost 0.1 average precision. With
+five-seed ensembles, the directional model is at most a few thousandths of average precision
+above its placebos and controls (\pv{ens24.d.E-Rperm1} against the permuted-wind placebo), with no
+consistent sign across aggregations, horizons or model families, and no larger with vegetation
+fires only. Fire counts improve 24\,h forecasts modestly. We recommend seed
+ensembles and mask-preserving placebos for studies that credit wind-aware fire features. Code and
+protocol are open.

@@ -1,0 +1,62 @@
+\section{Introduction}
+\label{sec:intro}
+
+Peatland and forest fires in Indonesia produce some of the densest smoke on Earth. During strong
+El Niño dry seasons, haze from Sumatra and Kalimantan covers large parts of Equatorial Southeast
+Asia for weeks, closing schools and airports and causing severe respiratory illness
+\citep{huang2024haze}. Communities living around forests and peatland often learn that smoke has
+arrived only when it is already outside their window. Short-term haze forecasts that are local,
+open and honest about their uncertainty could help these communities prepare.
+
+Satellite fire detections are the obvious predictor. NASA's Fire Information for Resource
+Management System (FIRMS) distributes VIIRS active-fire detections within hours of each overpass
+\citep{firms}. Smoke, however, travels with the wind. A detection 80\,km upwind of a town matters
+more than one 80\,km downwind. Wind-weighted fire-exposure features are therefore an intuitive and
+increasingly common design choice \citep{gnnfire2023,sci2026exposure}, yet their \emph{directional}
+component is rarely tested on its own. When a model with wind-weighted fire exposure beats a
+model without fire information, the gain may come from the fire amount, distance or recency rather
+than from where the fires are relative to the wind. Other studies find that fire predictors add
+little once recent pollution and weather are known \citep{santacruz2026}.
+
+A second obstacle is the target. Hourly PM\textsubscript{2.5} observations over Kalimantan and most
+of Sumatra are short, sparse or unavailable before 2021. We instead use a long and openly
+archived proxy: \emph{airport visibility}. Routine aviation weather reports (METAR) record
+horizontal visibility and present-weather codes for haze (HZ) and smoke (FU) every 30--60 minutes
+and have been archived for decades \citep{iem}. Visibility below 3\,km with a haze or smoke code
+and no precipitation or fog is a direct, observed marker of smoke-haze impact.
+
+We ask one question with a matched design. \textbf{Do wind-directional satellite fire features
+improve 6\,h and 24\,h haze-visibility forecasts beyond a non-directional fire-exposure feature with
+identical distance, age and fire-radiative-power weighting?} We also ask whether any gain survives
+realistic fire-data latency. Our contributions:
+
+\begin{enumerate}
+  \item An eleven-year (2015--2025), twelve-airport benchmark of haze-limited visibility in Borneo
+        and Sumatra, built entirely from keyless public archives, covering three major haze
+        seasons (2015, 2019, 2023).
+  \item A matched ablation that isolates the directional term (directional vs non-directional
+        exposure) against a strong station-state baseline that already includes the local wind
+        direction, with time-shifted and mask-preserving permuted-wind placebos, missingness and
+        wind-report-category controls. We show why rotated-wind placebos are not clean nulls.
+  \item Leave-one-year-out evaluation with station- and region-level block bootstrap, breakdowns by
+        season and reporting convention, a vegetation-only sensitivity and a fire-data latency
+        analysis, and evidence that single fits of tree models cannot resolve effects of this
+        size in this setting.
+  \item An open implementation used in a public smoke-awareness application, Pavana, whose
+        deployed model is the feature set evaluated here.
+\end{enumerate}
+
+The answer is negative, and reaching it taught us two lessons about method. In a pre-specified
+comparison of single gradient-boosted fits, adding the directional exposure raised 24\,h average
+precision from \pv{loyo24.AP.D0} to \pv{loyo24.AP.E}, a large and significant gain. Placebo winds
+reproduced almost all of it, and so did refitting the same model with another random seed: the
+differences between single fits were dominated by seed-to-seed variation in one extreme season.
+With five-seed ensembles, the directional model is at most a few thousandths of average precision
+above time-shifted and permuted-wind placebos and non-directional controls with the same
+missingness, with no consistent sign across aggregations, horizons or the two model families. Fire counts improve 24\,h forecasts modestly. We think
+the checks we needed, seed ensembles and mask-preserving placebos, apply to any study that credits
+wind-weighted fire features.
+
+The protocol, including the primary hypothesis, was written down and committed before any result
+reported here was computed (Appendix~\ref{app:protocol}). Changes made after seeing results are
+listed there and labelled in the text.

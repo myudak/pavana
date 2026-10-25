@@ -1,0 +1,164 @@
+\section{Methods}
+\label{sec:methods}
+
+\subsection{Features}
+
+All features at issue time $t$ use only information available at $t$: station reports at or
+before $t$, and fire detections acquired at or before $t-L$, where $L$ is the fire-data latency.
+
+\paragraph{Station state (C).}
+Current visibility, minimum visibility over the last 6\,h and 24\,h, current haze code, share of
+reports with a haze code over 24\,h and 72\,h, share with precipitation over 24\,h, relative
+humidity, temperature, wind speed, \textbf{wind direction} (sine and cosine), local hour, day of
+year, and the station-month climatological event rate (estimated from training years only).
+Including the wind direction in the baseline means that a station's typical ``haze wind'' is
+already available to every model. A directional fire feature can only help by locating the fires
+relative to that wind.
+
+\paragraph{Fire counts (D).}
+Detections within 100\,km in the last 24\,h, and within 300\,km in the last 72\,h.
+
+\paragraph{Fire exposure.}
+For detections $i$ within 300\,km acquired in the 72\,h before $t-L$, let $d_i$ be the
+great-circle distance to the station, $a_i$ the detection age, $\mathrm{FRP}_i$ its fire radiative
+power (1\,MW when missing), $\hat w$ the unit vector of the wind's flow direction (the reported
+meteorological ``from'' direction plus 180$^\circ$), and $\hat h_i$ the unit vector from the
+detection towards the station. We compare a non-directional exposure
+\begin{equation}
+  S^{\mathrm{iso}} = \sum_i \mathrm{FRP}_i\, e^{-d_i/\lambda}\, e^{-a_i/\tau}
+\end{equation}
+with a directional (upwind) exposure
+\begin{equation}
+  S^{\mathrm{dir}} = \sum_i \mathrm{FRP}_i\, e^{-d_i/\lambda}\, \max(0, \hat w\cdot\hat h_i)\, e^{-a_i/\tau},
+\end{equation}
+with $\lambda=50$\,km and $\tau=24$\,h as in the deployed Pavana model (not tuned here). The only
+difference between the two is the alignment term.
+
+\paragraph{Placebos.}
+A placebo should keep everything about $S^{\mathrm{dir}}$ except its link to the actual wind--fire
+geometry. Rotating the wind by 180$^\circ$ or 90$^\circ$ is a natural candidate, but it is not a
+clean negative control. A rotated exposure is still computed from the current wind and the actual
+fire positions, so it carries geometric information correlated with $S^{\mathrm{dir}}$ (for
+example $S^{\mathrm{dir}}+S^{180}=\sum_i w_i\,|\hat w\cdot\hat h_i|$, a measure of how aligned the
+fires are with the wind axis). It also shares the missingness pattern of $S^{\mathrm{dir}}$
+exactly. We therefore report rotations only for contrast, and use two families of placebos that
+break the current wind--fire geometry:
+\begin{itemize}
+  \item \emph{Time-shifted wind} ($S^{\mathrm{shift}}_k$): the same station's wind from $k$ hours
+        earlier, with $k\in\{72, 168, 336, 720\}$; $k=168$\,h is the pre-specified main placebo
+        (same hour of day). A shifted wind can still share the regime of the current wind
+        (monsoon flow persists for weeks) and has its own missingness pattern, so we report how
+        similar the shifted and current winds are (Appendix~\ref{app:extra}).
+  \item \emph{Mask-preserving placebos}, which have exactly the missingness of $S^{\mathrm{dir}}$:
+        directions permuted at random among the hours with a defined wind of the same station
+        and calendar month ($S^{\mathrm{perm}}$, three seeds), and the 168\,h-shifted direction
+        (the last defined value at or before $t-168$\,h) applied only where the current
+        direction is defined ($S^{\mathrm{shift,m}}_{168}$).
+\end{itemize}
+
+\paragraph{Wind-report categories.}
+$S^{\mathrm{dir}}$ is undefined whenever the selected report has no usable direction. This
+happens for three different reasons with different meanings: calm wind (\texttt{00000KT},
+\pv{audit.ALL.calm}\% of issue hours), variable wind (\texttt{VRB}, \pv{audit.ALL.vrb}\%), and a
+missing wind group (\pv{audit.ALL.wmiss}\%). To separate missingness from direction we use two
+non-directional controls. $S^{\mathrm{iso}}_{\mathrm{calm}}$ is the non-directional exposure set
+to missing whenever the direction is undefined (the exact missingness of $S^{\mathrm{dir}}$). The
+category control (``cat'') gives the model indicators for the three categories and the
+non-directional exposure split by category ($S^{\mathrm{iso}}\cdot\mathbb 1[\text{category}]$),
+so any interaction between exposure and reporting state is available explicitly.
+
+\paragraph{Persistent flow (exploratory).}
+Smoke arriving over 72\,h follows the persistent flow rather than one hourly surface report. We
+therefore also compute $S^{\mathrm{dir}}$ with the 24\,h speed-weighted vector-mean wind (defined
+in 95\% of hours), with its own shifted placebo.
+
+\subsection{Variants}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+Variant & Features \\
+\midrule
+C & station state \\
+D & C + fire counts \\
+D0 & D + $S^{\mathrm{iso}}$ \\
+\textbf{E} & D0 + $S^{\mathrm{dir}}$ \\
+\textbf{Rshift} & D0 + $S^{\mathrm{shift}}_{168}$ (pre-specified main placebo) \\
+Rshift$k$ & D0 + $S^{\mathrm{shift}}_k$, $k\in\{72,336,720\}$\,h \\
+Rperm1--3 & D0 + $S^{\mathrm{perm}}$ (mask-preserving, three seeds) \\
+Rshiftm168 & D0 + $S^{\mathrm{shift,m}}_{168}$ (mask-preserving) \\
+R180, R90 & D0 + $S^{\mathrm{dir}}$ with rotated wind (not clean nulls; for contrast) \\
+D0m & D0 + $S^{\mathrm{iso}}_{\mathrm{calm}}$ (missingness of $S^{\mathrm{dir}}$, no direction) \\
+D0cat, Ecat & D0 / E + wind-report categories and category-split exposure \\
+D0v, Ev, Rshiftv, D0mv & as D0, E, Rshift, D0m with vegetation fires only (FIRMS type 0) \\
+Ep, Rpshift & D0 + persistent-flow $S^{\mathrm{dir}}$ / its shifted placebo (exploratory) \\
+E$_\text{served}$ & D + $S^{\mathrm{dir}}$ (the deployed feature set) \\
+\bottomrule
+\end{tabular}
+\caption{LightGBM feature sets. The directional question is E against the placebos and the
+non-directional controls (D0m, D0cat), not E against D0 alone. Logistic-regression versions of C,
+D0, E, Rshift, Ep, Rpshift, D0cat, Ecat and Rperm1 (prefix ``lg'', with $\log(1+x)$ exposures and
+missingness indicators) repeat the key comparisons in a second model family. Variants that were
+not in the frozen protocol (all except C, D, D0, E, R180, R90 and E$_\text{served}$) are listed
+with their dates in Appendix~\ref{app:protocol}.}
+\label{tab:variants}
+\end{table}
+
+Every variant is a LightGBM binary classifier \citep{lightgbm} with the deployed hyperparameters
+(learning rate 0.05, 31 leaves, at least 200 rows per leaf, feature fraction 0.9, bagging fraction
+0.8, $\ell_2=1$) and a fixed budget of 400 boosting rounds, so no variant receives more tuning than
+another. The random seed controls bagging and feature subsampling, and single fits turned out to
+differ by almost 0.1 AP between seeds in some test years (Section~\ref{sec:seeds}). Each LightGBM
+variant is therefore a five-seed ensemble: the mean predicted probability of five fits that
+differ only in the seed. The protocol specified a single fit; those results are reported
+separately. We also report three reference models: persistence (the event indicator at $t$),
+station-month climatology, and logistic regression on C.
+
+\subsection{Evaluation}
+
+\paragraph{Leave-one-year-out (primary).}
+Each calendar year 2015--2025 is held out in turn. The model is trained on all other years,
+excluding 14 days on either side of the test year to limit leakage across boundaries. Pooled
+out-of-fold predictions are scored once per variant and lead time. Training on later years to
+predict an earlier one is not an operational forecast. It is a way to score several independent
+haze seasons, which is what the attribution question needs.
+
+\paragraph{Operational split (secondary).}
+Train on 2015--2020 and test on 2023--2025, which is the configuration of the deployed model.
+
+\paragraph{Latency.}
+The main setting is $L=3$\,h, the nominal latency of FIRMS near-real-time data. Sensitivity runs
+use $L\in\{0,6,12,24\}$\,h, for D0, E and Rshift at 24\,h (five-seed ensembles).
+
+\paragraph{Metrics.}
+Events are rare (0.2--3.7\% of hours per station), so the primary metric is average precision
+(AP, area under the precision--recall curve). We also report ROC-AUC, the Brier skill score
+against station-month climatology, and the share of event hours captured when alerting on the top
+2\% of hours.
+
+\paragraph{Pooled and per-season scores.}
+Pooled out-of-fold AP is dominated by the largest season (2015), whose fold is also the hardest
+extrapolation. We therefore also report the mean of within-year $\Delta$AP over the years with at
+least 100 event hours (ten of eleven years), which weights each season equally.
+
+\paragraph{Uncertainty.}
+Differences in AP are assessed with a paired block bootstrap (1000 resamples) over
+station~$\times$~ISO-week blocks. This keeps within-week autocorrelation and the pairing of
+variants on identical rows. We report 95\% percentile intervals. A haze episode often affects
+several airports at once, so station-level blocks can understate uncertainty. As a sensitivity
+check we repeat the key contrasts with blocks that hold all stations together: ISO weeks,
+calendar months, and calendar years (500 resamples each). Eleven years do not make eleven
+independent episodes, and the year-block intervals, from only eleven clusters, are coarse.
+
+\paragraph{Hypotheses.}
+H1 (primary): $\Delta\mathrm{AP}(\mathrm{E}-\mathrm{D0})>0$ at $h=24$\,h, $L=3$\,h, under
+leave-one-year-out. H2: the directional gain is larger at 24\,h than at 6\,h. H3: placebos do not
+reproduce the gain. H4: the directional gain shrinks as $L$ grows. All results are reported
+whatever their sign. Appendix~\ref{app:protocol} lists the deviations from the frozen protocol, in
+order: the shifted-wind placebo and missingness control, the persistent-flow variant, the
+logistic family and per-season scores, the controls added in response to review (wind-report
+categories, mask-preserving placebos, further shifts, vegetation-only fires, regional bootstrap
+blocks), and the five-seed ensembles. All were added after first results and are labelled as
+such.
