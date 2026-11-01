@@ -4,6 +4,8 @@ Research paper built on Pavana's haze model. It tests whether wind-directional s
 features improve 6 h and 24 h forecasts of haze-limited visibility at twelve airports in Borneo
 and Sumatra (2015–2025), against matched non-directional controls and placebos.
 
+**[Read the research paper (PDF)](paper/directional-fire.pdf)** · [LaTeX manuscript](paper/main.tex) · [Build workflow](../../.github/workflows/build-directional-fire-paper.yml)
+
 - [PROTOCOL.md](PROTOCOL.md): the protocol frozen before any result, plus a log of later changes.
 - [notes/](notes/): related-work notes and the response to reviewer comments.
 - `src/`: data audit, feature building, experiments, statistics, figures, `paper/numbers.tex`.
