@@ -1,0 +1,47 @@
+name: Build directional-fire research paper
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "research/directional-fire/paper/**"
+      - ".github/workflows/build-directional-fire-paper.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: directional-fire-paper-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX manuscript (including bibliography)
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+          working_directory: research/directional-fire/paper
+
+      - name: Publish versioned PDF
+        run: |
+          cp research/directional-fire/paper/main.pdf research/directional-fire/paper/directional-fire.pdf
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/directional-fire/paper/directional-fire.pdf
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: build directional-fire research PDF"
+            git push
+          fi
+
+      - name: Upload paper artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: directional-fire-paper
+          path: research/directional-fire/paper/directional-fire.pdf
+          if-no-files-found: error
