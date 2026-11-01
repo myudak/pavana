@@ -35,6 +35,12 @@ ML caveats: the models are experimental and `operationalReady: false`. SHAP expl
 output, not causes. The PM2.5 booster targets the CAMS model field and stays research-only. See
 [`docs/ML_LIVE_HANDOFF.md`](docs/ML_LIVE_HANDOFF.md).
 
+## Research
+
+**[Do Wind-Directional Fire Features Improve Haze-Visibility Forecasts?](research/directional-fire/)** — a reproducible study of 6 h and 24 h haze-visibility forecasts at 12 airports across Borneo and Sumatra (2015–2025). Fire counts modestly helped 24 h prediction, but directional wind–fire exposure provided no robust independent gain after seed-ensemble, placebo, and missingness controls. This is an offline research evaluation, not a deployed model update.
+
+[Paper (PDF)](research/directional-fire/paper/directional-fire.pdf) · [LaTeX source](research/directional-fire/paper/main.tex) · [Protocol and code](research/directional-fire/)
+
 ## Monorepo
 
 | Path                                 | What                                                                          | Stack                                                                                       |
