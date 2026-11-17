@@ -6,6 +6,11 @@ and Sumatra (2015–2025), against matched non-directional controls and placebos
 
 **[Read the research paper (PDF)](paper/directional-fire.pdf)** · [LaTeX manuscript](paper/main.tex) · [Build workflow](../../.github/workflows/build-directional-fire-paper.yml)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24321120.svg)](https://doi.org/10.5281/zenodo.24321120)
+Preprint on Zenodo. Cite as: Ananda, M. Y. T. (2026). _Do Wind-Directional Fire Features Improve
+Haze-Visibility Forecasts? A Multi-Season Evaluation in Borneo and Sumatra_ (v1). Zenodo.
+https://doi.org/10.5281/zenodo.24321120
+
 - [PROTOCOL.md](PROTOCOL.md): the protocol frozen before any result, plus a log of later changes.
 - [notes/](notes/): related-work notes and the response to reviewer comments.
 - `src/`: data audit, feature building, experiments, statistics, figures, `paper/numbers.tex`.
